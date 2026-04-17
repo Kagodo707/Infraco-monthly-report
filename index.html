@@ -190,7 +190,7 @@
 
     <div class="section-grid-2">
       <div class="chart-card"><div class="card-head"><div><h3>Categorical Consumption Mix</h3></div></div><div class="chart-wrap"><canvas id="categoryChart"></canvas></div></div>
-      <div class="chart-card"><div class="card-head"><div><h3>Site Comparison: Consumption</h3></div><span class="pill" id="siteCompareMonthPill">Latest month</span></div><div class="chart-wrap"><canvas id="siteConsumptionChart"></canvas></div></div>
+      <div class="chart-card"><div class="card-head"><div><h3>Site Comparison: Sparkmeter Consumption</h3></div><span class="pill" id="siteCompareMonthPill">Latest month</span></div><div class="chart-wrap"><canvas id="siteConsumptionChart"></canvas></div></div>
     </div>
 
     <div class="section-grid-2">
@@ -210,7 +210,7 @@
             <tr>
               <th>Site</th>
               <th>Month</th>
-              <th>Consumption (kWh)</th>
+              <th>Sparkmeter Consumption (kWh)</th>
               <th>Revenue</th>
               <th>ARPU</th>
               <th>Consumption / User</th>
@@ -407,6 +407,19 @@
       return n;
     }
     function firstNumeric(...values) { for (const v of values) { const n = cleanNumber(v); if (n !== null) return n; } return null; }
+    function fieldValuesByPreference(fieldMap, canonicalKey, preferredPatterns = [], fallbackPatterns = []) {
+      const candidates = fieldMap[canonicalKey] || [];
+      const cleanedCandidates = candidates.filter(entry => cleanNumber(entry.value) !== null || String(entry.value || '').trim() !== '');
+      if (!cleanedCandidates.length) return null;
+      const matchesAny = (entry, patterns) => patterns.some(pattern => entry.raw.includes(pattern));
+      for (const entry of cleanedCandidates) {
+        if (preferredPatterns.length && matchesAny(entry, preferredPatterns)) return entry.value;
+      }
+      for (const entry of cleanedCandidates) {
+        if (fallbackPatterns.length && matchesAny(entry, fallbackPatterns)) return entry.value;
+      }
+      return cleanedCandidates[0].value;
+    }
     function formatNumber(value, digits=0, prefix='', suffix='') {
       if (value === null || value === undefined || Number.isNaN(value)) return '—';
       return `${prefix}${Number(value).toLocaleString(undefined,{minimumFractionDigits:digits, maximumFractionDigits:digits})}${suffix}`;
@@ -460,18 +473,36 @@
       const headerIndex = findBestHeaderRowIndex(rows, 'site');
       const headerRow = rows[headerIndex];
       const body = rows.slice(headerIndex + 1);
-      const headers = headerRow.map(h => resolveCanonicalHeader(h, 'site'));
+      const headerMeta = headerRow.map(h => ({
+        canonical: resolveCanonicalHeader(h, 'site'),
+        raw: normalizeHeader(h),
+        original: String(h || '').trim()
+      }));
       const output = [];
       for (const rawRow of body) {
         const item = {};
-        headers.forEach((h,i) => item[h] = rawRow[i] ?? '');
+        const fieldMap = {};
+        headerMeta.forEach((meta, i) => {
+          const value = rawRow[i] ?? '';
+          if (!(meta.canonical in item) || String(item[meta.canonical] || '').trim() === '') item[meta.canonical] = value;
+          if (!fieldMap[meta.canonical]) fieldMap[meta.canonical] = [];
+          fieldMap[meta.canonical].push({ value, raw: meta.raw, original: meta.original });
+        });
         let monthInfo = null;
         for (const v of Object.values(item)) { monthInfo = parseMonthInfo(v); if (monthInfo) break; }
         if (!monthInfo) continue;
+
+        const sparkmeterValue = fieldValuesByPreference(
+          fieldMap,
+          'consumption_kwh',
+          ['sparkmeter_consumption_kwh', 'sparkmeter_consumption'],
+          ['actual_consumption_kwh', 'actual_consumption', 'achieved_consumption_kwh', 'achieved_consumption']
+        );
+
         const record = {
           ...monthInfo,
           site: String(item.site || siteName || '').trim() || siteName,
-          consumption_kwh: firstNumeric(item.consumption_kwh),
+          consumption_kwh: firstNumeric(sparkmeterValue, item.consumption_kwh),
           generation_kwh: firstNumeric(item.generation_kwh),
           revenue_usd: firstNumeric(item.revenue_usd),
           arpu_usd: firstNumeric(item.arpu_usd),
@@ -813,7 +844,7 @@
         options:{...chartOptions({suffix:' kWh'}), scales:{x:{stacked:true, ticks:{color:'#9fb4c6'}, grid:{display:false}}, y:{stacked:true, ticks:{color:'#9fb4c6'}, grid:{color:'rgba(255,255,255,0.06)'}, beginAtZero:true}}}
       });
 
-      makeChart('siteConsumptionChart','siteConsumptionChart',{type:'bar', data:{labels:comparisonRows.map(r=>r.site), datasets:[{label:'Consumption (kWh)', data:safeSeries(comparisonRows,'consumption_kwh'), backgroundColor:backgroundForSites(comparisonRows, selectedSite)}]}, options:chartOptions({suffix:' kWh'})});
+      makeChart('siteConsumptionChart','siteConsumptionChart',{type:'bar', data:{labels:comparisonRows.map(r=>r.site), datasets:[{label:'Sparkmeter Consumption (kWh)', data:safeSeries(comparisonRows,'consumption_kwh'), backgroundColor:backgroundForSites(comparisonRows, selectedSite)}]}, options:chartOptions({suffix:' kWh'})});
       makeChart('siteRevenueChart','siteRevenueChart',{type:'bar', data:{labels:comparisonRows.map(r=>r.site), datasets:[{label:'Revenue', data:safeSeries(comparisonRows,'revenue_usd'), backgroundColor:backgroundForSites(comparisonRows, selectedSite)}]}, options:chartOptions({prefix:'$'})});
 
       const bugarulaRows = filterByDateRange(data.siteMonthly.filter(r => r.site === 'Bugarula'), startSort, endSort);
