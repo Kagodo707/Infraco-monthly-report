@@ -308,8 +308,8 @@
       planned_consumption_kwh:['planned_consumption_kwh','planned_consumption','target_consumption_kwh','budget_consumption','consumption_target_kwh','consumption_budget_kwh'],
       planned_revenue_usd:['planned_revenue','planned_revenue_usd','planned_revenue_ugx','target_revenue','target_revenue_usd','target_revenue_ugx','budget_revenue','budget_revenue_usd','budget_revenue_ugx','revenue_budget','income_plan','planned_income'],
       planned_arpu_usd:['planned_arpu','planned_arpu_usd','planned_arpu_ugx','target_arpu','target_arpu_usd','target_arpu_ugx','budget_arpu','arpu_budget'],
-      fuel_utilised_l:['fuel_utilised_l','fuel_utilized_l','fuel_consumed_l','fuel_used_l','fuel_consumed','fuel_used','diesel_consumed_l','actual_fuel_l'],
-      planned_fuel_l:['planned_fuel_l','planned_fuel','fuel_planned_l','fuel_plan_l','fuel_target_l','budget_fuel_l','diesel_plan_l'],
+      fuel_utilised_l:['fuel_utilised_l','fuel_utilized_l','fuel_utilised_litres','fuel_utilized_litres','fuel_utilised_litre','fuel_utilized_litre','fuel_consumed_l','fuel_consumed_litres','fuel_used_l','fuel_utilised','fuel_utilized','fuel_consumed','fuel_used','diesel_consumed_l','diesel_consumed_litres','actual_fuel_l','fuel_utilised_ltrs'],
+      planned_fuel_l:['planned_fuel_l','planned_fuel','planned_fuel_litres','fuel_planned_l','fuel_planned_litres','fuel_plan_l','fuel_target_l','budget_fuel_l','diesel_plan_l','planned_fuel_ltrs'],
       pv_generation_kwh:['pv_generation_kwh','pv_generation','solar_generation_kwh','solar_generation','pv_gen','solar_kwh'],
       dg_generation_kwh:['dg_generation_kwh','dg_generation','diesel_generation_kwh','generator_generation_kwh','dg_gen','generator_kwh','genset_generation_kwh'],
       victron_consumption_kwh:['victron_consumption_kwh','victron_consumption','consumption_victron_kwh','victron_load_kwh','victron_load','victron_energy_kwh']
@@ -354,8 +354,8 @@
         [['victron_consumption','victron_load'],'victron_consumption_kwh'],
         [['pv_generation','solar_generation','pv_output'],'pv_generation_kwh'],
         [['dg_generation','diesel_generation','generator_generation','genset'],'dg_generation_kwh'],
-        [['fuel_consumed','fuel_used','actual_fuel','diesel_consumed'],'fuel_utilised_l'],
-        [['planned_fuel','fuel_target','budget_fuel','diesel_plan'],'planned_fuel_l']
+        [['fuel_utilised','fuel_utilized','fuel_consumed','fuel_used','actual_fuel','diesel_consumed'],'fuel_utilised_l'],
+        [['planned_fuel','fuel_planned','fuel_target','budget_fuel','diesel_plan'],'planned_fuel_l']
       ];
       for (const [needles, target] of heuristics) if (needles.some(n => normalized.includes(n))) return target;
       if (mapType === 'categorical') {
@@ -419,6 +419,33 @@
         if (fallbackPatterns.length && matchesAny(entry, fallbackPatterns)) return entry.value;
       }
       return cleanedCandidates[0].value;
+    }
+
+    function canonicalizeSiteName(value, fallback='') {
+      const raw = String(value || fallback || '').trim();
+      if (!raw) return '';
+      const normalized = raw.toLowerCase().replace(/\s+/g,' ').trim();
+      const siteMap = {
+        'bugarula':'Bugarula',
+        'bunyakiri':'Bunyakiri',
+        'buyumbu':'Buyumbu',
+        'kashiraboba':'Kashiraboba',
+        'mugote':'Mugote',
+        'kishenyi':'Kishenyi',
+        'all sites':'All Sites',
+        'portfolio':'Portfolio'
+      };
+      return siteMap[normalized] || raw;
+    }
+    function inferSiteNameFromValues(values, fallback='') {
+      const joined = values.map(v => String(v || '').toLowerCase()).join(' | ');
+      for (const site of ['Bugarula','Bunyakiri','Buyumbu','Kashiraboba','Mugote','Kishenyi']) {
+        if (joined.includes(site.toLowerCase())) return site;
+      }
+      return canonicalizeSiteName(fallback);
+    }
+    function isSameSite(a,b) {
+      return canonicalizeSiteName(a).toLowerCase() === canonicalizeSiteName(b).toLowerCase();
     }
     function formatNumber(value, digits=0, prefix='', suffix='') {
       if (value === null || value === undefined || Number.isNaN(value)) return '—';
@@ -499,9 +526,22 @@
           ['actual_consumption_kwh', 'actual_consumption', 'achieved_consumption_kwh', 'achieved_consumption']
         );
 
+        const fuelUtilisedValue = fieldValuesByPreference(
+          fieldMap,
+          'fuel_utilised_l',
+          ['fuel_utilised_litres','fuel_utilized_litres','fuel_utilised_l','fuel_utilized_l','fuel_utilised','fuel_utilized'],
+          ['fuel_consumed_litres','fuel_consumed_l','fuel_consumed','fuel_used_l','fuel_used','actual_fuel_l']
+        );
+        const plannedFuelValue = fieldValuesByPreference(
+          fieldMap,
+          'planned_fuel_l',
+          ['planned_fuel_litres','planned_fuel_l','planned_fuel','fuel_planned_litres','fuel_planned_l'],
+          ['fuel_target_l','budget_fuel_l','diesel_plan_l']
+        );
+
         const record = {
           ...monthInfo,
-          site: String(item.site || siteName || '').trim() || siteName,
+          site: canonicalizeSiteName(item.site || inferSiteNameFromValues(Object.values(item), siteName) || siteName),
           consumption_kwh: firstNumeric(sparkmeterValue, item.consumption_kwh),
           generation_kwh: firstNumeric(item.generation_kwh),
           revenue_usd: firstNumeric(item.revenue_usd),
@@ -516,8 +556,8 @@
           planned_consumption_kwh: firstNumeric(item.planned_consumption_kwh),
           planned_revenue_usd: firstNumeric(item.planned_revenue_usd),
           planned_arpu_usd: firstNumeric(item.planned_arpu_usd),
-          fuel_utilised_l: firstNumeric(item.fuel_utilised_l),
-          planned_fuel_l: firstNumeric(item.planned_fuel_l),
+          fuel_utilised_l: firstNumeric(fuelUtilisedValue, item.fuel_utilised_l),
+          planned_fuel_l: firstNumeric(plannedFuelValue, item.planned_fuel_l),
           pv_generation_kwh: firstNumeric(item.pv_generation_kwh),
           dg_generation_kwh: firstNumeric(item.dg_generation_kwh),
           victron_consumption_kwh: firstNumeric(item.victron_consumption_kwh)
@@ -546,15 +586,18 @@
       const body = rows.slice(headerIndex + 1);
       const headers = headerRow.map(h => resolveCanonicalHeader(h, 'categorical'));
       const output = [];
+      let lastSeenSite = '';
       for (const rawRow of body) {
         const item = {};
         headers.forEach((h,i) => item[h] = rawRow[i] ?? '');
         let monthInfo = null;
         for (const v of Object.values(item)) { monthInfo = parseMonthInfo(v); if (monthInfo) break; }
         if (!monthInfo) continue;
+        const inferredSite = canonicalizeSiteName(item.site || inferSiteNameFromValues(Object.values(item), lastSeenSite) || lastSeenSite);
+        if (inferredSite) lastSeenSite = inferredSite;
         const record = {
           ...monthInfo,
-          site: String(item.site || '').trim(),
+          site: inferredSite,
           households_kwh: firstNumeric(item.households_kwh),
           businesses_kwh: firstNumeric(item.businesses_kwh),
           institutions_kwh: firstNumeric(item.institutions_kwh),
@@ -666,7 +709,7 @@
       }).sort((a,b) => a.month_sort - b.month_sort);
     }
     function latestRowsForMonth(rows, monthSort, selectedSite='All Sites') {
-      return rows.filter(r => r.month_sort === monthSort && (selectedSite === 'All Sites' || r.site === selectedSite));
+      return rows.filter(r => r.month_sort === monthSort && (selectedSite === 'All Sites' || isSameSite(r.site, selectedSite)));
     }
 
     function chartOptions({prefix='', suffix='', digits=0} = {}) {
@@ -684,7 +727,31 @@
     }
     function makeChart(name, canvasId, config) { if (charts[name]) charts[name].destroy(); charts[name] = new Chart(document.getElementById(canvasId), config); }
     function safeSeries(rows,key) { return rows.map(r => r[key] ?? null); }
-    function backgroundForSites(rows, selectedSite) { return rows.map(r => selectedSite !== 'All Sites' && r.site === selectedSite ? COLOR.selected : COLOR.defaultCompare); }
+    function backgroundForSites(rows, selectedSite) { return rows.map(r => selectedSite !== 'All Sites' && isSameSite(r.site, selectedSite) ? COLOR.selected : COLOR.defaultCompare); }
+
+    function scopeBadgeMarkup(selectedSite) {
+      const isPortfolio = selectedSite === 'All Sites';
+      const label = isPortfolio ? 'Portfolio' : canonicalizeSiteName(selectedSite);
+      return `<span class="scope-badge ${isPortfolio ? 'scope-portfolio' : 'scope-site'}">${escapeHtml(label)}</span>`;
+    }
+    function cardScopeChipMarkup(selectedSite) {
+      const isPortfolio = selectedSite === 'All Sites';
+      const label = isPortfolio ? 'Portfolio' : canonicalizeSiteName(selectedSite);
+      return `<span class="card-scope-chip ${isPortfolio ? 'scope-portfolio' : 'scope-site'}">${escapeHtml(label)}</span>`;
+    }
+    function updateChartScopeBadges(selectedSite) {
+      document.querySelectorAll('.chart-card .card-head, .table-card .card-head').forEach(head => {
+        let badge = head.querySelector('.scope-badge.dynamic-scope-badge');
+        if (!badge) {
+          badge = document.createElement('span');
+          badge.className = 'scope-badge dynamic-scope-badge';
+          head.appendChild(badge);
+        }
+        const isPortfolio = selectedSite === 'All Sites';
+        badge.className = `scope-badge dynamic-scope-badge ${isPortfolio ? 'scope-portfolio' : 'scope-site'}`;
+        badge.textContent = isPortfolio ? 'Portfolio' : canonicalizeSiteName(selectedSite);
+      });
+    }
 
     function buildCards(scopeRows) {
       const latestSort = latestMonthSort(scopeRows);
@@ -706,14 +773,14 @@
         ]
       };
     }
-    function renderCards(scopeRows) {
+    function renderCards(scopeRows, selectedSite='All Sites') {
       const grid = document.getElementById('cardsGrid');
       if (!scopeRows.length) {
-        grid.innerHTML = '<div class="card"><div class="card-label">No data</div><div class="card-value">—</div><div class="card-sub">The current filter returned no records.</div></div>';
+        grid.innerHTML = `<div class="card">${cardScopeChipMarkup(selectedSite)}<div class="card-label">No data</div><div class="card-value">—</div><div class="card-sub">The current filter returned no records.</div></div>`;
         return aggregateRows([]);
       }
       const {latest, cards} = buildCards(scopeRows);
-      grid.innerHTML = cards.map(c => `<div class="card"><div class="card-label">${escapeHtml(c.label)}</div><div class="card-value">${escapeHtml(c.value)}</div><div class="card-sub">${escapeHtml(c.sub)}</div></div>`).join('');
+      grid.innerHTML = cards.map(c => `<div class="card">${cardScopeChipMarkup(selectedSite)}<div class="card-label">${escapeHtml(c.label)}</div><div class="card-value">${escapeHtml(c.value)}</div><div class="card-sub">${escapeHtml(c.sub)}</div></div>`).join('');
       return latest;
     }
 
@@ -770,7 +837,7 @@
     }
 
     function toggleBugarulaCards(selectedSite) {
-      const show = selectedSite === 'All Sites' || selectedSite === 'Bugarula';
+      const show = selectedSite === 'All Sites' || isSameSite(selectedSite, 'Bugarula');
       ['bugarulaGenerationCard','bugarulaFuelCard'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.style.display = show ? '' : 'none';
@@ -785,17 +852,19 @@
     function updateDashboard(data) {
       const selectedSite = document.getElementById('siteFilter').value;
       const {startSort, endSort} = getDateRangeFromInputs();
-      document.getElementById('currentSiteDisplay').textContent = selectedSite === 'All Sites' ? 'Portfolio' : selectedSite;
+      document.getElementById('currentSiteDisplay').textContent = selectedSite === 'All Sites' ? 'Portfolio' : canonicalizeSiteName(selectedSite);
 
       const siteRowsDateRange = filterByDateRange(data.siteMonthly, startSort, endSort);
       const catRowsDateRange = filterByDateRange(data.categorical, startSort, endSort);
 
-      const scopeRows = selectedSite === 'All Sites' ? [...siteRowsDateRange] : siteRowsDateRange.filter(r => r.site === selectedSite);
-      const scopeCategorical = selectedSite === 'All Sites' ? [...catRowsDateRange] : catRowsDateRange.filter(r => !r.site || r.site === selectedSite);
+      const scopeRows = selectedSite === 'All Sites' ? [...siteRowsDateRange] : siteRowsDateRange.filter(r => isSameSite(r.site, selectedSite));
+      let scopeCategorical = selectedSite === 'All Sites' ? [...catRowsDateRange] : catRowsDateRange.filter(r => !r.site || isSameSite(r.site, selectedSite));
+      if (selectedSite !== 'All Sites' && !scopeCategorical.length) scopeCategorical = [...catRowsDateRange];
 
-      const latest = renderCards(scopeRows);
+      const latest = renderCards(scopeRows, selectedSite);
       updateMeta(latest, selectedSite);
       toggleBugarulaCards(selectedSite);
+      updateChartScopeBadges(selectedSite);
 
       const monthlyScope = aggregateByMonth(scopeRows);
       const compareMonthSort = latestMonthSort(siteRowsDateRange);
@@ -858,12 +927,12 @@
         {label:'Fuel Consumed (L)', data:safeSeries(bugarulaMonthly,'fuel_utilised_l'), backgroundColor:COLOR.amber}
       ]}, options:chartOptions({suffix:' L'})});
 
-      const tableRows = selectedSite === 'All Sites' ? comparisonRows : comparisonRows.filter(r => r.site === selectedSite);
+      const tableRows = selectedSite === 'All Sites' ? comparisonRows : comparisonRows.filter(r => isSameSite(r.site, selectedSite));
       renderTable(tableRows, selectedSite);
     }
 
     function populateSiteFilter(siteRows) {
-      const sites = [...new Set(siteRows.map(r => r.site))].sort();
+      const sites = [...new Set(siteRows.map(r => canonicalizeSiteName(r.site)).filter(Boolean))].sort();
       const select = document.getElementById('siteFilter');
       const current = select.value || 'All Sites';
       select.innerHTML = ['All Sites', ...sites].map(s => `<option value="${s}">${s}</option>`).join('');
