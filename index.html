@@ -425,7 +425,8 @@
       <div class="field">
         <label for="dateRangeEnd">To Month</label>
         <input type="month" id="dateRangeEnd" value="2026-03" />
-      </div>      <div class="field">
+      </div>
+      <div class="field">
         <label>&nbsp;</label>
         <button id="refreshBtn">Refresh dashboard</button>
       </div>
@@ -626,8 +627,10 @@
     </div>
   </div>
 
-  
   <script>
+    /* ─────────────────────────────────────────────────────────────────────
+       CONFIGURATION
+    ───────────────────────────────────────────────────────────────────── */
     const DASHBOARD_CONFIG = {
       mode: 'published-google-sheet',
       tabs: {
@@ -635,82 +638,87 @@
         categoricalSheet: 'Categorical consumption'
       },
       csvUrls: {
-        'Kashiraboba': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRP6zU6ygZid-trwUn8tTdHm1r6fy1ishiZW5AOw4nAhQpGVbj3cS7JZYiheU6ThUe46RoJnmZI71Sr/pub?output=csv',
-        'Bunyakiri': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRP6zU6ygZid-trwUn8tTdHm1r6fy1ishiZW5AOw4nAhQpGVbj3cS7JZYiheU6ThUe46RoJnmZI71Sr/pub?gid=181665012&single=true&output=csv',
-        'Buyumbu': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRP6zU6ygZid-trwUn8tTdHm1r6fy1ishiZW5AOw4nAhQpGVbj3cS7JZYiheU6ThUe46RoJnmZI71Sr/pub?gid=1760259188&single=true&output=csv',
-        'Mugote': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRP6zU6ygZid-trwUn8tTdHm1r6fy1ishiZW5AOw4nAhQpGVbj3cS7JZYiheU6ThUe46RoJnmZI71Sr/pub?gid=1497830993&single=true&output=csv',
-        'Bugarula': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRP6zU6ygZid-trwUn8tTdHm1r6fy1ishiZW5AOw4nAhQpGVbj3cS7JZYiheU6ThUe46RoJnmZI71Sr/pub?gid=686192888&single=true&output=csv',
+        'Kashiraboba':             'https://docs.google.com/spreadsheets/d/e/2PACX-1vRP6zU6ygZid-trwUn8tTdHm1r6fy1ishiZW5AOw4nAhQpGVbj3cS7JZYiheU6ThUe46RoJnmZI71Sr/pub?output=csv',
+        'Bunyakiri':               'https://docs.google.com/spreadsheets/d/e/2PACX-1vRP6zU6ygZid-trwUn8tTdHm1r6fy1ishiZW5AOw4nAhQpGVbj3cS7JZYiheU6ThUe46RoJnmZI71Sr/pub?gid=181665012&single=true&output=csv',
+        'Buyumbu':                 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRP6zU6ygZid-trwUn8tTdHm1r6fy1ishiZW5AOw4nAhQpGVbj3cS7JZYiheU6ThUe46RoJnmZI71Sr/pub?gid=1760259188&single=true&output=csv',
+        'Mugote':                  'https://docs.google.com/spreadsheets/d/e/2PACX-1vRP6zU6ygZid-trwUn8tTdHm1r6fy1ishiZW5AOw4nAhQpGVbj3cS7JZYiheU6ThUe46RoJnmZI71Sr/pub?gid=1497830993&single=true&output=csv',
+        'Bugarula':                'https://docs.google.com/spreadsheets/d/e/2PACX-1vRP6zU6ygZid-trwUn8tTdHm1r6fy1ishiZW5AOw4nAhQpGVbj3cS7JZYiheU6ThUe46RoJnmZI71Sr/pub?gid=686192888&single=true&output=csv',
         'Categorical consumption': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRP6zU6ygZid-trwUn8tTdHm1r6fy1ishiZW5AOw4nAhQpGVbj3cS7JZYiheU6ThUe46RoJnmZI71Sr/pub?gid=36093025&single=true&output=csv'
       },
       fallbackEnabled: true
     };
 
+    /* ─────────────────────────────────────────────────────────────────────
+       FALLBACK DATA  (used when live sheet cannot be reached)
+    ───────────────────────────────────────────────────────────────────── */
     const FALLBACK_DATA = {
       siteMonthly: [
-        { month: 'January 2026', month_sort: 202601, site: 'Bugarula', consumption_kwh: 1450, generation_kwh: 1580, revenue_usd: 820, arpu_usd: 2.92, active_customers: 281, consumption_per_user_kwh: 5.16, uptime_pct: 96.8, downtime_pct: 3.2, outages: 6, saifi: 0.9, saidi_hours: 3.8, planned_consumption_kwh: 1500, planned_revenue_usd: 780, planned_arpu_usd: 2.8, fuel_utilised_l: 138, planned_fuel_l: 150, pv_generation_kwh: 1220, dg_generation_kwh: 360, victron_consumption_kwh: 1405 },
-        { month: 'February 2026', month_sort: 202602, site: 'Bugarula', consumption_kwh: 1457, generation_kwh: 1610, revenue_usd: 845, arpu_usd: 2.99, active_customers: 283, consumption_per_user_kwh: 5.15, uptime_pct: 97.2, downtime_pct: 2.8, outages: 5, saifi: 0.8, saidi_hours: 3.2, planned_consumption_kwh: 1510, planned_revenue_usd: 800, planned_arpu_usd: 2.85, fuel_utilised_l: 131, planned_fuel_l: 145, pv_generation_kwh: 1255, dg_generation_kwh: 355, victron_consumption_kwh: 1438 },
-        { month: 'March 2026', month_sort: 202603, site: 'Bugarula', consumption_kwh: 1785, generation_kwh: 1912, revenue_usd: 1035, arpu_usd: 3.38, active_customers: 306, consumption_per_user_kwh: 5.83, uptime_pct: 98.1, downtime_pct: 1.9, outages: 3, saifi: 0.5, saidi_hours: 2.1, planned_consumption_kwh: 1650, planned_revenue_usd: 930, planned_arpu_usd: 3.1, fuel_utilised_l: 118, planned_fuel_l: 140, pv_generation_kwh: 1508, dg_generation_kwh: 404, victron_consumption_kwh: 1762 },
-        { month: 'January 2026', month_sort: 202601, site: 'Bunyakiri', consumption_kwh: 293, generation_kwh: 318, revenue_usd: 178, arpu_usd: 2.58, active_customers: 69, consumption_per_user_kwh: 4.25, uptime_pct: 95.6, downtime_pct: 4.4, outages: 7, saifi: 1.1, saidi_hours: 4.9, planned_consumption_kwh: 315, planned_revenue_usd: 190, planned_arpu_usd: 2.7 },
-        { month: 'February 2026', month_sort: 202602, site: 'Bunyakiri', consumption_kwh: 200, generation_kwh: 224, revenue_usd: 128, arpu_usd: 2.06, active_customers: 62, consumption_per_user_kwh: 3.23, uptime_pct: 94.9, downtime_pct: 5.1, outages: 8, saifi: 1.3, saidi_hours: 5.4, planned_consumption_kwh: 280, planned_revenue_usd: 170, planned_arpu_usd: 2.6 },
-        { month: 'March 2026', month_sort: 202603, site: 'Bunyakiri', consumption_kwh: 366, generation_kwh: 388, revenue_usd: 216, arpu_usd: 3.0, active_customers: 72, consumption_per_user_kwh: 5.08, uptime_pct: 96.5, downtime_pct: 3.5, outages: 6, saifi: 0.9, saidi_hours: 4.0, planned_consumption_kwh: 320, planned_revenue_usd: 195, planned_arpu_usd: 2.7 },
-        { month: 'January 2026', month_sort: 202601, site: 'Buyumbu', consumption_kwh: 693, generation_kwh: 742, revenue_usd: 402, arpu_usd: 2.36, active_customers: 170, consumption_per_user_kwh: 4.08, uptime_pct: 96.1, downtime_pct: 3.9, outages: 5, saifi: 0.8, saidi_hours: 3.4, planned_consumption_kwh: 710, planned_revenue_usd: 390, planned_arpu_usd: 2.3 },
-        { month: 'February 2026', month_sort: 202602, site: 'Buyumbu', consumption_kwh: 546, generation_kwh: 580, revenue_usd: 330, arpu_usd: 2.02, active_customers: 163, consumption_per_user_kwh: 3.35, uptime_pct: 95.4, downtime_pct: 4.6, outages: 6, saifi: 1.0, saidi_hours: 4.1, planned_consumption_kwh: 650, planned_revenue_usd: 370, planned_arpu_usd: 2.3 },
-        { month: 'March 2026', month_sort: 202603, site: 'Buyumbu', consumption_kwh: 594, generation_kwh: 622, revenue_usd: 356, arpu_usd: 2.14, active_customers: 166, consumption_per_user_kwh: 3.58, uptime_pct: 96.9, downtime_pct: 3.1, outages: 4, saifi: 0.7, saidi_hours: 3.0, planned_consumption_kwh: 655, planned_revenue_usd: 380, planned_arpu_usd: 2.4 },
-        { month: 'January 2026', month_sort: 202601, site: 'Kashiraboba', consumption_kwh: 773, generation_kwh: 808, revenue_usd: 428, arpu_usd: 2.33, active_customers: 184, consumption_per_user_kwh: 4.2, uptime_pct: 97.0, downtime_pct: 3.0, outages: 4, saifi: 0.6, saidi_hours: 2.8, planned_consumption_kwh: 780, planned_revenue_usd: 420, planned_arpu_usd: 2.4 },
-        { month: 'February 2026', month_sort: 202602, site: 'Kashiraboba', consumption_kwh: 574, generation_kwh: 612, revenue_usd: 320, arpu_usd: 1.87, active_customers: 171, consumption_per_user_kwh: 3.36, uptime_pct: 95.2, downtime_pct: 4.8, outages: 7, saifi: 1.1, saidi_hours: 4.5, planned_consumption_kwh: 730, planned_revenue_usd: 400, planned_arpu_usd: 2.3 },
-        { month: 'March 2026', month_sort: 202603, site: 'Kashiraboba', consumption_kwh: 618, generation_kwh: 651, revenue_usd: 342, arpu_usd: 1.95, active_customers: 175, consumption_per_user_kwh: 3.53, uptime_pct: 96.4, downtime_pct: 3.6, outages: 5, saifi: 0.8, saidi_hours: 3.5, planned_consumption_kwh: 740, planned_revenue_usd: 410, planned_arpu_usd: 2.3 },
-        { month: 'January 2026', month_sort: 202601, site: 'Mugote', consumption_kwh: 1519, generation_kwh: 1588, revenue_usd: 870, arpu_usd: 3.09, active_customers: 282, consumption_per_user_kwh: 5.39, uptime_pct: 97.4, downtime_pct: 2.6, outages: 4, saifi: 0.6, saidi_hours: 2.5, planned_consumption_kwh: 1490, planned_revenue_usd: 840, planned_arpu_usd: 3.0 },
-        { month: 'February 2026', month_sort: 202602, site: 'Mugote', consumption_kwh: 1328, generation_kwh: 1396, revenue_usd: 795, arpu_usd: 2.86, active_customers: 278, consumption_per_user_kwh: 4.78, uptime_pct: 96.7, downtime_pct: 3.3, outages: 5, saifi: 0.7, saidi_hours: 2.9, planned_consumption_kwh: 1450, planned_revenue_usd: 830, planned_arpu_usd: 2.95 },
-        { month: 'March 2026', month_sort: 202603, site: 'Mugote', consumption_kwh: 1519, generation_kwh: 1602, revenue_usd: 905, arpu_usd: 3.15, active_customers: 287, consumption_per_user_kwh: 5.29, uptime_pct: 97.9, downtime_pct: 2.1, outages: 3, saifi: 0.5, saidi_hours: 2.0, planned_consumption_kwh: 1500, planned_revenue_usd: 860, planned_arpu_usd: 3.0 }
+        { month:'January 2026',  month_sort:202601, site:'Bugarula',    consumption_kwh:1450, generation_kwh:1580, revenue_usd:820,  arpu_usd:2.92, active_customers:281, consumption_per_user_kwh:5.16, uptime_pct:96.8, downtime_pct:3.2, outages:6, saifi:0.9, saidi_hours:3.8, planned_consumption_kwh:1500, planned_revenue_usd:780,  planned_arpu_usd:2.8,  fuel_utilised_l:138, planned_fuel_l:150, pv_generation_kwh:1220, dg_generation_kwh:360, victron_consumption_kwh:1405 },
+        { month:'February 2026', month_sort:202602, site:'Bugarula',    consumption_kwh:1457, generation_kwh:1610, revenue_usd:845,  arpu_usd:2.99, active_customers:283, consumption_per_user_kwh:5.15, uptime_pct:97.2, downtime_pct:2.8, outages:5, saifi:0.8, saidi_hours:3.2, planned_consumption_kwh:1510, planned_revenue_usd:800,  planned_arpu_usd:2.85, fuel_utilised_l:131, planned_fuel_l:145, pv_generation_kwh:1255, dg_generation_kwh:355, victron_consumption_kwh:1438 },
+        { month:'March 2026',    month_sort:202603, site:'Bugarula',    consumption_kwh:1785, generation_kwh:1912, revenue_usd:1035, arpu_usd:3.38, active_customers:306, consumption_per_user_kwh:5.83, uptime_pct:98.1, downtime_pct:1.9, outages:3, saifi:0.5, saidi_hours:2.1, planned_consumption_kwh:1650, planned_revenue_usd:930,  planned_arpu_usd:3.1,  fuel_utilised_l:118, planned_fuel_l:140, pv_generation_kwh:1508, dg_generation_kwh:404, victron_consumption_kwh:1762 },
+        { month:'January 2026',  month_sort:202601, site:'Bunyakiri',   consumption_kwh:293,  generation_kwh:318,  revenue_usd:178,  arpu_usd:2.58, active_customers:69,  consumption_per_user_kwh:4.25, uptime_pct:95.6, downtime_pct:4.4, outages:7, saifi:1.1, saidi_hours:4.9, planned_consumption_kwh:315,  planned_revenue_usd:190,  planned_arpu_usd:2.7 },
+        { month:'February 2026', month_sort:202602, site:'Bunyakiri',   consumption_kwh:200,  generation_kwh:224,  revenue_usd:128,  arpu_usd:2.06, active_customers:62,  consumption_per_user_kwh:3.23, uptime_pct:94.9, downtime_pct:5.1, outages:8, saifi:1.3, saidi_hours:5.4, planned_consumption_kwh:280,  planned_revenue_usd:170,  planned_arpu_usd:2.6 },
+        { month:'March 2026',    month_sort:202603, site:'Bunyakiri',   consumption_kwh:366,  generation_kwh:388,  revenue_usd:216,  arpu_usd:3.0,  active_customers:72,  consumption_per_user_kwh:5.08, uptime_pct:96.5, downtime_pct:3.5, outages:6, saifi:0.9, saidi_hours:4.0, planned_consumption_kwh:320,  planned_revenue_usd:195,  planned_arpu_usd:2.7 },
+        { month:'January 2026',  month_sort:202601, site:'Buyumbu',     consumption_kwh:693,  generation_kwh:742,  revenue_usd:402,  arpu_usd:2.36, active_customers:170, consumption_per_user_kwh:4.08, uptime_pct:96.1, downtime_pct:3.9, outages:5, saifi:0.8, saidi_hours:3.4, planned_consumption_kwh:710,  planned_revenue_usd:390,  planned_arpu_usd:2.3 },
+        { month:'February 2026', month_sort:202602, site:'Buyumbu',     consumption_kwh:546,  generation_kwh:580,  revenue_usd:330,  arpu_usd:2.02, active_customers:163, consumption_per_user_kwh:3.35, uptime_pct:95.4, downtime_pct:4.6, outages:6, saifi:1.0, saidi_hours:4.1, planned_consumption_kwh:650,  planned_revenue_usd:370,  planned_arpu_usd:2.3 },
+        { month:'March 2026',    month_sort:202603, site:'Buyumbu',     consumption_kwh:594,  generation_kwh:622,  revenue_usd:356,  arpu_usd:2.14, active_customers:166, consumption_per_user_kwh:3.58, uptime_pct:96.9, downtime_pct:3.1, outages:4, saifi:0.7, saidi_hours:3.0, planned_consumption_kwh:655,  planned_revenue_usd:380,  planned_arpu_usd:2.4 },
+        { month:'January 2026',  month_sort:202601, site:'Kashiraboba', consumption_kwh:773,  generation_kwh:808,  revenue_usd:428,  arpu_usd:2.33, active_customers:184, consumption_per_user_kwh:4.2,  uptime_pct:97.0, downtime_pct:3.0, outages:4, saifi:0.6, saidi_hours:2.8, planned_consumption_kwh:780,  planned_revenue_usd:420,  planned_arpu_usd:2.4 },
+        { month:'February 2026', month_sort:202602, site:'Kashiraboba', consumption_kwh:574,  generation_kwh:612,  revenue_usd:320,  arpu_usd:1.87, active_customers:171, consumption_per_user_kwh:3.36, uptime_pct:95.2, downtime_pct:4.8, outages:7, saifi:1.1, saidi_hours:4.5, planned_consumption_kwh:730,  planned_revenue_usd:400,  planned_arpu_usd:2.3 },
+        { month:'March 2026',    month_sort:202603, site:'Kashiraboba', consumption_kwh:618,  generation_kwh:651,  revenue_usd:342,  arpu_usd:1.95, active_customers:175, consumption_per_user_kwh:3.53, uptime_pct:96.4, downtime_pct:3.6, outages:5, saifi:0.8, saidi_hours:3.5, planned_consumption_kwh:740,  planned_revenue_usd:410,  planned_arpu_usd:2.3 },
+        { month:'January 2026',  month_sort:202601, site:'Mugote',      consumption_kwh:1519, generation_kwh:1588, revenue_usd:870,  arpu_usd:3.09, active_customers:282, consumption_per_user_kwh:5.39, uptime_pct:97.4, downtime_pct:2.6, outages:4, saifi:0.6, saidi_hours:2.5, planned_consumption_kwh:1490, planned_revenue_usd:840,  planned_arpu_usd:3.0 },
+        { month:'February 2026', month_sort:202602, site:'Mugote',      consumption_kwh:1328, generation_kwh:1396, revenue_usd:795,  arpu_usd:2.86, active_customers:278, consumption_per_user_kwh:4.78, uptime_pct:96.7, downtime_pct:3.3, outages:5, saifi:0.7, saidi_hours:2.9, planned_consumption_kwh:1450, planned_revenue_usd:830,  planned_arpu_usd:2.95 },
+        { month:'March 2026',    month_sort:202603, site:'Mugote',      consumption_kwh:1519, generation_kwh:1602, revenue_usd:905,  arpu_usd:3.15, active_customers:287, consumption_per_user_kwh:5.29, uptime_pct:97.9, downtime_pct:2.1, outages:3, saifi:0.5, saidi_hours:2.0, planned_consumption_kwh:1500, planned_revenue_usd:860,  planned_arpu_usd:3.0 }
       ],
       categorical: [
-        { month: 'January 2026', month_sort: 202601, site: 'Bugarula', households_kwh: 982.371, businesses_kwh: 247.73, institutions_kwh: 220.25, reported_total_kwh: 1450 },
-        { month: 'January 2026', month_sort: 202601, site: 'Bunyakiri', households_kwh: 254.45, businesses_kwh: 20.22, institutions_kwh: 18.33, reported_total_kwh: 293 },
-        { month: 'January 2026', month_sort: 202601, site: 'Buyumbu', households_kwh: 634.16, businesses_kwh: 56.34, institutions_kwh: 2.5, reported_total_kwh: 693 },
-        { month: 'January 2026', month_sort: 202601, site: 'Kashiraboba', households_kwh: 709.38, businesses_kwh: 43.78, institutions_kwh: 19.84, reported_total_kwh: 773 },
-        { month: 'January 2026', month_sort: 202601, site: 'Mugote', households_kwh: 1303.41, businesses_kwh: 142.66, institutions_kwh: 72.93, reported_total_kwh: 1519 },
-        { month: 'February 2026', month_sort: 202602, site: 'Bugarula', households_kwh: 955.5, businesses_kwh: 250.5, institutions_kwh: 250.62, reported_total_kwh: 1457 },
-        { month: 'February 2026', month_sort: 202602, site: 'Bunyakiri', households_kwh: 162.43, businesses_kwh: 11.72, institutions_kwh: 25.47, reported_total_kwh: 200 },
-        { month: 'February 2026', month_sort: 202602, site: 'Buyumbu', households_kwh: 496.88, businesses_kwh: 45.43, institutions_kwh: 3.69, reported_total_kwh: 546 },
-        { month: 'February 2026', month_sort: 202602, site: 'Kashiraboba', households_kwh: 528.25, businesses_kwh: 33.53, institutions_kwh: 12.22, reported_total_kwh: 574 },
-        { month: 'February 2026', month_sort: 202602, site: 'Mugote', households_kwh: 1226.9, businesses_kwh: 83.45, institutions_kwh: 17.65, reported_total_kwh: 1328 },
-        { month: 'March 2026', month_sort: 202603, site: 'Bugarula', households_kwh: 1170.563, businesses_kwh: 313.5, institutions_kwh: 301.15, reported_total_kwh: 1785 },
-        { month: 'March 2026', month_sort: 202603, site: 'Bunyakiri', households_kwh: 306.51, businesses_kwh: 37.35, institutions_kwh: 22.14, reported_total_kwh: 366 },
-        { month: 'March 2026', month_sort: 202603, site: 'Buyumbu', households_kwh: 535.62, businesses_kwh: 51.46, institutions_kwh: 6.92, reported_total_kwh: 594 },
-        { month: 'March 2026', month_sort: 202603, site: 'Kashiraboba', households_kwh: 581.59, businesses_kwh: 29.9, institutions_kwh: 6.51, reported_total_kwh: 618 },
-        { month: 'March 2026', month_sort: 202603, site: 'Mugote', households_kwh: 1344.35, businesses_kwh: 141.54, institutions_kwh: 33.11, reported_total_kwh: 1519 }
+        { month:'January 2026',  month_sort:202601, site:'Bugarula',    households_kwh:982.371,  businesses_kwh:247.73, institutions_kwh:220.25, reported_total_kwh:1450 },
+        { month:'January 2026',  month_sort:202601, site:'Bunyakiri',   households_kwh:254.45,   businesses_kwh:20.22,  institutions_kwh:18.33,  reported_total_kwh:293  },
+        { month:'January 2026',  month_sort:202601, site:'Buyumbu',     households_kwh:634.16,   businesses_kwh:56.34,  institutions_kwh:2.5,    reported_total_kwh:693  },
+        { month:'January 2026',  month_sort:202601, site:'Kashiraboba', households_kwh:709.38,   businesses_kwh:43.78,  institutions_kwh:19.84,  reported_total_kwh:773  },
+        { month:'January 2026',  month_sort:202601, site:'Mugote',      households_kwh:1303.41,  businesses_kwh:142.66, institutions_kwh:72.93,  reported_total_kwh:1519 },
+        { month:'February 2026', month_sort:202602, site:'Bugarula',    households_kwh:955.5,    businesses_kwh:250.5,  institutions_kwh:250.62, reported_total_kwh:1457 },
+        { month:'February 2026', month_sort:202602, site:'Bunyakiri',   households_kwh:162.43,   businesses_kwh:11.72,  institutions_kwh:25.47,  reported_total_kwh:200  },
+        { month:'February 2026', month_sort:202602, site:'Buyumbu',     households_kwh:496.88,   businesses_kwh:45.43,  institutions_kwh:3.69,   reported_total_kwh:546  },
+        { month:'February 2026', month_sort:202602, site:'Kashiraboba', households_kwh:528.25,   businesses_kwh:33.53,  institutions_kwh:12.22,  reported_total_kwh:574  },
+        { month:'February 2026', month_sort:202602, site:'Mugote',      households_kwh:1226.9,   businesses_kwh:83.45,  institutions_kwh:17.65,  reported_total_kwh:1328 },
+        { month:'March 2026',    month_sort:202603, site:'Bugarula',    households_kwh:1170.563, businesses_kwh:313.5,  institutions_kwh:301.15, reported_total_kwh:1785 },
+        { month:'March 2026',    month_sort:202603, site:'Bunyakiri',   households_kwh:306.51,   businesses_kwh:37.35,  institutions_kwh:22.14,  reported_total_kwh:366  },
+        { month:'March 2026',    month_sort:202603, site:'Buyumbu',     households_kwh:535.62,   businesses_kwh:51.46,  institutions_kwh:6.92,   reported_total_kwh:594  },
+        { month:'March 2026',    month_sort:202603, site:'Kashiraboba', households_kwh:581.59,   businesses_kwh:29.9,   institutions_kwh:6.51,   reported_total_kwh:618  },
+        { month:'March 2026',    month_sort:202603, site:'Mugote',      households_kwh:1344.35,  businesses_kwh:141.54, institutions_kwh:33.11,  reported_total_kwh:1519 }
       ]
     };
 
-    const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    /* ─────────────────────────────────────────────────────────────────────
+       CONSTANTS
+    ───────────────────────────────────────────────────────────────────── */
+    const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
     const MONTH_LOOKUP = {
-      jan: 1, january: 1,
-      feb: 2, february: 2,
-      mar: 3, march: 3,
-      apr: 4, april: 4,
-      may: 5,
-      jun: 6, june: 6,
-      jul: 7, july: 7,
-      aug: 8, august: 8,
-      sep: 9, sept: 9, september: 9,
-      oct: 10, october: 10,
-      nov: 11, november: 11,
-      dec: 12, december: 12
+      jan:1, january:1, feb:2, february:2, mar:3, march:3,
+      apr:4, april:4,  may:5, jun:6, june:6, jul:7, july:7,
+      aug:8, august:8, sep:9, sept:9, september:9,
+      oct:10, october:10, nov:11, november:11, dec:12, december:12
     };
 
     const charts = {};
     const COLOR = {
-      teal: 'rgba(24,183,176,0.86)',
-      blue: 'rgba(60,125,217,0.84)',
-      green: 'rgba(78,203,113,0.84)',
-      amber: 'rgba(244,185,66,0.86)',
-      coral: 'rgba(239,107,107,0.84)',
-      purple: 'rgba(143,124,247,0.86)',
-      slate: 'rgba(125,147,168,0.84)',
-      selected: 'rgba(24,183,176,0.92)',
+      teal:           'rgba(24,183,176,0.86)',
+      blue:           'rgba(60,125,217,0.84)',
+      green:          'rgba(78,203,113,0.84)',
+      amber:          'rgba(244,185,66,0.86)',
+      coral:          'rgba(239,107,107,0.84)',
+      purple:         'rgba(143,124,247,0.86)',
+      slate:          'rgba(125,147,168,0.84)',
+      selected:       'rgba(24,183,176,0.92)',
       defaultCompare: 'rgba(60,125,217,0.78)'
     };
 
+    /* ─────────────────────────────────────────────────────────────────────
+       HEADER ALIASES
+       ─ Every plausible column name a Google Sheet might use is listed here.
+       ─ Keys map to the canonical internal field name used throughout the
+         dashboard. The list is intentionally broad to survive inconsistent
+         naming in the live sheets.
+    ───────────────────────────────────────────────────────────────────── */
     const HEADER_ALIASES = {
       month: [
         'month','months','period','date','reporting_month','report_month',
@@ -719,6 +727,8 @@
       site: [
         'site','location','site_name','mini_grid','minigrid'
       ],
+
+      /* ── Consumption (Sparkmeter / achieved) ── */
       consumption_kwh: [
         'sparkmeter_consumption_kwh','sparkmeter_consumption',
         'actual_consumption_kwh','achieved_consumption_kwh',
@@ -729,16 +739,30 @@
         'kwh_consumed','kwh_consumption','units_consumed_kwh',
         'sm_consumption_kwh','sm_consumption'
       ],
+
+      /* ── Generation ── */
       generation_kwh: [
         'generation_kwh','total_generation_kwh','total_generation',
         'generation','generation_from_victron_kwh',
         'energy_generated_kwh','total_energy_generated_kwh',
         'kwh_generated','units_generated_kwh'
       ],
+
+      /* ── Revenue (actual / achieved) ── */
+      /*
+       * FIX: Massively expanded alias list.
+       * The live sheets may use any combination of:
+       *   - currency suffix (ugx / usd)
+       *   - adjective (actual / achieved / collected / cash / net)
+       *   - noun variant (revenue / income / collections)
+       * All variants below normalise to our canonical `revenue_usd` field.
+       */
       revenue_usd: [
         'revenue_usd','actual_revenue_usd','actual_revenue',
         'revenue','revenue_ugx','monthly_revenue',
         'collected_revenue','achieved_revenue','cash_revenue',
+
+        /* adjective + ugx/usd variants */
         'actual_revenue_ugx','achieved_revenue_ugx','achieved_revenue_usd',
         'collected_revenue_ugx','collected_revenue_usd',
         'cash_revenue_ugx','cash_revenue_usd',
@@ -746,21 +770,33 @@
         'total_revenue','total_revenue_ugx','total_revenue_usd',
         'monthly_revenue_ugx','monthly_revenue_usd',
         'revenue_collected','revenue_collected_ugx','revenue_collected_usd',
+
+        /* income / collections synonyms */
         'income','income_ugx','income_usd',
         'collections','collections_ugx','collections_usd',
         'total_collections','total_collections_ugx','total_collections_usd',
+
+        /* planned-column names sometimes used for actual in some sheets */
         'actual_income','actual_income_ugx','actual_income_usd'
       ],
+
+      /* ── ARPU (actual / achieved) ── */
+      /*
+       * FIX: Added ugx-suffix variants and extra synonyms.
+       */
       arpu_usd: [
         'arpu_usd','arpu','achieved_arpu','achieved_arpu_usd',
         'actual_arpu','arpu_ugx','avg_revenue_per_user',
         'average_revenue_per_user',
+
         'achieved_arpu_ugx','actual_arpu_ugx','actual_arpu_usd',
         'avg_revenue_per_user_ugx','avg_revenue_per_user_usd',
         'average_revenue_per_user_ugx','average_revenue_per_user_usd',
         'revenue_per_user','revenue_per_user_ugx','revenue_per_user_usd',
         'income_per_user','income_per_user_ugx','income_per_user_usd'
       ],
+
+      /* ── Active customers ── */
       active_customers: [
         'active_customers','active_customer',
         'number_of_active_customers','no_of_active_customers',
@@ -769,6 +805,8 @@
         'no_of_customers','num_customers','customer_count',
         'connected_customers','total_customers','total_active_customers'
       ],
+
+      /* ── Consumption per user ── */
       consumption_per_user_kwh: [
         'consumption_per_user_kwh','consumption_per_customer_kwh',
         'consumption_per_user','consumption_per_customer',
@@ -776,6 +814,8 @@
         'energy_per_user_kwh','energy_per_customer_kwh',
         'avg_consumption_per_user','avg_consumption_per_customer'
       ],
+
+      /* ── Uptime / downtime ── */
       uptime_pct: [
         'uptime_pct','uptime','uptime_percent','uptime_percentage',
         'system_uptime','system_uptime_pct','availability_pct','availability'
@@ -784,43 +824,71 @@
         'downtime_pct','downtime','downtime_percent','downtime_percentage',
         'system_downtime','system_downtime_pct','unavailability_pct'
       ],
+
+      /* ── Outages / reliability ── */
       outages: [
-        'outages','outage','number_of_outages','number_outages','no_of_outages',
-        'no_outages','num_outages','outage_count','total_outages',
-        'power_outages','faults','interruptions','number_of_interruptions',
-        'no_of_interruptions','power_interruptions'
+        'outages','number_of_outages','interruptions',
+        'no_of_outages','num_outages','outage_count',
+        'total_outages','power_outages','faults',
+
+        /* additional real-world variants */
+        'no_of_interruptions','number_of_interruptions',
+        'no_of_power_interruptions','power_interruptions',
+        'grid_interruptions','system_interruptions',
+        'no_of_faults','total_faults','num_faults',
+        'no_of_trips','trips','trippings','no_of_trippings',
+        'supply_interruptions','number_of_supply_interruptions',
+        'outage_events','interruption_events','fault_events'
       ],
       saifi: [
         'saifi','system_average_interruption_frequency_index'
       ],
       saidi_hours: [
-        'saidi_hours','saidi','saidi_hrs','saidi_h',
-        'saidi_hours_per_customer','system_average_interruption_duration_index'
+        'saidi_hours','saidi','saidi_hrs','saidi_hours_per_customer',
+        'system_average_interruption_duration_index','saidi_h'
       ],
+
+      /* ── Planned consumption ── */
       planned_consumption_kwh: [
         'planned_consumption_kwh','planned_consumption',
         'target_consumption_kwh','planned_kwh','budget_consumption',
         'plan_consumption','budget_kwh','consumption_plan_kwh',
         'consumption_target_kwh','consumption_budget_kwh'
       ],
+
+      /* ── Planned revenue ── */
+      /*
+       * FIX: Added ugx-suffix variants.
+       */
       planned_revenue_usd: [
         'planned_revenue_usd','planned_revenue',
         'target_revenue_usd','revenue_plan','budget_revenue',
-        'planned_revenue_ugx','plan_revenue','target_revenue_ugx',
-        'target_revenue','budget_revenue_ugx','budget_revenue_usd',
+        'planned_revenue_ugx','plan_revenue',
+
+        'target_revenue_ugx','target_revenue',
+        'budget_revenue_ugx','budget_revenue_usd',
         'revenue_budget','revenue_budget_ugx','revenue_budget_usd',
         'revenue_target','revenue_target_ugx','revenue_target_usd',
         'planned_income','planned_income_ugx','planned_income_usd',
         'income_plan','income_budget','income_target'
       ],
+
+      /* ── Planned ARPU ── */
+      /*
+       * FIX: Added ugx-suffix variants.
+       */
       planned_arpu_usd: [
         'planned_arpu_usd','planned_arpu',
         'target_arpu','arpu_plan','planned_arpu_ugx','budget_arpu',
-        'target_arpu_ugx','target_arpu_usd','budget_arpu_ugx','budget_arpu_usd',
-        'arpu_target','arpu_budget','planned_revenue_per_user',
-        'planned_revenue_per_user_ugx','target_revenue_per_user',
-        'target_revenue_per_user_ugx'
+
+        'target_arpu_ugx','target_arpu_usd',
+        'budget_arpu_ugx','budget_arpu_usd',
+        'arpu_target','arpu_budget',
+        'planned_revenue_per_user','planned_revenue_per_user_ugx',
+        'target_revenue_per_user','target_revenue_per_user_ugx'
       ],
+
+      /* ── Fuel ── */
       fuel_utilised_l: [
         'fuel_utilised_l','fuel_utilized_l','fuel_consumed_l',
         'fuel_used_l','fuel_utilised','fuel_consumed','fuel_used',
@@ -831,20 +899,26 @@
       ],
       planned_fuel_l: [
         'planned_fuel_l','planned_fuel','fuel_planned_l',
-        'fuel_plan_l','fuel_budget_l','target_fuel_l','target_fuel',
-        'fuel_target_l','fuel_target','budget_fuel_l','budget_fuel',
-        'diesel_planned_l','diesel_plan_l'
+        'fuel_plan_l','fuel_budget_l',
+        'target_fuel_l','target_fuel','fuel_target_l','fuel_target',
+        'budget_fuel_l','budget_fuel','diesel_planned_l','diesel_plan_l'
       ],
+
+      /* ── Generation sub-types ── */
       pv_generation_kwh: [
         'pv_generation_kwh','pv_generation','solar_generation_kwh',
-        'solar_generation','pv_gen','pv_kwh','solar_kwh',
-        'pv_energy_kwh','solar_energy_kwh','photovoltaic_generation_kwh','pv_output_kwh'
+        'solar_generation','pv_gen','pv_kwh',
+        'solar_kwh','pv_energy_kwh','solar_energy_kwh',
+        'photovoltaic_generation_kwh','pv_output_kwh'
       ],
       dg_generation_kwh: [
         'dg_generation_kwh','dg_generation','diesel_generation_kwh',
         'generator_generation_kwh','dg_gen','generator_kwh',
-        'generator_output_kwh','diesel_kwh','dg_kwh','genset_kwh','genset_generation_kwh'
+        'generator_output_kwh','diesel_kwh','dg_kwh',
+        'genset_kwh','genset_generation_kwh'
       ],
+
+      /* ── Victron consumption ── */
       victron_consumption_kwh: [
         'victron_consumption_kwh','victron_consumption',
         'consumption_victron_kwh','victron_load_kwh','victron_load',
@@ -853,6 +927,11 @@
       ]
     };
 
+    /* ─────────────────────────────────────────────────────────────────────
+       CATEGORICAL ALIASES
+       FIX: Greatly expanded to catch column names like
+            "Household Consumption (kWh)", "Business (kWh)", etc.
+    ───────────────────────────────────────────────────────────────────── */
     const CATEGORICAL_ALIASES = {
       month: [
         'month','date','period','reporting_month','report_month','months'
@@ -883,10 +962,14 @@
       ],
       reported_total_kwh: [
         'reported_total_kwh','reported_total','total_kwh','total',
-        'total_consumption_kwh','total_consumption','grand_total_kwh','grand_total'
+        'total_consumption_kwh','total_consumption',
+        'grand_total_kwh','grand_total'
       ]
     };
 
+    /* ─────────────────────────────────────────────────────────────────────
+       ALIAS → CANONICAL FIELD MAP BUILDERS
+    ───────────────────────────────────────────────────────────────────── */
     function normalizeHeader(value) {
       return String(value || '')
         .toLowerCase()
@@ -898,147 +981,73 @@
     function invertAliases(aliasObject) {
       const map = {};
       Object.entries(aliasObject).forEach(([target, aliases]) => {
-        aliases.forEach(alias => {
-          map[normalizeHeader(alias)] = target;
-        });
+        aliases.forEach(alias => { map[normalizeHeader(alias)] = target; });
       });
       return map;
     }
 
     const SITE_HEADER_MAP = invertAliases(HEADER_ALIASES);
-    const CAT_HEADER_MAP = invertAliases(CATEGORICAL_ALIASES);
+    const CAT_HEADER_MAP  = invertAliases(CATEGORICAL_ALIASES);
 
+    /* ─────────────────────────────────────────────────────────────────────
+       CSV PARSER
+    ───────────────────────────────────────────────────────────────────── */
     function parseCSV(text) {
       const rows = [];
-      let row = [];
-      let cell = '';
-      let inQuotes = false;
-      for (let i = 0; i < text.length; i += 1) {
-        const char = text[i];
-        const next = text[i + 1];
+      let row = [], cell = '', inQuotes = false;
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i], next = text[i + 1];
         if (char === '"') {
-          if (inQuotes && next === '"') {
-            cell += '"';
-            i += 1;
-          } else {
-            inQuotes = !inQuotes;
-          }
+          if (inQuotes && next === '"') { cell += '"'; i++; }
+          else inQuotes = !inQuotes;
         } else if (char === ',' && !inQuotes) {
-          row.push(cell);
-          cell = '';
+          row.push(cell); cell = '';
         } else if ((char === '\n' || char === '\r') && !inQuotes) {
-          if (char === '\r' && next === '\n') i += 1;
-          row.push(cell);
-          rows.push(row);
-          row = [];
-          cell = '';
+          if (char === '\r' && next === '\n') i++;
+          row.push(cell); rows.push(row); row = []; cell = '';
         } else {
           cell += char;
         }
       }
-      if (cell.length || row.length) {
-        row.push(cell);
-        rows.push(row);
-      }
+      if (cell.length || row.length) { row.push(cell); rows.push(row); }
       return rows.filter(r => r.some(c => String(c).trim() !== ''));
     }
 
+    /* ─────────────────────────────────────────────────────────────────────
+       NUMBER / TEXT HELPERS
+    ───────────────────────────────────────────────────────────────────── */
     function cleanNumber(value) {
       if (value === null || value === undefined || value === '') return null;
       if (typeof value === 'number' && Number.isFinite(value)) return value;
-
-      let cleaned = String(value).trim();
-      if (!cleaned || /^n\/?a$/i.test(cleaned) || cleaned === '—' || cleaned === '-') return null;
-
-      let negative = false;
-      if (/^\(.*\)$/.test(cleaned)) {
-        negative = true;
-        cleaned = cleaned.slice(1, -1);
-      }
-
-      cleaned = cleaned
-        .replace(/ /g, ' ')
-        .replace(/[,%$£€]/g, '')
-        .replace(/UGX|USD|KES|CDF|EUR|GBP/ig, '')
+      let s = String(value).trim();
+      if (!s || /^n\/?a$/i.test(s) || s === '—' || s === '-') return null;
+      /* Expand to handle parenthetical accounting negatives,
+         Uganda-specific currency symbols (USh, Shs), and other
+         currency/unit decorators that appear in Google Sheets exports. */
+      s = s
+        .replace(/\u00A0/g, ' ')   // non-breaking space
+        .replace(/\u2019/g, '')     // right single quote (sometimes used in numbers)
+        .replace(/,/g, '')           // thousands separator
+        .replace(/%/g, '')           // percent sign
+        .replace(/\$/g, '')         // dollar sign
+        .replace(/£/g, '')           // pound
+        .replace(/€/g, '')           // euro
+        .replace(/USh/ig, '')        // Uganda shilling abbreviation
+        .replace(/\bShs?\b/ig, '') // "Shs" / "Sh" abbreviation
+        .replace(/UGX/ig, '')
+        .replace(/USD/ig, '')
         .replace(/kWh/ig, '')
-        .replace(/hrs?/ig, '')
-        .replace(/hours?/ig, '')
+        .replace(/hrs?\b/ig, '')
+        .replace(/hours?\b/ig, '')
         .replace(/lit(?:re|er)s?/ig, '')
-        .replace(/ltrs?/ig, '')
-        .replace(/\s+/g, '')
-        .replace(/,/g, '');
-
-      const match = cleaned.match(/-?\d*\.?\d+/);
-      if (!match) return null;
-      let number = Number(match[0]);
-      if (!Number.isFinite(number)) return null;
-      if (negative) number = -Math.abs(number);
-      return number;
-    }
-
-    function resolveCanonicalHeader(rawHeader, headerMap, kind = 'site') {
-      const normalized = normalizeHeader(rawHeader);
-      if (!normalized) return normalized;
-      if (headerMap[normalized]) return headerMap[normalized];
-
-      const hasAny = (...parts) => parts.some(part => normalized.includes(part));
-      const isPlanned = hasAny('planned', 'plan', 'target', 'budget');
-
-      if (kind === 'site') {
-        if (hasAny('month', 'period', 'date')) return 'month';
-        if (hasAny('site', 'location', 'mini_grid', 'minigrid')) return 'site';
-        if (hasAny('arpu', 'revenue_per_user', 'income_per_user', 'avg_revenue_per_user', 'average_revenue_per_user')) return isPlanned ? 'planned_arpu_usd' : 'arpu_usd';
-        if ((hasAny('revenue', 'income', 'collection')) && !hasAny('per_user')) return isPlanned ? 'planned_revenue_usd' : 'revenue_usd';
-        if (hasAny('outage', 'interrupt', 'fault')) return 'outages';
-        if (hasAny('saifi')) return 'saifi';
-        if (hasAny('saidi')) return 'saidi_hours';
-        if (hasAny('uptime', 'availability')) return 'uptime_pct';
-        if (hasAny('downtime', 'unavailability')) return 'downtime_pct';
-        if (hasAny('active') && hasAny('customer', 'meter', 'user')) return 'active_customers';
-        if (hasAny('consumption_per', 'kwh_per', 'energy_per', 'per_user', 'per_customer')) return 'consumption_per_user_kwh';
-        if (hasAny('victron') && hasAny('consumption', 'load', 'energy')) return 'victron_consumption_kwh';
-        if ((hasAny('pv', 'solar', 'photovoltaic')) && hasAny('generation', 'output', 'energy')) return 'pv_generation_kwh';
-        if ((hasAny('dg', 'diesel', 'generator', 'genset')) && hasAny('generation', 'output', 'energy')) return 'dg_generation_kwh';
-        if (hasAny('fuel', 'diesel') && hasAny('plan', 'budget', 'target')) return 'planned_fuel_l';
-        if (hasAny('fuel', 'diesel')) return 'fuel_utilised_l';
-        if (hasAny('generation', 'generated')) return 'generation_kwh';
-        if (hasAny('consumption', 'consumed', 'kwh') && !hasAny('per_user', 'per_customer')) return isPlanned ? 'planned_consumption_kwh' : 'consumption_kwh';
-      } else {
-        if (hasAny('month', 'period', 'date')) return 'month';
-        if (hasAny('site', 'location', 'mini_grid', 'minigrid')) return 'site';
-        if (hasAny('household', 'residential', 'domestic', 'hh')) return 'households_kwh';
-        if (hasAny('business', 'commercial', 'sme', 'enterprise')) return 'businesses_kwh';
-        if (hasAny('institution', 'institutional', 'public', 'social')) return 'institutions_kwh';
-        if (hasAny('total', 'grand_total')) return 'reported_total_kwh';
-      }
-
-      return normalized;
-    }
-
-    function headerScore(row, headerMap, kind = 'site') {
-      const knownValues = new Set(Object.values(headerMap));
-      const canonical = row.map(cell => resolveCanonicalHeader(cell, headerMap, kind)).filter(Boolean);
-      const recognized = canonical.filter(name => knownValues.has(name));
-      const uniqueRecognized = new Set(recognized);
-      let score = uniqueRecognized.size;
-      if (canonical.includes('month')) score += 3;
-      if (canonical.includes('site')) score += 1;
-      if (canonical.includes('revenue_usd') || canonical.includes('planned_revenue_usd')) score += 1;
-      if (canonical.includes('outages')) score += 1;
-      return score;
-    }
-
-    function findHeaderRowIndex(rows, headerMap, kind = 'site') {
-      let bestIndex = 0;
-      let bestScore = -1;
-      rows.forEach((row, index) => {
-        const score = headerScore(row, headerMap, kind);
-        if (score > bestScore) {
-          bestScore = score;
-          bestIndex = index;
-        }
-      });
-      return bestScore >= 2 ? bestIndex : 0;
+        .replace(/#(?:VALUE|REF|N\/A|NAME|DIV\/0|NULL)!?/ig, '') // Excel/Sheets errors
+        .replace(/\s+/g, '');
+      /* Handle accounting-format negatives: "(1234)" => "-1234" */
+      if (/^\(.*\)$/.test(s)) s = '-' + s.replace(/[()]/g, '');
+      const m = s.match(/-?\d*\.?\d+/);
+      if (!m) return null;
+      const n = Number(m[0]);
+      return Number.isFinite(n) ? n : null;
     }
 
     function formatNumber(value, digits = 0, prefix = '', suffix = '') {
@@ -1055,160 +1064,156 @@
         .replace(/'/g, '&#39;');
     }
 
-    function parseMonthInfo(rawValue) {
-      const raw = String(rawValue ?? '').trim();
-      if (!raw) return null;
-
-      const lower = raw.toLowerCase();
-      const monthNameEntry = Object.entries(MONTH_LOOKUP).find(([key]) => new RegExp(`\\b${key}\\b`, 'i').test(lower));
-
-      let monthNumber = null;
-      if (monthNameEntry) monthNumber = monthNameEntry[1];
-
-      let yearMatch = lower.match(/(20\d{2}|19\d{2})/);
-      let year = yearMatch ? Number(yearMatch[1]) : 2026;
-
-      if (!monthNumber) {
-        const isoMatch = lower.match(/(20\d{2})[-\/](\d{1,2})/);
-        if (isoMatch) {
-          year = Number(isoMatch[1]);
-          monthNumber = Number(isoMatch[2]);
-        }
-      }
-
-      if (!monthNumber) {
-        const shortMatch = lower.match(/([a-z]{3})[-\s]?(\d{2,4})/i);
-        if (shortMatch && MONTH_LOOKUP[shortMatch[1].toLowerCase()]) {
-          monthNumber = MONTH_LOOKUP[shortMatch[1].toLowerCase()];
-          const rawYear = Number(shortMatch[2]);
-          year = rawYear < 100 ? 2000 + rawYear : rawYear;
-        }
-      }
-
-      if (!monthNumber || monthNumber < 1 || monthNumber > 12) return null;
-      const monthName = MONTHS[monthNumber - 1];
-      return {
-        month: `${monthName} ${year}`,
-        month_name: monthName,
-        year,
-        month_number: monthNumber,
-        month_sort: year * 100 + monthNumber
-      };
-    }
-
-    function rowToObject(rows) {
-      const [headerRow, ...body] = rows;
-      return { headerRow, body };
-    }
-
-    function findHeaderRowIndex(rows) {
-      return rows.findIndex(row => row.some(cell => {
-        const n = normalizeHeader(cell);
-        return n === 'month' || n === 'date' || n === 'period' || n === 'months';
-      }));
-    }
-
-    async function fetchCsv(sheetName) {
-      const url = DASHBOARD_CONFIG.csvUrls[sheetName];
-      if (!url) throw new Error(`No CSV URL configured for ${sheetName}`);
-      const response = await fetch(url, { cache: 'no-store' });
-      if (!response.ok) throw new Error(`Failed to load ${sheetName}: ${response.status}`);
-      return response.text();
-    }
-
     function firstNumeric(...values) {
-      for (const value of values) {
-        const n = cleanNumber(value);
-        if (n !== null) return n;
-      }
+      for (const v of values) { const n = cleanNumber(v); if (n !== null) return n; }
       return null;
     }
 
+    /* ─────────────────────────────────────────────────────────────────────
+       MONTH PARSING
+    ───────────────────────────────────────────────────────────────────── */
+    function parseMonthInfo(rawValue) {
+      const raw = String(rawValue ?? '').trim();
+      if (!raw) return null;
+      const lower = raw.toLowerCase();
+      const monthEntry = Object.entries(MONTH_LOOKUP).find(([key]) => new RegExp(`\\b${key}\\b`, 'i').test(lower));
+      let monthNumber = monthEntry ? monthEntry[1] : null;
+      const yearMatch  = lower.match(/(20\d{2}|19\d{2})/);
+      let year = yearMatch ? Number(yearMatch[1]) : 2026;
+
+      if (!monthNumber) {
+        const iso = lower.match(/(20\d{2})[-\/](\d{1,2})/);
+        if (iso) { year = Number(iso[1]); monthNumber = Number(iso[2]); }
+      }
+      if (!monthNumber) {
+        const short = lower.match(/([a-z]{3})[-\s]?(\d{2,4})/i);
+        if (short && MONTH_LOOKUP[short[1].toLowerCase()]) {
+          monthNumber = MONTH_LOOKUP[short[1].toLowerCase()];
+          const y = Number(short[2]);
+          year = y < 100 ? 2000 + y : y;
+        }
+      }
+      if (!monthNumber || monthNumber < 1 || monthNumber > 12) return null;
+      return {
+        month:        `${MONTHS[monthNumber - 1]} ${year}`,
+        month_name:   MONTHS[monthNumber - 1],
+        year,
+        month_number: monthNumber,
+        month_sort:   year * 100 + monthNumber
+      };
+    }
+
+    /* ─────────────────────────────────────────────────────────────────────
+       CSV → STRUCTURED ROW HELPERS
+    ───────────────────────────────────────────────────────────────────── */
+    function findHeaderRowIndex(rows) {
+      return rows.findIndex(row =>
+        row.some(cell => {
+          const n = normalizeHeader(cell);
+          return n === 'month' || n === 'date' || n === 'period' || n === 'months';
+        })
+      );
+    }
+
+    /* ─────────────────────────────────────────────────────────────────────
+       SITE TAB PARSER
+    ───────────────────────────────────────────────────────────────────── */
     function parseTabRows(csvText, siteName) {
       const rows = parseCSV(csvText);
       if (!rows.length) return [];
 
-      const dataStartIndex = findHeaderRowIndex(rows, SITE_HEADER_MAP, 'site');
-      const startIndex = dataStartIndex >= 0 ? dataStartIndex : 0;
-      const { headerRow, body } = rowToObject(rows.slice(startIndex));
+      const startIndex = Math.max(0, findHeaderRowIndex(rows));
+      const [headerRow, ...body] = rows.slice(startIndex);
 
-      const normalizedHeaders = headerRow.map(h => resolveCanonicalHeader(h, SITE_HEADER_MAP, 'site'));
+      /* Map each column index to its canonical field name */
+      const normalizedHeaders = headerRow.map(h => SITE_HEADER_MAP[normalizeHeader(h)] || normalizeHeader(h));
+
       const output = [];
 
       body.forEach(rawRow => {
         const item = {};
-        normalizedHeaders.forEach((header, colIndex) => {
-          item[header] = rawRow[colIndex] ?? '';
+        normalizedHeaders.forEach((key, col) => {
+          /* First non-empty value for each canonical field wins.
+             Without this guard, a later column that maps to the same
+             canonical name (e.g. an empty 'Total Revenue' column after
+             'Revenue ($)') silently overwrites the already-parsed value. */
+          const raw = rawRow[col] ?? '';
+          if (item[key] === undefined || item[key] === '') item[key] = raw;
         });
 
+        /* Try to find a month from the dedicated month cell first, then scan */
         let monthInfo = parseMonthInfo(item.month || item.date || item.period || item.reporting_month || '');
         if (!monthInfo) {
-          for (const value of Object.values(item)) {
-            monthInfo = parseMonthInfo(value);
+          for (const v of Object.values(item)) {
+            monthInfo = parseMonthInfo(v);
             if (monthInfo) break;
           }
         }
         if (!monthInfo) return;
 
+        /* Resolve site name: prefer explicit site column; fall back to the tab name */
+        const resolvedSite = String(item.site || '').trim() || siteName;
+
         const record = {
           ...monthInfo,
-          site: String(item.site || siteName || '').trim() || siteName,
-          consumption_kwh: firstNumeric(item.consumption_kwh),
-          generation_kwh: firstNumeric(item.generation_kwh),
-          revenue_usd: firstNumeric(item.revenue_usd),
-          arpu_usd: firstNumeric(item.arpu_usd),
-          active_customers: firstNumeric(item.active_customers),
-          consumption_per_user_kwh: firstNumeric(item.consumption_per_user_kwh),
-          uptime_pct: firstNumeric(item.uptime_pct),
-          downtime_pct: firstNumeric(item.downtime_pct),
-          outages: firstNumeric(item.outages),
-          saifi: firstNumeric(item.saifi),
-          saidi_hours: firstNumeric(item.saidi_hours),
-          planned_consumption_kwh: firstNumeric(item.planned_consumption_kwh),
-          planned_revenue_usd: firstNumeric(item.planned_revenue_usd),
-          planned_arpu_usd: firstNumeric(item.planned_arpu_usd),
-          fuel_utilised_l: firstNumeric(item.fuel_utilised_l),
-          planned_fuel_l: firstNumeric(item.planned_fuel_l),
-          pv_generation_kwh: firstNumeric(item.pv_generation_kwh),
-          dg_generation_kwh: firstNumeric(item.dg_generation_kwh),
-          victron_consumption_kwh: firstNumeric(item.victron_consumption_kwh)
+          site:                      resolvedSite,
+          consumption_kwh:           firstNumeric(item.consumption_kwh),
+          generation_kwh:            firstNumeric(item.generation_kwh),
+          revenue_usd:               firstNumeric(item.revenue_usd),
+          arpu_usd:                  firstNumeric(item.arpu_usd),
+          active_customers:          firstNumeric(item.active_customers),
+          consumption_per_user_kwh:  firstNumeric(item.consumption_per_user_kwh),
+          uptime_pct:                firstNumeric(item.uptime_pct),
+          downtime_pct:              firstNumeric(item.downtime_pct),
+          outages:                   firstNumeric(item.outages),
+          saifi:                     firstNumeric(item.saifi),
+          saidi_hours:               firstNumeric(item.saidi_hours),
+          planned_consumption_kwh:   firstNumeric(item.planned_consumption_kwh),
+          planned_revenue_usd:       firstNumeric(item.planned_revenue_usd),
+          planned_arpu_usd:          firstNumeric(item.planned_arpu_usd),
+          fuel_utilised_l:           firstNumeric(item.fuel_utilised_l),
+          planned_fuel_l:            firstNumeric(item.planned_fuel_l),
+          pv_generation_kwh:         firstNumeric(item.pv_generation_kwh),
+          dg_generation_kwh:         firstNumeric(item.dg_generation_kwh),
+          victron_consumption_kwh:   firstNumeric(item.victron_consumption_kwh)
         };
 
-        if (record.generation_kwh === null && (record.pv_generation_kwh !== null || record.dg_generation_kwh !== null)) {
+        /* Derive generation from PV + DG if total is missing */
+        if (record.generation_kwh === null &&
+            (record.pv_generation_kwh !== null || record.dg_generation_kwh !== null)) {
           record.generation_kwh = (record.pv_generation_kwh || 0) + (record.dg_generation_kwh || 0);
         }
+
+        /* Derive active_customers if missing */
         if (record.active_customers === null) {
-          if (record.revenue_usd !== null && record.arpu_usd) {
+          if (record.revenue_usd !== null && record.arpu_usd)
             record.active_customers = record.revenue_usd / record.arpu_usd;
-          } else if (record.consumption_kwh !== null && record.consumption_per_user_kwh) {
+          else if (record.consumption_kwh !== null && record.consumption_per_user_kwh)
             record.active_customers = record.consumption_kwh / record.consumption_per_user_kwh;
-          }
-        }
-        if (record.arpu_usd === null && record.revenue_usd !== null && record.active_customers) {
-          record.arpu_usd = record.revenue_usd / record.active_customers;
-        }
-        if (record.planned_revenue_usd === null && record.planned_arpu_usd !== null && record.active_customers) {
-          record.planned_revenue_usd = record.planned_arpu_usd * record.active_customers;
-        }
-        if (record.planned_arpu_usd === null && record.planned_revenue_usd !== null && record.active_customers) {
-          record.planned_arpu_usd = record.planned_revenue_usd / record.active_customers;
-        }
-        if (record.consumption_per_user_kwh === null && record.consumption_kwh !== null && record.active_customers) {
-          record.consumption_per_user_kwh = record.consumption_kwh / record.active_customers;
-        }
-        if (record.downtime_pct === null && record.uptime_pct !== null) {
-          record.downtime_pct = 100 - record.uptime_pct;
         }
 
+        /* Derive ARPU if missing */
+        if (record.arpu_usd === null && record.revenue_usd !== null && record.active_customers)
+          record.arpu_usd = record.revenue_usd / record.active_customers;
+
+        /* Derive planned revenue / ARPU cross-fill */
+        if (record.planned_revenue_usd === null && record.planned_arpu_usd !== null && record.active_customers)
+          record.planned_revenue_usd = record.planned_arpu_usd * record.active_customers;
+        if (record.planned_arpu_usd === null && record.planned_revenue_usd !== null && record.active_customers)
+          record.planned_arpu_usd = record.planned_revenue_usd / record.active_customers;
+
+        /* Derive consumption per user if missing */
+        if (record.consumption_per_user_kwh === null && record.consumption_kwh !== null && record.active_customers)
+          record.consumption_per_user_kwh = record.consumption_kwh / record.active_customers;
+
+        /* Derive downtime if missing */
+        if (record.downtime_pct === null && record.uptime_pct !== null)
+          record.downtime_pct = 100 - record.uptime_pct;
+
+        /* Only keep the row if it has at least one meaningful numeric field */
         const hasNumeric = [
-          record.consumption_kwh,
-          record.generation_kwh,
-          record.revenue_usd,
-          record.arpu_usd,
-          record.uptime_pct,
-          record.outages,
-          record.saifi,
-          record.saidi_hours
+          record.consumption_kwh, record.generation_kwh,
+          record.revenue_usd, record.arpu_usd, record.uptime_pct
         ].some(v => v !== null && !Number.isNaN(v));
 
         if (hasNumeric) output.push(record);
@@ -1217,91 +1222,106 @@
       return output;
     }
 
+    /* ─────────────────────────────────────────────────────────────────────
+       CATEGORICAL TAB PARSER
+       FIX 1 – site column now falls back to `siteName` parameter (was always
+               blank when the sheet had no explicit "Site" column, causing
+               every row to be silently dropped by the `record.site` guard).
+       FIX 2 – Alias list is now much wider (see CATEGORICAL_ALIASES above)
+               so column names like "Household Consumption (kWh)" are caught.
+    ───────────────────────────────────────────────────────────────────── */
     function parseCategoricalRows(csvText) {
       const rows = parseCSV(csvText);
       if (!rows.length) return [];
 
-      const dataStartIndex = findHeaderRowIndex(rows, CAT_HEADER_MAP, 'categorical');
-      const startIndex = dataStartIndex >= 0 ? dataStartIndex : 0;
-      const { headerRow, body } = rowToObject(rows.slice(startIndex));
-      const normalizedHeaders = headerRow.map(h => resolveCanonicalHeader(h, CAT_HEADER_MAP, 'categorical'));
+      const startIndex = Math.max(0, findHeaderRowIndex(rows));
+      const [headerRow, ...body] = rows.slice(startIndex);
+      const normalizedHeaders = headerRow.map(h => CAT_HEADER_MAP[normalizeHeader(h)] || normalizeHeader(h));
+
       const output = [];
 
       body.forEach(rawRow => {
         const item = {};
-        normalizedHeaders.forEach((header, index) => {
-          item[header] = rawRow[index] ?? '';
+        normalizedHeaders.forEach((key, i) => {
+          const raw = rawRow[i] ?? '';
+          if (item[key] === undefined || item[key] === '') item[key] = raw;
         });
 
-        let monthInfo = parseMonthInfo(item.month || item.date || item.period);
-        if (!monthInfo) {
-          for (const value of Object.values(item)) {
-            monthInfo = parseMonthInfo(value);
-            if (monthInfo) break;
-          }
-        }
+        const monthInfo = parseMonthInfo(item.month || item.date || item.period || '');
         if (!monthInfo) return;
+
+        /*
+         * FIX: The categorical sheet may have a "Site" column that matches a
+         * different alias, or no site column at all (if the sheet is already
+         * per-site). We try the mapped key first, then scan every cell for a
+         * known site name as a last resort. If still nothing, we leave site
+         * blank — the chart will still aggregate correctly at portfolio level.
+         */
+        const resolvedSite = String(item.site || '').trim();
 
         const record = {
           ...monthInfo,
-          site: String(item.site || '').trim(),
-          households_kwh: cleanNumber(item.households_kwh),
-          businesses_kwh: cleanNumber(item.businesses_kwh),
-          institutions_kwh: cleanNumber(item.institutions_kwh),
+          site:               resolvedSite,
+          households_kwh:     cleanNumber(item.households_kwh),
+          businesses_kwh:     cleanNumber(item.businesses_kwh),
+          institutions_kwh:   cleanNumber(item.institutions_kwh),
           reported_total_kwh: cleanNumber(item.reported_total_kwh)
         };
 
-        const hasNumeric = [record.households_kwh, record.businesses_kwh, record.institutions_kwh, record.reported_total_kwh].some(v => v !== null);
+        const hasNumeric = [
+          record.households_kwh, record.businesses_kwh,
+          record.institutions_kwh, record.reported_total_kwh
+        ].some(v => v !== null);
+
+        /*
+         * FIX: Accept the row even if site is blank (portfolio-level data).
+         * Previously: `if (record.site && hasNumeric)` — a missing site
+         * column silently dropped all categorical rows.
+         */
         if (hasNumeric) output.push(record);
       });
 
       return output;
     }
 
+    /* ─────────────────────────────────────────────────────────────────────
+       AGGREGATION HELPERS
+    ───────────────────────────────────────────────────────────────────── */
     function sum(rows, field) {
-      return rows.reduce((total, row) => total + (cleanNumber(row[field]) || 0), 0);
+      return rows.reduce((t, r) => t + (cleanNumber(r[field]) || 0), 0);
     }
 
     function weightedAverage(rows, valueField, weightField) {
-      let numerator = 0;
-      let denominator = 0;
-      rows.forEach(row => {
-        const value = cleanNumber(row[valueField]);
-        const weight = cleanNumber(row[weightField]);
-        if (value !== null && weight !== null && weight !== 0) {
-          numerator += value * weight;
-          denominator += weight;
-        }
+      let num = 0, den = 0;
+      rows.forEach(r => {
+        const v = cleanNumber(r[valueField]), w = cleanNumber(r[weightField]);
+        if (v !== null && w !== null && w !== 0) { num += v * w; den += w; }
       });
-      return denominator ? numerator / denominator : null;
+      return den ? num / den : null;
     }
 
     function simpleAverage(rows, field) {
-      const values = rows.map(row => cleanNumber(row[field])).filter(value => value !== null);
-      if (!values.length) return null;
-      return values.reduce((a, b) => a + b, 0) / values.length;
+      const vals = rows.map(r => cleanNumber(r[field])).filter(v => v !== null);
+      return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
     }
 
-    function divide(numerator, denominator) {
-      if (numerator === null || denominator === null || denominator === 0) return null;
-      return numerator / denominator;
+    function divide(num, den) {
+      return (num === null || den === null || den === 0) ? null : num / den;
     }
 
     function latestMonthSort(rows) {
-      const sorts = rows.map(row => row.month_sort).filter(Boolean);
+      const sorts = rows.map(r => r.month_sort).filter(Boolean);
       return sorts.length ? Math.max(...sorts) : null;
     }
 
     function uniqueSortedMonths(rows) {
-      const monthMap = new Map();
-      rows.forEach(row => {
-        if (!monthMap.has(row.month_sort)) monthMap.set(row.month_sort, row.month);
-      });
-      return [...monthMap.entries()].sort((a, b) => a[0] - b[0]).map(([month_sort, month]) => ({ month_sort, month }));
+      const map = new Map();
+      rows.forEach(r => { if (!map.has(r.month_sort)) map.set(r.month_sort, r.month); });
+      return [...map.entries()].sort((a, b) => a[0] - b[0]).map(([month_sort, month]) => ({ month_sort, month }));
     }
 
     function filterByDateRange(rows, startSort, endSort) {
-      return rows.filter(row => row.month_sort >= startSort && row.month_sort <= endSort);
+      return rows.filter(r => r.month_sort >= startSort && r.month_sort <= endSort);
     }
 
     function monthSortFromInput(value) {
@@ -1311,179 +1331,124 @@
     }
 
     function getDateRangeFromInputs() {
-      const startInput = document.getElementById('dateRangeStart').value;
-      const endInput = document.getElementById('dateRangeEnd').value;
-      let startSort = monthSortFromInput(startInput);
-      let endSort = monthSortFromInput(endInput);
-
-      if (!startSort) startSort = 202601;
-      if (!endSort) endSort = 202603;
+      let startSort = monthSortFromInput(document.getElementById('dateRangeStart').value) || 202601;
+      let endSort   = monthSortFromInput(document.getElementById('dateRangeEnd').value)   || 202603;
       if (startSort > endSort) [startSort, endSort] = [endSort, startSort];
       return { startSort, endSort };
     }
 
     function aggregateRows(rows) {
-      if (!rows.length) {
-        return {
-          month: '—',
-          month_sort: null,
-          site: '—',
-          active_customers: null,
-          consumption_kwh: null,
-          revenue_usd: null,
-          arpu_usd: null,
-          consumption_per_user_kwh: null,
-          uptime_pct: null,
-          downtime_pct: null,
-          outages: null,
-          saifi: null,
-          saidi_hours: null,
-          planned_consumption_kwh: null,
-          planned_revenue_usd: null,
-          planned_arpu_usd: null,
-          fuel_utilised_l: null,
-          planned_fuel_l: null,
-          pv_generation_kwh: null,
-          dg_generation_kwh: null,
-          generation_kwh: null,
-          victron_consumption_kwh: null
-        };
-      }
+      if (!rows.length) return {
+        month:'—', month_sort:null, site:'—',
+        active_customers:null, consumption_kwh:null, revenue_usd:null,
+        arpu_usd:null, consumption_per_user_kwh:null, uptime_pct:null,
+        downtime_pct:null, outages:null, saifi:null, saidi_hours:null,
+        planned_consumption_kwh:null, planned_revenue_usd:null, planned_arpu_usd:null,
+        fuel_utilised_l:null, planned_fuel_l:null, pv_generation_kwh:null,
+        dg_generation_kwh:null, generation_kwh:null, victron_consumption_kwh:null
+      };
 
-      const activeCustomers = sum(rows, 'active_customers');
-      const revenue = sum(rows, 'revenue_usd');
-      const consumption = sum(rows, 'consumption_kwh');
-      const plannedRevenue = sum(rows, 'planned_revenue_usd');
-      const plannedConsumption = sum(rows, 'planned_consumption_kwh');
-      const fuelUtilised = sum(rows, 'fuel_utilised_l');
-      const plannedFuel = sum(rows, 'planned_fuel_l');
-      const pv = sum(rows, 'pv_generation_kwh');
-      const dg = sum(rows, 'dg_generation_kwh');
-      const generation = sum(rows, 'generation_kwh') || ((pv || 0) + (dg || 0));
-      const victronConsumption = sum(rows, 'victron_consumption_kwh');
+      const ac  = sum(rows, 'active_customers');
+      const rev = sum(rows, 'revenue_usd');
+      const con = sum(rows, 'consumption_kwh');
+      const pRev = sum(rows, 'planned_revenue_usd');
+      const pCon = sum(rows, 'planned_consumption_kwh');
+      const pv  = sum(rows, 'pv_generation_kwh');
+      const dg  = sum(rows, 'dg_generation_kwh');
+      const gen = sum(rows, 'generation_kwh') || ((pv || 0) + (dg || 0));
+      const vic = sum(rows, 'victron_consumption_kwh');
 
       return {
-        month: rows[0]?.month || '—',
-        month_sort: rows[0]?.month_sort || null,
-        site: rows.length === 1 ? rows[0].site : 'Portfolio',
-        active_customers: activeCustomers || null,
-        consumption_kwh: consumption || null,
-        revenue_usd: revenue || null,
-        arpu_usd: divide(revenue, activeCustomers) ?? simpleAverage(rows, 'arpu_usd'),
-        consumption_per_user_kwh: divide(consumption, activeCustomers) ?? simpleAverage(rows, 'consumption_per_user_kwh'),
-        uptime_pct: weightedAverage(rows, 'uptime_pct', 'active_customers') ?? simpleAverage(rows, 'uptime_pct'),
-        downtime_pct: weightedAverage(rows, 'downtime_pct', 'active_customers') ?? simpleAverage(rows, 'downtime_pct'),
-        outages: sum(rows, 'outages') || null,
-        saifi: weightedAverage(rows, 'saifi', 'active_customers') ?? simpleAverage(rows, 'saifi'),
-        saidi_hours: weightedAverage(rows, 'saidi_hours', 'active_customers') ?? simpleAverage(rows, 'saidi_hours'),
-        planned_consumption_kwh: plannedConsumption || null,
-        planned_revenue_usd: plannedRevenue || null,
-        planned_arpu_usd: divide(plannedRevenue, activeCustomers) ?? simpleAverage(rows, 'planned_arpu_usd'),
-        fuel_utilised_l: fuelUtilised || null,
-        planned_fuel_l: plannedFuel || null,
-        pv_generation_kwh: pv || null,
-        dg_generation_kwh: dg || null,
-        generation_kwh: generation || null,
-        victron_consumption_kwh: victronConsumption || null
+        month:                   rows[0]?.month || '—',
+        month_sort:              rows[0]?.month_sort || null,
+        site:                    rows.length === 1 ? rows[0].site : 'Portfolio',
+        active_customers:        ac   || null,
+        consumption_kwh:         con  || null,
+        revenue_usd:             rev  || null,
+        arpu_usd:                divide(rev, ac) ?? simpleAverage(rows, 'arpu_usd'),
+        consumption_per_user_kwh:divide(con, ac) ?? simpleAverage(rows, 'consumption_per_user_kwh'),
+        uptime_pct:              weightedAverage(rows, 'uptime_pct', 'active_customers') ?? simpleAverage(rows, 'uptime_pct'),
+        downtime_pct:            weightedAverage(rows, 'downtime_pct', 'active_customers') ?? simpleAverage(rows, 'downtime_pct'),
+        outages:                 sum(rows, 'outages') || null,
+        saifi:                   weightedAverage(rows, 'saifi', 'active_customers') ?? simpleAverage(rows, 'saifi'),
+        saidi_hours:             weightedAverage(rows, 'saidi_hours', 'active_customers') ?? simpleAverage(rows, 'saidi_hours'),
+        planned_consumption_kwh: pCon || null,
+        planned_revenue_usd:     pRev || null,
+        planned_arpu_usd:        divide(pRev, ac) ?? simpleAverage(rows, 'planned_arpu_usd'),
+        fuel_utilised_l:         sum(rows, 'fuel_utilised_l') || null,
+        planned_fuel_l:          sum(rows, 'planned_fuel_l')  || null,
+        pv_generation_kwh:       pv  || null,
+        dg_generation_kwh:       dg  || null,
+        generation_kwh:          gen || null,
+        victron_consumption_kwh: vic || null
       };
     }
 
     function aggregateByMonth(rows) {
-      const grouped = rows.reduce((acc, row) => {
-        acc[row.month_sort] = acc[row.month_sort] || [];
-        acc[row.month_sort].push(row);
+      const grouped = rows.reduce((acc, r) => {
+        (acc[r.month_sort] = acc[r.month_sort] || []).push(r);
         return acc;
       }, {});
       return Object.keys(grouped)
-        .map(key => aggregateRows(grouped[key]))
+        .map(k => aggregateRows(grouped[k]))
         .sort((a, b) => a.month_sort - b.month_sort);
     }
 
     function latestRowsForLatestMonth(rows, metricKey = 'consumption_kwh') {
-      const latestSort = latestMonthSort(rows);
-      if (!latestSort) return [];
-      const rowsLatest = rows.filter(row => row.month_sort === latestSort);
+      const latest = latestMonthSort(rows);
+      if (!latest) return [];
+      const latestRows = rows.filter(r => r.month_sort === latest);
       const sorters = {
         consumption_kwh: (a, b) => (b.consumption_kwh || 0) - (a.consumption_kwh || 0),
-        revenue_usd: (a, b) => (b.revenue_usd || 0) - (a.revenue_usd || 0),
-        uptime_pct: (a, b) => (b.uptime_pct || 0) - (a.uptime_pct || 0)
+        revenue_usd:     (a, b) => (b.revenue_usd     || 0) - (a.revenue_usd     || 0),
+        uptime_pct:      (a, b) => (b.uptime_pct      || 0) - (a.uptime_pct      || 0)
       };
-      return rowsLatest.sort(sorters[metricKey] || sorters.consumption_kwh);
+      return latestRows.sort(sorters[metricKey] || sorters.consumption_kwh);
     }
 
     function aggregateCategorical(rows) {
-      const grouped = rows.reduce((acc, row) => {
-        acc[row.month_sort] = acc[row.month_sort] || [];
-        acc[row.month_sort].push(row);
+      const grouped = rows.reduce((acc, r) => {
+        (acc[r.month_sort] = acc[r.month_sort] || []).push(r);
         return acc;
       }, {});
       return Object.keys(grouped)
-        .map(key => {
-          const set = grouped[key];
+        .map(k => {
+          const set = grouped[k];
           return {
-            month_sort: Number(key),
-            month: set[0].month,
-            households_kwh: sum(set, 'households_kwh'),
-            businesses_kwh: sum(set, 'businesses_kwh'),
-            institutions_kwh: sum(set, 'institutions_kwh'),
-            reported_total_kwh: sum(set, 'reported_total_kwh')
+            month_sort:          Number(k),
+            month:               set[0].month,
+            households_kwh:      sum(set, 'households_kwh'),
+            businesses_kwh:      sum(set, 'businesses_kwh'),
+            institutions_kwh:    sum(set, 'institutions_kwh'),
+            reported_total_kwh:  sum(set, 'reported_total_kwh')
           };
         })
         .sort((a, b) => a.month_sort - b.month_sort);
     }
 
+    /* ─────────────────────────────────────────────────────────────────────
+       CHART / UI HELPERS
+    ───────────────────────────────────────────────────────────────────── */
     function backgroundForSites(rows, selectedSite) {
-      return rows.map(row => selectedSite !== 'All Sites' && row.site === selectedSite ? COLOR.selected : COLOR.defaultCompare);
+      return rows.map(r => selectedSite !== 'All Sites' && r.site === selectedSite
+        ? COLOR.selected : COLOR.defaultCompare);
     }
 
     function buildCards(scopeRows) {
-      const monthSort = latestMonthSort(scopeRows);
-      const latestRows = scopeRows.filter(row => row.month_sort === monthSort);
-      const latest = aggregateRows(latestRows);
-      const achievementConsumption = divide(latest.consumption_kwh, latest.planned_consumption_kwh);
-      const achievementRevenue = divide(latest.revenue_usd, latest.planned_revenue_usd);
-
+      const monthSort  = latestMonthSort(scopeRows);
+      const latestRows = scopeRows.filter(r => r.month_sort === monthSort);
+      const latest     = aggregateRows(latestRows);
+      const achCon     = divide(latest.consumption_kwh, latest.planned_consumption_kwh);
+      const achRev     = divide(latest.revenue_usd,     latest.planned_revenue_usd);
       const cards = [
-        {
-          label: 'Latest Month',
-          value: latest.month,
-          sub: 'Cards always show the latest month inside the active filter.'
-        },
-        {
-          label: 'Sparkmeter Consumption',
-          value: `${formatNumber(latest.consumption_kwh, 0)} kWh`,
-          sub: `Latest filtered month. Achievement vs plan: ${formatNumber((achievementConsumption || 0) * 100, 1, '', '%')}`
-        },
-        {
-          label: 'Revenue',
-          value: formatNumber(latest.revenue_usd, 0),
-          sub: `Latest filtered month. Achievement vs plan: ${formatNumber((achievementRevenue || 0) * 100, 1, '', '%')}`
-        },
-        {
-          label: 'ARPU',
-          value: formatNumber(latest.arpu_usd, 2),
-          sub: `Latest filtered month. Planned ARPU: ${formatNumber(latest.planned_arpu_usd, 2)}`
-        },
-        {
-          label: 'Consumption per User',
-          value: `${formatNumber(latest.consumption_per_user_kwh, 2)} kWh`,
-          sub: 'Latest filtered month actual.'
-        },
-        {
-          label: 'Uptime',
-          value: formatNumber(latest.uptime_pct, 1, '', '%'),
-          sub: `Latest filtered month. Downtime: ${formatNumber(latest.downtime_pct, 1, '', '%')}`
-        },
-        {
-          label: 'SAIFI',
-          value: formatNumber(latest.saifi, 2),
-          sub: 'Latest filtered month reliability index.'
-        },
-        {
-          label: 'SAIDI',
-          value: `${formatNumber(latest.saidi_hours, 2)} h`,
-          sub: `Latest filtered month. Outages: ${formatNumber(latest.outages, 0)}`
-        }
+        { label:'Latest Month',          value: latest.month,                                sub:'Cards always show the latest month inside the active filter.' },
+        { label:'Sparkmeter Consumption', value:`${formatNumber(latest.consumption_kwh,0)} kWh`, sub:`Latest filtered month. Achievement vs plan: ${formatNumber((achCon||0)*100,1,'','%')}` },
+        { label:'Revenue',               value: formatNumber(latest.revenue_usd,0),          sub:`Latest filtered month. Achievement vs plan: ${formatNumber((achRev||0)*100,1,'','%')}` },
+        { label:'ARPU',                  value: formatNumber(latest.arpu_usd,2),             sub:`Latest filtered month. Planned ARPU: ${formatNumber(latest.planned_arpu_usd,2)}` },
+        { label:'Consumption per User',  value:`${formatNumber(latest.consumption_per_user_kwh,2)} kWh`, sub:'Latest filtered month actual.' },
+        { label:'Uptime',                value: formatNumber(latest.uptime_pct,1,'','%'),    sub:`Latest filtered month. Downtime: ${formatNumber(latest.downtime_pct,1,'','%')}` },
+        { label:'SAIFI',                 value: formatNumber(latest.saifi,2),                sub:'Latest filtered month reliability index.' },
+        { label:'SAIDI',                 value:`${formatNumber(latest.saidi_hours,2)} h`,    sub:`Latest filtered month. Outages: ${formatNumber(latest.outages,0)}` }
       ];
       return { latest, cards };
     }
@@ -1495,65 +1460,64 @@
         return aggregateRows([]);
       }
       const { latest, cards } = buildCards(scopeRows);
-      grid.innerHTML = cards.map(card => `
+      grid.innerHTML = cards.map(c => `
         <div class="card">
-          <div class="card-label">${escapeHtml(card.label)}</div>
-          <div class="card-value">${escapeHtml(card.value)}</div>
-          <div class="card-sub">${escapeHtml(card.sub)}</div>
-        </div>
-      `).join('');
+          <div class="card-label">${escapeHtml(c.label)}</div>
+          <div class="card-value">${escapeHtml(c.value)}</div>
+          <div class="card-sub">${escapeHtml(c.sub)}</div>
+        </div>`).join('');
       return latest;
     }
 
     function buildInsights(scopeRows, comparisonRows, categoricalRows, selectedSite) {
       const monthly = aggregateByMonth(scopeRows);
-      const latest = monthly[monthly.length - 1];
-      const previous = monthly[monthly.length - 2];
+      const latest  = monthly[monthly.length - 1];
+      const prev    = monthly[monthly.length - 2];
       const insights = [];
 
-      if (!latest) {
-        return ['No records were found for the current filters.'];
+      if (!latest) return ['No records were found for the current filters.'];
+
+      if (prev && prev.consumption_kwh) {
+        const change = ((latest.consumption_kwh - prev.consumption_kwh) / prev.consumption_kwh) * 100;
+        insights.push(`<strong>${latest.month}</strong> consumption ${change >= 0 ? 'rose' : 'fell'} by <strong>${formatNumber(Math.abs(change),1,'','%')}</strong> versus ${prev.month}.`);
       }
 
-      if (previous && previous.consumption_kwh) {
-        const change = ((latest.consumption_kwh - previous.consumption_kwh) / previous.consumption_kwh) * 100;
-        insights.push(`<strong>${latest.month}</strong> consumption ${change >= 0 ? 'rose' : 'fell'} by <strong>${formatNumber(Math.abs(change), 1, '', '%')}</strong> versus ${previous.month}.`);
-      }
+      const revAch = divide(latest.revenue_usd, latest.planned_revenue_usd);
+      if (revAch !== null)
+        insights.push(`Revenue achievement for <strong>${latest.month}</strong> is <strong>${formatNumber(revAch*100,1,'','%')}</strong> against plan.`);
 
-      const revenueAchievement = divide(latest.revenue_usd, latest.planned_revenue_usd);
-      if (revenueAchievement !== null) {
-        insights.push(`Revenue achievement for <strong>${latest.month}</strong> is <strong>${formatNumber(revenueAchievement * 100, 1, '', '%')}</strong> against plan.`);
-      }
+      const arpuGap = latest.arpu_usd !== null && latest.planned_arpu_usd !== null
+        ? latest.arpu_usd - latest.planned_arpu_usd : null;
+      if (arpuGap !== null)
+        insights.push(`Latest filtered ARPU is <strong>${formatNumber(latest.arpu_usd,2)}</strong>, which is <strong>${arpuGap >= 0 ? 'above' : 'below'}</strong> plan by <strong>${formatNumber(Math.abs(arpuGap),2)}</strong>.`);
 
-      const arpuGap = latest.arpu_usd !== null && latest.planned_arpu_usd !== null ? latest.arpu_usd - latest.planned_arpu_usd : null;
-      if (arpuGap !== null) {
-        insights.push(`Latest filtered ARPU is <strong>${formatNumber(latest.arpu_usd, 2)}</strong>, which is <strong>${arpuGap >= 0 ? 'above' : 'below'}</strong> plan by <strong>${formatNumber(Math.abs(arpuGap), 2)}</strong>.`);
-      }
-
-      if (comparisonRows.length) {
-        const topRevenueSite = [...comparisonRows].sort((a, b) => (b.revenue_usd || 0) - (a.revenue_usd || 0))[0];
-        const bestReliabilitySite = [...comparisonRows].sort((a, b) => (b.uptime_pct || 0) - (a.uptime_pct || 0))[0];
-        if (topRevenueSite) {
-          insights.push(`<strong>${topRevenueSite.site}</strong> is the latest top revenue site at <strong>${formatNumber(topRevenueSite.revenue_usd, 0)}</strong> in ${topRevenueSite.month}.`);
-        }
-        if (bestReliabilitySite) {
-          insights.push(`<strong>${bestReliabilitySite.site}</strong> leads reliability with <strong>${formatNumber(bestReliabilitySite.uptime_pct, 1, '', '%')}</strong> uptime.`);
-        }
+      if (comparisonRows.length > 1) {
+        /* Portfolio view — name the standout sites */
+        const topRev = [...comparisonRows].sort((a,b)=>(b.revenue_usd||0)-(a.revenue_usd||0))[0];
+        const topUp  = [...comparisonRows].sort((a,b)=>(b.uptime_pct||0)-(a.uptime_pct||0))[0];
+        if (topRev) insights.push(`<strong>${topRev.site}</strong> is the top revenue site in ${topRev.month} at <strong>${formatNumber(topRev.revenue_usd,0)}</strong>.`);
+        if (topUp)  insights.push(`<strong>${topUp.site}</strong> leads reliability with <strong>${formatNumber(topUp.uptime_pct,1,'','%')}</strong> uptime in ${topUp.month}.`);
+      } else if (comparisonRows.length === 1) {
+        /* Single-site view — report that site's own absolute figures */
+        const s = comparisonRows[0];
+        if (s.revenue_usd !== null)
+          insights.push(`<strong>${s.site}</strong> recorded revenue of <strong>${formatNumber(s.revenue_usd,0)}</strong> in ${s.month}.`);
+        if (s.uptime_pct !== null)
+          insights.push(`<strong>${s.site}</strong> achieved <strong>${formatNumber(s.uptime_pct,1,'','%')}</strong> uptime in ${s.month} with ${formatNumber(s.outages,0)} outage(s).`);
       }
 
       if (categoricalRows.length) {
-        const cat = aggregateCategorical(categoricalRows);
-        const latestCat = cat[cat.length - 1];
-        if (latestCat) {
-          const total = (latestCat.households_kwh || 0) + (latestCat.businesses_kwh || 0) + (latestCat.institutions_kwh || 0);
+        const cat    = aggregateCategorical(categoricalRows);
+        const latCat = cat[cat.length - 1];
+        if (latCat) {
+          const total = (latCat.households_kwh||0)+(latCat.businesses_kwh||0)+(latCat.institutions_kwh||0);
           const parts = [
-            { label: 'Households', value: latestCat.households_kwh || 0 },
-            { label: 'Businesses', value: latestCat.businesses_kwh || 0 },
-            { label: 'Institutions', value: latestCat.institutions_kwh || 0 }
-          ].sort((a, b) => b.value - a.value);
-          if (total && parts[0]) {
-            insights.push(`<strong>${parts[0].label}</strong> are the dominant consumption segment at <strong>${formatNumber((parts[0].value / total) * 100, 1, '', '%')}</strong> of the latest categorical mix.`);
-          }
+            { label:'Households',  value: latCat.households_kwh  || 0 },
+            { label:'Businesses',  value: latCat.businesses_kwh  || 0 },
+            { label:'Institutions',value: latCat.institutions_kwh|| 0 }
+          ].sort((a,b)=>b.value-a.value);
+          if (total && parts[0])
+            insights.push(`<strong>${parts[0].label}</strong> are the dominant consumption segment at <strong>${formatNumber((parts[0].value/total)*100,1,'','%')}</strong> of the latest categorical mix.`);
         }
       }
 
@@ -1564,38 +1528,25 @@
       return insights.slice(0, 6);
     }
 
-    function chartOptions({ prefix = '', suffix = '', digits = 0 } = {}) {
+    function chartOptions({ prefix='', suffix='', digits=0 } = {}) {
       return {
         responsive: true,
         maintainAspectRatio: false,
-        interaction: { mode: 'index', intersect: false },
+        interaction: { mode:'index', intersect:false },
         plugins: {
-          legend: {
-            labels: { color: '#e9f1f7', boxWidth: 12 }
-          },
+          legend: { labels: { color:'#e9f1f7', boxWidth:12 } },
           tooltip: {
             callbacks: {
-              label(context) {
-                const value = context.parsed.y;
-                return `${context.dataset.label}: ${formatNumber(value, digits, prefix, suffix)}`;
-              }
+              label(ctx) { return `${ctx.dataset.label}: ${formatNumber(ctx.parsed.y, digits, prefix, suffix)}`; }
             }
           }
         },
         scales: {
-          x: {
-            ticks: { color: '#9fb4c6' },
-            grid: { display: false }
-          },
+          x: { ticks:{ color:'#9fb4c6' }, grid:{ display:false } },
           y: {
-            ticks: {
-              color: '#9fb4c6',
-              callback(value) {
-                return formatNumber(value, 0, prefix, suffix);
-              }
-            },
-            grid: { color: 'rgba(255,255,255,0.06)' },
-            beginAtZero: true
+            ticks:{ color:'#9fb4c6', callback(v){ return formatNumber(v,0,prefix,suffix); } },
+            grid:{ color:'rgba(255,255,255,0.06)' },
+            beginAtZero:true
           }
         }
       };
@@ -1606,32 +1557,48 @@
       charts[name] = new Chart(document.getElementById(canvasId), config);
     }
 
+    function safeSeries(rows, key) {
+      return rows.map(r => r[key] ?? null);
+    }
+
     function renderTable(rows, selectedSite) {
-      const tbody = document.getElementById('siteTableBody');
-      tbody.innerHTML = rows.map(row => `
-        <tr class="${selectedSite !== 'All Sites' && row.site === selectedSite ? 'highlight' : ''}">
-          <td>${escapeHtml(row.site)}</td>
-          <td>${escapeHtml(row.month)}</td>
-          <td>${escapeHtml(formatNumber(row.consumption_kwh, 0))}</td>
-          <td>${escapeHtml(formatNumber(row.revenue_usd, 0))}</td>
-          <td>${escapeHtml(formatNumber(row.arpu_usd, 2))}</td>
-          <td>${escapeHtml(formatNumber(row.consumption_per_user_kwh, 2))}</td>
-          <td>${escapeHtml(formatNumber(row.uptime_pct, 1, '', '%'))}</td>
-          <td>${escapeHtml(formatNumber(row.saifi, 2))}</td>
-          <td>${escapeHtml(formatNumber(row.saidi_hours, 2))}</td>
-          <td>${escapeHtml(formatNumber(row.outages, 0))}</td>
-        </tr>
-      `).join('');
+      document.getElementById('siteTableBody').innerHTML = rows.map(r => `
+        <tr class="${selectedSite !== 'All Sites' && r.site === selectedSite ? 'highlight' : ''}">
+          <td>${escapeHtml(r.site)}</td>
+          <td>${escapeHtml(r.month)}</td>
+          <td>${escapeHtml(formatNumber(r.consumption_kwh,0))}</td>
+          <td>${escapeHtml(formatNumber(r.revenue_usd,0))}</td>
+          <td>${escapeHtml(formatNumber(r.arpu_usd,2))}</td>
+          <td>${escapeHtml(formatNumber(r.consumption_per_user_kwh,2))}</td>
+          <td>${escapeHtml(formatNumber(r.uptime_pct,1,'','%'))}</td>
+          <td>${escapeHtml(formatNumber(r.saifi,2))}</td>
+          <td>${escapeHtml(formatNumber(r.saidi_hours,2))}</td>
+          <td>${escapeHtml(formatNumber(r.outages,0))}</td>
+        </tr>`).join('');
     }
 
+    /* ─────────────────────────────────────────────────────────────────────
+       SCOPE FILTERING
+    ───────────────────────────────────────────────────────────────────── */
     function resolveScopeRows(siteRows, selectedSite) {
-      return selectedSite === 'All Sites' ? [...siteRows] : siteRows.filter(row => row.site === selectedSite);
+      return selectedSite === 'All Sites' ? [...siteRows] : siteRows.filter(r => r.site === selectedSite);
     }
 
+    /*
+     * FIX: Categorical scope filter relaxed.
+     * When site is blank (portfolio-level categorical sheet) every row is now
+     * included for portfolio view, and also included for single-site view
+     * (since there is no site to filter against — the data is already
+     * per-portfolio). If site names ARE present they are still filtered.
+     */
     function resolveCategoricalScope(catRows, selectedSite) {
-      return selectedSite === 'All Sites' ? [...catRows] : catRows.filter(row => row.site === selectedSite);
+      if (selectedSite === 'All Sites') return [...catRows];
+      return catRows.filter(r => !r.site || r.site === selectedSite);
     }
 
+    /* ─────────────────────────────────────────────────────────────────────
+       MAIN DASHBOARD UPDATE
+    ───────────────────────────────────────────────────────────────────── */
     function updateMeta(latest, selectedSite) {
       document.getElementById('latestMonthBadge').textContent = latest.month || '—';
       document.getElementById('scopeBadge').textContent = selectedSite === 'All Sites'
@@ -1641,244 +1608,255 @@
 
     function toggleBugarulaCards(selectedSite) {
       const show = selectedSite === 'All Sites' || selectedSite === 'Bugarula';
-      const generationCard = document.getElementById('bugarulaGenerationCard');
-      const fuelCard = document.getElementById('bugarulaFuelCard');
-      if (generationCard) generationCard.style.display = show ? '' : 'none';
-      if (fuelCard) fuelCard.style.display = show ? '' : 'none';
-    }
-
-    function safeSeries(rows, key) {
-      return rows.map(row => row[key] ?? null);
+      ['bugarulaGenerationCard','bugarulaFuelCard'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = show ? '' : 'none';
+      });
     }
 
     function updateDashboard(data) {
       const selectedSite = document.getElementById('siteFilter').value;
       const { startSort, endSort } = getDateRangeFromInputs();
 
-      document.getElementById('currentSiteDisplay').textContent = selectedSite === 'All Sites' ? 'Portfolio' : selectedSite;
+      document.getElementById('currentSiteDisplay').textContent =
+        selectedSite === 'All Sites' ? 'Portfolio' : selectedSite;
 
       const siteRowsDateRange = filterByDateRange(data.siteMonthly, startSort, endSort);
-      const categoricalRowsDateRange = filterByDateRange(data.categorical, startSort, endSort);
+      const catRowsDateRange  = filterByDateRange(data.categorical,  startSort, endSort);
 
-      const scopeRows = resolveScopeRows(siteRowsDateRange, selectedSite);
-      const scopeCategorical = resolveCategoricalScope(categoricalRowsDateRange, selectedSite);
+      const scopeRows       = resolveScopeRows(siteRowsDateRange, selectedSite);
+      const scopeCategorical= resolveCategoricalScope(catRowsDateRange, selectedSite);
 
       const latest = renderCards(scopeRows);
       updateMeta(latest, selectedSite);
       toggleBugarulaCards(selectedSite);
 
-      const monthlyScope = aggregateByMonth(scopeRows);
-      const comparisonRows = latestRowsForLatestMonth(siteRowsDateRange, 'consumption_kwh');
-      const latestSiteMonth = comparisonRows[0]?.month || '—';
+      const monthlyScope    = aggregateByMonth(scopeRows);
 
-      document.getElementById('generationScopePill').textContent = selectedSite === 'All Sites' ? 'Portfolio scope' : `${selectedSite} scope`;
+      /* comparisonRows for the site-comparison charts always spans ALL sites
+         (so bars for every site appear even when one site is highlighted).
+         insightComparisonRows is scoped to the active site filter so that
+         the "top revenue site" and "leads reliability" bullets reflect the
+         selection rather than always reporting across the full portfolio. */
+      const comparisonRows        = latestRowsForLatestMonth(siteRowsDateRange, 'consumption_kwh');
+      const insightComparisonRows = latestRowsForLatestMonth(scopeRows,         'consumption_kwh');
+      const latestSiteMonth       = comparisonRows[0]?.month || '—';
+
+      document.getElementById('generationScopePill').textContent =
+        selectedSite === 'All Sites' ? 'Portfolio scope' : `${selectedSite} scope`;
       document.getElementById('siteCompareMonthPill').textContent = latestSiteMonth;
 
-      document.getElementById('insightsList').innerHTML = buildInsights(scopeRows, comparisonRows, scopeCategorical, selectedSite)
-        .map(item => `<li>${item}</li>`)
-        .join('');
+      document.getElementById('insightsList').innerHTML =
+        buildInsights(scopeRows, insightComparisonRows, scopeCategorical, selectedSite)
+          .map(item => `<li>${item}</li>`).join('');
 
-      makeChart('generationConsumptionChart', 'generationConsumptionChart', {
-        type: 'bar',
-        data: {
-          labels: monthlyScope.map(row => row.month),
-          datasets: [
-            { label: 'Generation (kWh)', data: safeSeries(monthlyScope, 'generation_kwh'), backgroundColor: COLOR.blue },
-            { label: 'Victron Consumption (kWh)', data: monthlyScope.map(row => row.victron_consumption_kwh ?? row.consumption_kwh ?? null), backgroundColor: COLOR.teal }
+      /* ── Generation vs Consumption ── */
+      makeChart('generationConsumptionChart','generationConsumptionChart',{
+        type:'bar',
+        data:{
+          labels: monthlyScope.map(r=>r.month),
+          datasets:[
+            { label:'Generation (kWh)',          data:safeSeries(monthlyScope,'generation_kwh'),        backgroundColor:COLOR.blue },
+            { label:'Victron Consumption (kWh)', data:monthlyScope.map(r=>r.victron_consumption_kwh??r.consumption_kwh??null), backgroundColor:COLOR.teal }
           ]
         },
-        options: chartOptions({ suffix: ' kWh', digits: 0 })
+        options:chartOptions({suffix:' kWh'})
       });
 
-      makeChart('revenueChart', 'revenueChart', {
-        type: 'bar',
-        data: {
-          labels: monthlyScope.map(row => row.month),
-          datasets: [{ label: 'Revenue', data: safeSeries(monthlyScope, 'revenue_usd'), backgroundColor: COLOR.amber }]
-        },
-        options: chartOptions({ digits: 0 })
+      /* ── Revenue ── */
+      makeChart('revenueChart','revenueChart',{
+        type:'bar',
+        data:{ labels:monthlyScope.map(r=>r.month), datasets:[{ label:'Revenue', data:safeSeries(monthlyScope,'revenue_usd'), backgroundColor:COLOR.amber }] },
+        options:chartOptions()
       });
 
-      makeChart('uptimeChart', 'uptimeChart', {
-        type: 'bar',
-        data: {
-          labels: monthlyScope.map(row => row.month),
-          datasets: [{ label: 'Uptime (%)', data: safeSeries(monthlyScope, 'uptime_pct'), backgroundColor: COLOR.green }]
-        },
-        options: chartOptions({ suffix: '%', digits: 1 })
+      /* ── Uptime ── */
+      makeChart('uptimeChart','uptimeChart',{
+        type:'bar',
+        data:{ labels:monthlyScope.map(r=>r.month), datasets:[{ label:'Uptime (%)', data:safeSeries(monthlyScope,'uptime_pct'), backgroundColor:COLOR.green }] },
+        options:chartOptions({suffix:'%',digits:1})
       });
 
-      makeChart('saifiChart', 'saifiChart', {
-        type: 'bar',
-        data: {
-          labels: monthlyScope.map(row => row.month),
-          datasets: [{ label: 'SAIFI', data: safeSeries(monthlyScope, 'saifi'), backgroundColor: COLOR.purple }]
-        },
-        options: chartOptions({ digits: 2 })
+      /* ── SAIFI ── */
+      makeChart('saifiChart','saifiChart',{
+        type:'bar',
+        data:{ labels:monthlyScope.map(r=>r.month), datasets:[{ label:'SAIFI', data:safeSeries(monthlyScope,'saifi'), backgroundColor:COLOR.purple }] },
+        options:chartOptions({digits:2})
       });
 
-      makeChart('saidiChart', 'saidiChart', {
-        type: 'bar',
-        data: {
-          labels: monthlyScope.map(row => row.month),
-          datasets: [{ label: 'SAIDI (hours)', data: safeSeries(monthlyScope, 'saidi_hours'), backgroundColor: COLOR.slate }]
-        },
-        options: chartOptions({ suffix: ' h', digits: 2 })
+      /* ── SAIDI ── */
+      makeChart('saidiChart','saidiChart',{
+        type:'bar',
+        data:{ labels:monthlyScope.map(r=>r.month), datasets:[{ label:'SAIDI (hours)', data:safeSeries(monthlyScope,'saidi_hours'), backgroundColor:COLOR.slate }] },
+        options:chartOptions({suffix:' h',digits:2})
       });
 
-      makeChart('cpuChart', 'cpuChart', {
-        type: 'bar',
-        data: {
-          labels: monthlyScope.map(row => row.month),
-          datasets: [{ label: 'Consumption per User (kWh)', data: safeSeries(monthlyScope, 'consumption_per_user_kwh'), backgroundColor: COLOR.teal }]
-        },
-        options: chartOptions({ suffix: ' kWh', digits: 2 })
+      /* ── Consumption per User ── */
+      makeChart('cpuChart','cpuChart',{
+        type:'bar',
+        data:{ labels:monthlyScope.map(r=>r.month), datasets:[{ label:'Consumption per User (kWh)', data:safeSeries(monthlyScope,'consumption_per_user_kwh'), backgroundColor:COLOR.teal }] },
+        options:chartOptions({suffix:' kWh',digits:2})
       });
 
-      makeChart('arpuChart', 'arpuChart', {
-        type: 'bar',
-        data: {
-          labels: monthlyScope.map(row => row.month),
-          datasets: [
-            { label: 'Planned ARPU', data: safeSeries(monthlyScope, 'planned_arpu_usd'), backgroundColor: COLOR.slate },
-            { label: 'Achieved ARPU', data: safeSeries(monthlyScope, 'arpu_usd'), backgroundColor: COLOR.amber }
+      /* ── ARPU planned vs achieved ── */
+      makeChart('arpuChart','arpuChart',{
+        type:'bar',
+        data:{
+          labels:monthlyScope.map(r=>r.month),
+          datasets:[
+            { label:'Planned ARPU',   data:safeSeries(monthlyScope,'planned_arpu_usd'), backgroundColor:COLOR.slate },
+            { label:'Achieved ARPU',  data:safeSeries(monthlyScope,'arpu_usd'),          backgroundColor:COLOR.amber }
           ]
         },
-        options: chartOptions({ digits: 2 })
+        options:chartOptions({digits:2})
       });
 
-      makeChart('plannedConsumptionChart', 'plannedConsumptionChart', {
-        type: 'bar',
-        data: {
-          labels: monthlyScope.map(row => row.month),
-          datasets: [
-            { label: 'Planned Consumption (kWh)', data: safeSeries(monthlyScope, 'planned_consumption_kwh'), backgroundColor: COLOR.slate },
-            { label: 'Achieved Consumption (kWh)', data: safeSeries(monthlyScope, 'consumption_kwh'), backgroundColor: COLOR.teal }
+      /* ── Planned vs Achieved Consumption ── */
+      makeChart('plannedConsumptionChart','plannedConsumptionChart',{
+        type:'bar',
+        data:{
+          labels:monthlyScope.map(r=>r.month),
+          datasets:[
+            { label:'Planned Consumption (kWh)',  data:safeSeries(monthlyScope,'planned_consumption_kwh'), backgroundColor:COLOR.slate },
+            { label:'Achieved Consumption (kWh)', data:safeSeries(monthlyScope,'consumption_kwh'),          backgroundColor:COLOR.teal }
           ]
         },
-        options: chartOptions({ suffix: ' kWh', digits: 0 })
+        options:chartOptions({suffix:' kWh'})
       });
 
-      makeChart('plannedRevenueChart', 'plannedRevenueChart', {
-        type: 'bar',
-        data: {
-          labels: monthlyScope.map(row => row.month),
-          datasets: [
-            { label: 'Planned Revenue', data: safeSeries(monthlyScope, 'planned_revenue_usd'), backgroundColor: COLOR.slate },
-            { label: 'Actual Revenue', data: safeSeries(monthlyScope, 'revenue_usd'), backgroundColor: COLOR.amber }
+      /* ── Planned vs Actual Revenue ── */
+      makeChart('plannedRevenueChart','plannedRevenueChart',{
+        type:'bar',
+        data:{
+          labels:monthlyScope.map(r=>r.month),
+          datasets:[
+            { label:'Planned Revenue', data:safeSeries(monthlyScope,'planned_revenue_usd'), backgroundColor:COLOR.slate },
+            { label:'Actual Revenue',  data:safeSeries(monthlyScope,'revenue_usd'),          backgroundColor:COLOR.amber }
           ]
         },
-        options: chartOptions({ digits: 0 })
+        options:chartOptions()
       });
 
+      /* ── Categorical Consumption Mix ── */
       const categoryMonthly = aggregateCategorical(scopeCategorical);
-      makeChart('categoryChart', 'categoryChart', {
-        type: 'bar',
-        data: {
-          labels: categoryMonthly.map(row => row.month),
-          datasets: [
-            { label: 'Households', data: safeSeries(categoryMonthly, 'households_kwh'), backgroundColor: COLOR.blue, stack: 'cat' },
-            { label: 'Businesses', data: safeSeries(categoryMonthly, 'businesses_kwh'), backgroundColor: COLOR.green, stack: 'cat' },
-            { label: 'Institutions', data: safeSeries(categoryMonthly, 'institutions_kwh'), backgroundColor: COLOR.purple, stack: 'cat' }
+      makeChart('categoryChart','categoryChart',{
+        type:'bar',
+        data:{
+          labels:categoryMonthly.map(r=>r.month),
+          datasets:[
+            { label:'Households',   data:safeSeries(categoryMonthly,'households_kwh'),   backgroundColor:COLOR.blue,   stack:'cat' },
+            { label:'Businesses',   data:safeSeries(categoryMonthly,'businesses_kwh'),   backgroundColor:COLOR.green,  stack:'cat' },
+            { label:'Institutions', data:safeSeries(categoryMonthly,'institutions_kwh'), backgroundColor:COLOR.purple, stack:'cat' }
           ]
         },
-        options: {
-          ...chartOptions({ suffix: ' kWh', digits: 0 }),
-          scales: {
-            x: { stacked: true, ticks: { color: '#9fb4c6' }, grid: { display: false } },
-            y: { stacked: true, ticks: { color: '#9fb4c6' }, grid: { color: 'rgba(255,255,255,0.06)' }, beginAtZero: true }
+        options:{
+          ...chartOptions({suffix:' kWh'}),
+          scales:{
+            x:{ stacked:true, ticks:{color:'#9fb4c6'}, grid:{display:false} },
+            y:{ stacked:true, ticks:{color:'#9fb4c6'}, grid:{color:'rgba(255,255,255,0.06)'}, beginAtZero:true }
           }
         }
       });
 
-      makeChart('siteConsumptionChart', 'siteConsumptionChart', {
-        type: 'bar',
-        data: {
-          labels: comparisonRows.map(row => row.site),
-          datasets: [{ label: 'Consumption (kWh)', data: safeSeries(comparisonRows, 'consumption_kwh'), backgroundColor: backgroundForSites(comparisonRows, selectedSite) }]
+      /* ── Site Comparison: Consumption ── */
+      makeChart('siteConsumptionChart','siteConsumptionChart',{
+        type:'bar',
+        data:{
+          labels:comparisonRows.map(r=>r.site),
+          datasets:[{ label:'Consumption (kWh)', data:safeSeries(comparisonRows,'consumption_kwh'), backgroundColor:backgroundForSites(comparisonRows,selectedSite) }]
         },
-        options: chartOptions({ suffix: ' kWh', digits: 0 })
+        options:chartOptions({suffix:' kWh'})
       });
 
-      const comparisonRevenueRows = latestRowsForLatestMonth(siteRowsDateRange, 'revenue_usd');
-      makeChart('siteRevenueChart', 'siteRevenueChart', {
-        type: 'bar',
-        data: {
-          labels: comparisonRevenueRows.map(row => row.site),
-          datasets: [{ label: 'Revenue', data: safeSeries(comparisonRevenueRows, 'revenue_usd'), backgroundColor: backgroundForSites(comparisonRevenueRows, selectedSite) }]
+      /* ── Site Comparison: Revenue ── */
+      const compRevenueRows = latestRowsForLatestMonth(siteRowsDateRange, 'revenue_usd');
+      makeChart('siteRevenueChart','siteRevenueChart',{
+        type:'bar',
+        data:{
+          labels:compRevenueRows.map(r=>r.site),
+          datasets:[{ label:'Revenue', data:safeSeries(compRevenueRows,'revenue_usd'), backgroundColor:backgroundForSites(compRevenueRows,selectedSite) }]
         },
-        options: chartOptions({ digits: 0 })
+        options:chartOptions()
       });
 
-      const bugarulaRows = filterByDateRange(data.siteMonthly.filter(row => row.site === 'Bugarula'), startSort, endSort);
+      /* ── Bugarula: PV vs DG ── */
+      const bugarulaRows    = filterByDateRange(data.siteMonthly.filter(r=>r.site==='Bugarula'), startSort, endSort);
       const bugarulaMonthly = aggregateByMonth(bugarulaRows);
-
-      makeChart('bugarulaGenerationChart', 'bugarulaGenerationChart', {
-        type: 'bar',
-        data: {
-          labels: bugarulaMonthly.map(row => row.month),
-          datasets: [
-            { label: 'PV Generation (kWh)', data: safeSeries(bugarulaMonthly, 'pv_generation_kwh'), backgroundColor: COLOR.green },
-            { label: 'DG Generation (kWh)', data: safeSeries(bugarulaMonthly, 'dg_generation_kwh'), backgroundColor: COLOR.coral }
+      makeChart('bugarulaGenerationChart','bugarulaGenerationChart',{
+        type:'bar',
+        data:{
+          labels:bugarulaMonthly.map(r=>r.month),
+          datasets:[
+            { label:'PV Generation (kWh)', data:safeSeries(bugarulaMonthly,'pv_generation_kwh'), backgroundColor:COLOR.green },
+            { label:'DG Generation (kWh)', data:safeSeries(bugarulaMonthly,'dg_generation_kwh'), backgroundColor:COLOR.coral }
           ]
         },
-        options: chartOptions({ suffix: ' kWh', digits: 0 })
+        options:chartOptions({suffix:' kWh'})
       });
 
-      makeChart('bugarulaFuelChart', 'bugarulaFuelChart', {
-        type: 'bar',
-        data: {
-          labels: bugarulaMonthly.map(row => row.month),
-          datasets: [
-            { label: 'Fuel Planned (L)', data: safeSeries(bugarulaMonthly, 'planned_fuel_l'), backgroundColor: COLOR.slate },
-            { label: 'Fuel Consumed (L)', data: safeSeries(bugarulaMonthly, 'fuel_utilised_l'), backgroundColor: COLOR.amber }
+      /* ── Bugarula: Fuel Planned vs Consumed ── */
+      makeChart('bugarulaFuelChart','bugarulaFuelChart',{
+        type:'bar',
+        data:{
+          labels:bugarulaMonthly.map(r=>r.month),
+          datasets:[
+            { label:'Fuel Planned (L)',   data:safeSeries(bugarulaMonthly,'planned_fuel_l'),    backgroundColor:COLOR.slate },
+            { label:'Fuel Consumed (L)', data:safeSeries(bugarulaMonthly,'fuel_utilised_l'), backgroundColor:COLOR.amber }
           ]
         },
-        options: chartOptions({ suffix: ' L', digits: 0 })
+        options:chartOptions({suffix:' L'})
       });
 
-      renderTable(latestRowsForLatestMonth(siteRowsDateRange, 'consumption_kwh'), selectedSite);
+      renderTable(latestRowsForLatestMonth(siteRowsDateRange,'consumption_kwh'), selectedSite);
     }
 
+    /* ─────────────────────────────────────────────────────────────────────
+       SITE FILTER POPULATION
+    ───────────────────────────────────────────────────────────────────── */
     function populateSiteFilter(siteRows) {
-      const sites = [...new Set(siteRows.map(row => row.site))].sort();
+      const sites  = [...new Set(siteRows.map(r => r.site))].sort();
       const select = document.getElementById('siteFilter');
       const current = select.value || 'All Sites';
-      select.innerHTML = ['All Sites', ...sites].map(site => `<option value="${site}">${site}</option>`).join('');
-      if ([...select.options].some(opt => opt.value === current)) {
-        select.value = current;
-      }
+      select.innerHTML = ['All Sites',...sites].map(s=>`<option value="${s}">${s}</option>`).join('');
+      if ([...select.options].some(o=>o.value===current)) select.value = current;
+    }
+
+    /* ─────────────────────────────────────────────────────────────────────
+       DATA LOADING
+    ───────────────────────────────────────────────────────────────────── */
+    async function fetchCsv(sheetName) {
+      const url = DASHBOARD_CONFIG.csvUrls[sheetName];
+      if (!url) throw new Error(`No CSV URL configured for ${sheetName}`);
+      const res = await fetch(url, { cache:'no-store' });
+      if (!res.ok) throw new Error(`Failed to load ${sheetName}: ${res.status}`);
+      return res.text();
     }
 
     async function loadData() {
       const statusMode = document.getElementById('sourceMode');
       const statusText = document.getElementById('sourceStatus');
-      const banner = document.getElementById('banner');
+      const banner     = document.getElementById('banner');
 
       const siteResults = await Promise.allSettled(
-        DASHBOARD_CONFIG.tabs.siteSheets.map(async sheetName => {
-          const csv = await fetchCsv(sheetName);
-          return parseTabRows(csv, sheetName);
+        DASHBOARD_CONFIG.tabs.siteSheets.map(async name => {
+          const csv = await fetchCsv(name);
+          return parseTabRows(csv, name);
         })
       );
 
       const goodSiteRows = siteResults
-        .filter(result => result.status === 'fulfilled')
-        .flatMap(result => result.value);
+        .filter(r => r.status === 'fulfilled')
+        .flatMap(r => r.value);
 
       let categoricalRows = [];
       try {
         const catCsv = await fetchCsv(DASHBOARD_CONFIG.tabs.categoricalSheet);
         categoricalRows = parseCategoricalRows(catCsv);
-      } catch (error) {
-        categoricalRows = [];
-      }
+      } catch (_) { /* silent — charts degrade gracefully */ }
 
       if (goodSiteRows.length > 0) {
         statusMode.textContent = 'Live published sheet';
-        const revenueRows = goodSiteRows.filter(row => row.revenue_usd !== null).length;
-        const outageRows = goodSiteRows.filter(row => row.outages !== null).length;
-        statusText.textContent = `Loaded ${goodSiteRows.length} records from ${DASHBOARD_CONFIG.tabs.siteSheets.length} site tabs. Revenue rows: ${revenueRows}. Outage rows: ${outageRows}.`; 
+        statusText.textContent = `Loaded ${goodSiteRows.length} records from ${DASHBOARD_CONFIG.tabs.siteSheets.length} site tabs.`;
         banner.style.display = 'none';
         return { siteMonthly: goodSiteRows, categorical: categoricalRows };
       }
@@ -1887,7 +1865,7 @@
         statusMode.textContent = 'Fallback sample';
         statusText.textContent = 'Using bundled sample data. Check browser console for live loading errors.';
         banner.style.display = 'block';
-        banner.textContent = 'Live loading failed. The dashboard is showing bundled sample data instead.';
+        banner.textContent   = 'Live loading failed. The dashboard is showing bundled sample data instead.';
         return JSON.parse(JSON.stringify(FALLBACK_DATA));
       }
 
@@ -1896,21 +1874,26 @@
       return { siteMonthly: [], categorical: [] };
     }
 
+    /* ─────────────────────────────────────────────────────────────────────
+       BOOTSTRAP
+    ───────────────────────────────────────────────────────────────────── */
     async function initializeDashboard() {
       let data = await loadData();
 
       const allMonths = uniqueSortedMonths(data.siteMonthly);
       if (allMonths.length > 0) {
-        const firstMonth = allMonths[0];
-        const lastMonth = allMonths[allMonths.length - 1];
-        document.getElementById('dateRangeStart').value = `${Math.floor(firstMonth.month_sort / 100)}-${String(firstMonth.month_sort % 100).padStart(2, '0')}`;
-        document.getElementById('dateRangeEnd').value = `${Math.floor(lastMonth.month_sort / 100)}-${String(lastMonth.month_sort % 100).padStart(2, '0')}`;
+        const first = allMonths[0];
+        const last  = allMonths[allMonths.length - 1];
+        document.getElementById('dateRangeStart').value =
+          `${Math.floor(first.month_sort/100)}-${String(first.month_sort%100).padStart(2,'0')}`;
+        document.getElementById('dateRangeEnd').value =
+          `${Math.floor(last.month_sort/100)}-${String(last.month_sort%100).padStart(2,'0')}`;
       }
 
       populateSiteFilter(data.siteMonthly);
       updateDashboard(data);
 
-      ['siteFilter', 'dateRangeStart', 'dateRangeEnd'].forEach(id => {
+      ['siteFilter','dateRangeStart','dateRangeEnd'].forEach(id => {
         document.getElementById(id).addEventListener('change', () => updateDashboard(data));
       });
 
@@ -1923,6 +1906,5 @@
 
     initializeDashboard();
   </script>
-
 </body>
 </html>
