@@ -1461,11 +1461,19 @@
       if (arpuGap !== null)
         insights.push(`Latest filtered ARPU is <strong>${formatNumber(latest.arpu_usd,2)}</strong>, which is <strong>${arpuGap >= 0 ? 'above' : 'below'}</strong> plan by <strong>${formatNumber(Math.abs(arpuGap),2)}</strong>.`);
 
-      if (comparisonRows.length) {
-        const topRev  = [...comparisonRows].sort((a,b)=>(b.revenue_usd||0)-(a.revenue_usd||0))[0];
-        const topUp   = [...comparisonRows].sort((a,b)=>(b.uptime_pct||0)-(a.uptime_pct||0))[0];
-        if (topRev) insights.push(`<strong>${topRev.site}</strong> is the latest top revenue site at <strong>${formatNumber(topRev.revenue_usd,0)}</strong> in ${topRev.month}.`);
-        if (topUp)  insights.push(`<strong>${topUp.site}</strong> leads reliability with <strong>${formatNumber(topUp.uptime_pct,1,'','%')}</strong> uptime.`);
+      if (comparisonRows.length > 1) {
+        /* Portfolio view — name the standout sites */
+        const topRev = [...comparisonRows].sort((a,b)=>(b.revenue_usd||0)-(a.revenue_usd||0))[0];
+        const topUp  = [...comparisonRows].sort((a,b)=>(b.uptime_pct||0)-(a.uptime_pct||0))[0];
+        if (topRev) insights.push(`<strong>${topRev.site}</strong> is the top revenue site in ${topRev.month} at <strong>${formatNumber(topRev.revenue_usd,0)}</strong>.`);
+        if (topUp)  insights.push(`<strong>${topUp.site}</strong> leads reliability with <strong>${formatNumber(topUp.uptime_pct,1,'','%')}</strong> uptime in ${topUp.month}.`);
+      } else if (comparisonRows.length === 1) {
+        /* Single-site view — report that site's own absolute figures */
+        const s = comparisonRows[0];
+        if (s.revenue_usd !== null)
+          insights.push(`<strong>${s.site}</strong> recorded revenue of <strong>${formatNumber(s.revenue_usd,0)}</strong> in ${s.month}.`);
+        if (s.uptime_pct !== null)
+          insights.push(`<strong>${s.site}</strong> achieved <strong>${formatNumber(s.uptime_pct,1,'','%')}</strong> uptime in ${s.month} with ${formatNumber(s.outages,0)} outage(s).`);
       }
 
       if (categoricalRows.length) {
@@ -1594,15 +1602,22 @@
       toggleBugarulaCards(selectedSite);
 
       const monthlyScope    = aggregateByMonth(scopeRows);
-      const comparisonRows  = latestRowsForLatestMonth(siteRowsDateRange, 'consumption_kwh');
-      const latestSiteMonth = comparisonRows[0]?.month || '—';
+
+      /* comparisonRows for the site-comparison charts always spans ALL sites
+         (so bars for every site appear even when one site is highlighted).
+         insightComparisonRows is scoped to the active site filter so that
+         the "top revenue site" and "leads reliability" bullets reflect the
+         selection rather than always reporting across the full portfolio. */
+      const comparisonRows        = latestRowsForLatestMonth(siteRowsDateRange, 'consumption_kwh');
+      const insightComparisonRows = latestRowsForLatestMonth(scopeRows,         'consumption_kwh');
+      const latestSiteMonth       = comparisonRows[0]?.month || '—';
 
       document.getElementById('generationScopePill').textContent =
         selectedSite === 'All Sites' ? 'Portfolio scope' : `${selectedSite} scope`;
       document.getElementById('siteCompareMonthPill').textContent = latestSiteMonth;
 
       document.getElementById('insightsList').innerHTML =
-        buildInsights(scopeRows, comparisonRows, scopeCategorical, selectedSite)
+        buildInsights(scopeRows, insightComparisonRows, scopeCategorical, selectedSite)
           .map(item => `<li>${item}</li>`).join('');
 
       /* ── Generation vs Consumption ── */
