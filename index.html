@@ -44,8 +44,8 @@
     .title-copy { flex: 1 1 auto; min-width: 0; }
     .brand-logo {
       width: 150px; max-width: 34%; height: auto; object-fit: contain;
-      filter: brightness(0) invert(1); opacity: 0.96; flex: 0 0 auto; border-radius: 10px;
-      background: rgba(255,255,255,0.04); padding: 8px; display: block !important; visibility: visible !important;
+      opacity: 1; flex: 0 0 auto; border-radius: 10px;
+      background: #ffffff; padding: 8px; display: block !important; visibility: visible !important;
     }
     .title-panel h1 { margin: 0; font-size: 2rem; letter-spacing: 0.2px; }
     .site-name-display { margin-top: 8px; font-size: 1.1rem; color: var(--teal); font-weight: 600; }
@@ -75,6 +75,14 @@
     .card-label { font-size: 0.86rem; color: var(--muted); margin-bottom: 12px; }
     .card-value { font-size: 1.72rem; font-weight: 700; margin-bottom: 8px; }
     .card-sub { color: var(--muted); font-size: 0.86rem; line-height: 1.4; }
+    .scope-badge, .card-scope-chip {
+      display: inline-flex; align-items: center; max-width: 100%; border-radius: 999px;
+      border: 1px solid var(--border); background: rgba(255,255,255,0.04); color: var(--muted);
+      font-size: 0.76rem; line-height: 1.1; padding: 5px 9px; white-space: nowrap;
+    }
+    .scope-site { color: #b9fff9; border-color: rgba(24,183,176,0.34); background: rgba(24,183,176,0.1); }
+    .card-scope-chip { position: absolute; top: 12px; right: 12px; max-width: calc(100% - 24px); }
+    .card .card-label { padding-right: 76px; }
     .section-grid-2, .section-grid-3, .section-grid-4 { display: grid; gap: 16px; margin-bottom: 18px; }
     .section-grid-2 { grid-template-columns: 1.35fr 1fr; }
     .section-grid-3 { grid-template-columns: repeat(3, minmax(220px, 1fr)); }
@@ -159,51 +167,51 @@
     <div class="section-grid-2">
       <div class="chart-card">
         <div class="card-head">
-          <div><h3>Generation vs Consumption</h3></div>
+          <div><h3 id="generationConsumptionTitle">Portfolio: Generation vs Consumption by Month</h3></div>
           <span class="pill" id="generationScopePill">Scope</span>
         </div>
         <div class="chart-wrap tall"><canvas id="generationConsumptionChart"></canvas></div>
       </div>
 
       <div class="table-card">
-        <div class="card-head"><div><h3>Executive Insights</h3></div></div>
+        <div class="card-head"><div><h3 id="insightsTitle">Executive Insights</h3></div></div>
         <ol class="insight-list" id="insightsList"></ol>
       </div>
     </div>
 
     <div class="section-grid-3">
-      <div class="chart-card"><div class="card-head"><div><h3>Revenue</h3></div></div><div class="chart-wrap short"><canvas id="revenueChart"></canvas></div></div>
-      <div class="chart-card"><div class="card-head"><div><h3>Uptime</h3></div></div><div class="chart-wrap short"><canvas id="uptimeChart"></canvas></div></div>
-      <div class="chart-card"><div class="card-head"><div><h3>SAIFI</h3></div></div><div class="chart-wrap short"><canvas id="saifiChart"></canvas></div></div>
+      <div class="chart-card"><div class="card-head"><div><h3 id="revenueTitle">Portfolio: Revenue by Month</h3></div></div><div class="chart-wrap short"><canvas id="revenueChart"></canvas></div></div>
+      <div class="chart-card"><div class="card-head"><div><h3 id="uptimeTitle">Portfolio: Uptime by Month</h3></div></div><div class="chart-wrap short"><canvas id="uptimeChart"></canvas></div></div>
+      <div class="chart-card"><div class="card-head"><div><h3 id="saifiTitle">Portfolio: SAIFI by Month</h3></div></div><div class="chart-wrap short"><canvas id="saifiChart"></canvas></div></div>
     </div>
 
     <div class="section-grid-3">
-      <div class="chart-card"><div class="card-head"><div><h3>SAIDI</h3></div></div><div class="chart-wrap short"><canvas id="saidiChart"></canvas></div></div>
-      <div class="chart-card"><div class="card-head"><div><h3>Consumption per User</h3></div></div><div class="chart-wrap short"><canvas id="cpuChart"></canvas></div></div>
-      <div class="chart-card"><div class="card-head"><div><h3>ARPU: Planned vs Achieved</h3></div></div><div class="chart-wrap short"><canvas id="arpuChart"></canvas></div></div>
+      <div class="chart-card"><div class="card-head"><div><h3 id="saidiTitle">Portfolio: SAIDI by Month</h3></div></div><div class="chart-wrap short"><canvas id="saidiChart"></canvas></div></div>
+      <div class="chart-card"><div class="card-head"><div><h3 id="cpuTitle">Portfolio: Consumption per User by Month</h3></div></div><div class="chart-wrap short"><canvas id="cpuChart"></canvas></div></div>
+      <div class="chart-card"><div class="card-head"><div><h3 id="arpuTitle">Portfolio: ARPU Planned vs Achieved by Month</h3></div></div><div class="chart-wrap short"><canvas id="arpuChart"></canvas></div></div>
     </div>
 
     <div class="section-grid-2">
-      <div class="chart-card"><div class="card-head"><div><h3>Planned Consumption vs Achieved Consumption</h3></div></div><div class="chart-wrap"><canvas id="plannedConsumptionChart"></canvas></div></div>
-      <div class="chart-card"><div class="card-head"><div><h3>Planned Revenue vs Actual Revenue</h3></div></div><div class="chart-wrap"><canvas id="plannedRevenueChart"></canvas></div></div>
+      <div class="chart-card"><div class="card-head"><div><h3 id="plannedConsumptionTitle">Portfolio: Planned vs Achieved Consumption by Month</h3></div></div><div class="chart-wrap"><canvas id="plannedConsumptionChart"></canvas></div></div>
+      <div class="chart-card"><div class="card-head"><div><h3 id="plannedRevenueTitle">Portfolio: Planned vs Actual Revenue by Month</h3></div></div><div class="chart-wrap"><canvas id="plannedRevenueChart"></canvas></div></div>
     </div>
 
     <div class="section-grid-2">
-      <div class="chart-card"><div class="card-head"><div><h3>Categorical Consumption Mix</h3></div></div><div class="chart-wrap"><canvas id="categoryChart"></canvas></div></div>
-      <div class="chart-card"><div class="card-head"><div><h3>Site Comparison: Sparkmeter Consumption</h3></div><span class="pill" id="siteCompareMonthPill">Latest month</span></div><div class="chart-wrap"><canvas id="siteConsumptionChart"></canvas></div></div>
+      <div class="chart-card"><div class="card-head"><div><h3 id="categoryTitle">Portfolio: Categorical Consumption Mix by Month</h3></div></div><div class="chart-wrap"><canvas id="categoryChart"></canvas></div></div>
+      <div class="chart-card" id="siteConsumptionCard"><div class="card-head"><div><h3 id="siteConsumptionTitle">Site Comparison: Sparkmeter Consumption</h3></div><span class="pill" id="siteCompareMonthPill">Latest month</span></div><div class="chart-wrap"><canvas id="siteConsumptionChart"></canvas></div></div>
     </div>
 
     <div class="section-grid-2">
-      <div class="chart-card"><div class="card-head"><div><h3>Site Comparison: Revenue</h3></div></div><div class="chart-wrap"><canvas id="siteRevenueChart"></canvas></div></div>
-      <div class="chart-card" id="bugarulaGenerationCard"><div class="card-head"><div><h3>Bugarula: PV Generation vs DG Generation</h3></div></div><div class="chart-wrap"><canvas id="bugarulaGenerationChart"></canvas></div></div>
+      <div class="chart-card" id="siteRevenueCard"><div class="card-head"><div><h3 id="siteRevenueTitle">Site Comparison: Revenue</h3></div></div><div class="chart-wrap"><canvas id="siteRevenueChart"></canvas></div></div>
+      <div class="chart-card" id="bugarulaGenerationCard"><div class="card-head"><div><h3 id="bugarulaGenerationTitle">Bugarula: PV Generation vs DG Generation by Month</h3></div></div><div class="chart-wrap"><canvas id="bugarulaGenerationChart"></canvas></div></div>
     </div>
 
     <div class="section-grid-2">
-      <div class="chart-card" id="bugarulaFuelCard"><div class="card-head"><div><h3>Bugarula: Fuel Planned vs Fuel Consumed</h3></div></div><div class="chart-wrap"><canvas id="bugarulaFuelChart"></canvas></div></div>
+      <div class="chart-card" id="bugarulaFuelCard"><div class="card-head"><div><h3 id="bugarulaFuelTitle">Bugarula: Fuel Planned vs Fuel Consumed by Month</h3></div></div><div class="chart-wrap"><canvas id="bugarulaFuelChart"></canvas></div></div>
     </div>
 
     <div class="table-card wide">
-      <div class="card-head"><div><h3>Latest Available Site Table</h3></div></div>
+      <div class="card-head"><div><h3 id="tableTitle">Latest Available Site Table</h3></div></div>
       <div style="max-height: 420px; overflow:auto;">
         <table>
           <thead>
@@ -712,10 +720,11 @@
       return rows.filter(r => r.month_sort === monthSort && (selectedSite === 'All Sites' || isSameSite(r.site, selectedSite)));
     }
 
-    function chartOptions({prefix='', suffix='', digits=0} = {}) {
+    function chartOptions({prefix='', suffix='', digits=0, title=''} = {}) {
       return {
         responsive:true, maintainAspectRatio:false, interaction:{mode:'index', intersect:false},
         plugins:{
+          title:{display:Boolean(title), text:title, color:'#e9f1f7', font:{size:14, weight:'700'}, padding:{bottom:12}},
           legend:{labels:{color:'#e9f1f7', boxWidth:12}},
           tooltip:{callbacks:{label(ctx){ return `${ctx.dataset.label}: ${formatNumber(ctx.parsed.y, digits, prefix, suffix)}`; }}}
         },
@@ -728,6 +737,32 @@
     function makeChart(name, canvasId, config) { if (charts[name]) charts[name].destroy(); charts[name] = new Chart(document.getElementById(canvasId), config); }
     function safeSeries(rows,key) { return rows.map(r => r[key] ?? null); }
     function backgroundForSites(rows, selectedSite) { return rows.map(r => selectedSite !== 'All Sites' && isSameSite(r.site, selectedSite) ? COLOR.selected : COLOR.defaultCompare); }
+    function setText(id, text) { const el = document.getElementById(id); if (el) el.textContent = text; }
+    function scopeName(selectedSite) { return selectedSite === 'All Sites' ? 'Portfolio' : canonicalizeSiteName(selectedSite); }
+    function updateChartTitles(selectedSite, comparisonMonth='—') {
+      const scope = scopeName(selectedSite);
+      const monthLabel = comparisonMonth || 'latest month';
+      const titles = {
+        generationConsumptionTitle: `${scope}: Generation vs Consumption by Month`,
+        insightsTitle: selectedSite === 'All Sites' ? `Executive Site Stories: ${monthLabel}` : `${scope}: Executive Story`,
+        revenueTitle: `${scope}: Revenue by Month`,
+        uptimeTitle: `${scope}: Uptime by Month`,
+        saifiTitle: `${scope}: SAIFI by Month`,
+        saidiTitle: `${scope}: SAIDI by Month`,
+        cpuTitle: `${scope}: Consumption per User by Month`,
+        arpuTitle: `${scope}: ARPU Planned vs Achieved by Month`,
+        plannedConsumptionTitle: `${scope}: Planned vs Achieved Consumption by Month`,
+        plannedRevenueTitle: `${scope}: Planned vs Actual Revenue by Month`,
+        categoryTitle: `${scope}: Categorical Consumption Mix by Month`,
+        siteConsumptionTitle: `Site Comparison: Sparkmeter Consumption - ${monthLabel}`,
+        siteRevenueTitle: `Site Comparison: Revenue - ${monthLabel}`,
+        bugarulaGenerationTitle: 'Bugarula: PV Generation vs DG Generation by Month',
+        bugarulaFuelTitle: 'Bugarula: Fuel Planned vs Fuel Consumed by Month',
+        tableTitle: `Latest Available Site Table - ${monthLabel}`
+      };
+      Object.entries(titles).forEach(([id, text]) => setText(id, text));
+      return titles;
+    }
 
     function scopeBadgeMarkup(selectedSite) {
       const isPortfolio = selectedSite === 'All Sites';
@@ -748,8 +783,12 @@
           head.appendChild(badge);
         }
         const isPortfolio = selectedSite === 'All Sites';
-        badge.className = `scope-badge dynamic-scope-badge ${isPortfolio ? 'scope-portfolio' : 'scope-site'}`;
-        badge.textContent = isPortfolio ? 'Portfolio' : canonicalizeSiteName(selectedSite);
+        const card = head.closest('.chart-card, .table-card');
+        const fixedScope = card && ['siteConsumptionCard','siteRevenueCard'].includes(card.id) ? 'All sites' : card && ['bugarulaGenerationCard','bugarulaFuelCard'].includes(card.id) ? 'Bugarula' : '';
+        const label = fixedScope || (isPortfolio ? 'Portfolio' : canonicalizeSiteName(selectedSite));
+        const badgeIsPortfolio = fixedScope === 'All sites' || (!fixedScope && isPortfolio);
+        badge.className = `scope-badge dynamic-scope-badge ${badgeIsPortfolio ? 'scope-portfolio' : 'scope-site'}`;
+        badge.textContent = label;
       });
     }
 
@@ -784,40 +823,123 @@
       return latest;
     }
 
-    function buildInsights(scopeRows, comparisonRows, categoricalRows, selectedSite) {
+    function pctChange(current, previous) {
+      if (current === null || current === undefined || previous === null || previous === undefined || previous === 0) return null;
+      return ((current - previous) / previous) * 100;
+    }
+    function trendPhrase(current, previous, suffix='', digits=1) {
+      const change = pctChange(current, previous);
+      if (change === null) return '';
+      if (Math.abs(change) < 0.05) return `flat versus the previous month`;
+      return `${change >= 0 ? 'up' : 'down'} <strong>${formatNumber(Math.abs(change), digits, '', '%')}</strong> versus the previous month`;
+    }
+    function achievementPhrase(actual, planned, label='plan') {
+      const achievement = divide(actual, planned);
+      return achievement === null ? '' : `, at <strong>${formatNumber(achievement*100,1,'','%')}</strong> of ${label}`;
+    }
+    function arpuPhrase(row) {
+      if (row.arpu_usd === null || row.arpu_usd === undefined) return '';
+      const gap = row.planned_arpu_usd !== null && row.planned_arpu_usd !== undefined ? row.arpu_usd - row.planned_arpu_usd : null;
+      const planText = gap === null ? '' : ` (${gap >= 0 ? 'above' : 'below'} plan by <strong>${formatNumber(Math.abs(gap),2,'$')}</strong>)`;
+      return `ARPU was <strong>${formatNumber(row.arpu_usd,2,'$')}</strong>${planText}`;
+    }
+    function previousSiteRow(rows, row) {
+      return [...rows]
+        .filter(r => isSameSite(r.site, row.site) && r.month_sort < row.month_sort)
+        .sort((a,b) => b.month_sort - a.month_sort)[0] || null;
+    }
+    function categoricalSetFor(row, categoricalRows, selectedSite) {
+      const sameMonth = categoricalRows.filter(r => r.month_sort === row.month_sort);
+      const sameSite = sameMonth.filter(r => r.site && isSameSite(r.site, row.site));
+      if (sameSite.length) return sameSite;
+      if (selectedSite !== 'All Sites') return sameMonth.filter(r => !r.site || isSameSite(r.site, selectedSite));
+      return [];
+    }
+    function dominantCategoryPhrase(row, categoricalRows, selectedSite) {
+      const set = categoricalSetFor(row, categoricalRows, selectedSite);
+      if (!set.length) return '';
+      const totals = {
+        Households: sum(set, 'households_kwh'),
+        Businesses: sum(set, 'businesses_kwh'),
+        Institutions: sum(set, 'institutions_kwh')
+      };
+      const total = Object.values(totals).reduce((a,b) => a + (b || 0), 0);
+      if (!total) return '';
+      const [label, value] = Object.entries(totals).sort((a,b) => b[1] - a[1])[0];
+      return `${label.toLowerCase()} drove <strong>${formatNumber((value/total)*100,1,'','%')}</strong> of categorized consumption`;
+    }
+    function reliabilityPhrase(row) {
+      const parts = [];
+      if (row.uptime_pct !== null && row.uptime_pct !== undefined) parts.push(`uptime <strong>${formatNumber(row.uptime_pct,1,'','%')}</strong>`);
+      if (row.saifi !== null && row.saifi !== undefined) parts.push(`SAIFI <strong>${formatNumber(row.saifi,2)}</strong>`);
+      if (row.saidi_hours !== null && row.saidi_hours !== undefined) parts.push(`SAIDI <strong>${formatNumber(row.saidi_hours,2)} h</strong>`);
+      return parts.length ? parts.join(', ') : '';
+    }
+    function managementFocus(row) {
+      const conAch = divide(row.consumption_kwh, row.planned_consumption_kwh);
+      const revAch = divide(row.revenue_usd, row.planned_revenue_usd);
+      const reliabilitySoft = (row.uptime_pct !== null && row.uptime_pct < 95) || (row.saifi !== null && row.saifi > 1) || (row.saidi_hours !== null && row.saidi_hours > 5);
+      if (reliabilitySoft) return 'Operations focus: recover reliability first, because interruptions are likely suppressing customer usage and collections.';
+      if (conAch !== null && conAch < 0.9) return 'Management focus: investigate demand softness, inactive meters, or suppressed loads against the consumption plan.';
+      if (revAch !== null && revAch < 0.9) return 'Management focus: close the collections gap through recharge follow-up, customer engagement, and payment channel checks.';
+      if (conAch !== null && revAch !== null && conAch >= 1 && revAch >= 1) return 'Management focus: protect the month’s momentum while checking that higher usage is backed by healthy collections.';
+      return 'Management focus: keep watching usage, collections, and reliability together before treating the month as a stable trend.';
+    }
+    function siteStory(row, previous, categoricalRows, selectedSite) {
+      const site = escapeHtml(row.site);
+      const month = escapeHtml(row.month);
+      const consumption = row.consumption_kwh !== null && row.consumption_kwh !== undefined ? `<strong>${formatNumber(row.consumption_kwh,0)} kWh</strong>` : '<strong>no consumption value</strong>';
+      const consumptionTrend = previous ? trendPhrase(row.consumption_kwh, previous.consumption_kwh) : '';
+      const revenue = row.revenue_usd !== null && row.revenue_usd !== undefined ? `<strong>${formatNumber(row.revenue_usd,0,'$')}</strong>${achievementPhrase(row.revenue_usd, row.planned_revenue_usd)}` : 'no revenue value';
+      const reliability = reliabilityPhrase(row);
+      const category = dominantCategoryPhrase(row, categoricalRows, selectedSite);
+      const details = [
+        `consumption was ${consumption}${consumptionTrend ? `, ${consumptionTrend}` : ''}`,
+        `revenue was ${revenue}`,
+        arpuPhrase(row),
+        reliability ? `reliability was ${reliability}` : '',
+        category
+      ].filter(Boolean).join('; ');
+      return `<strong>${site} - ${month}:</strong> ${details}.`;
+    }
+    function selectedSiteInsights(scopeRows, categoricalRows, selectedSite) {
       const monthly = aggregateByMonth(scopeRows);
       const latest = monthly[monthly.length-1];
       const prev = monthly[monthly.length-2];
       const insights = [];
       if (!latest) return ['No records were found for the current filters.'];
-      if (prev && prev.consumption_kwh) {
-        const change = ((latest.consumption_kwh - prev.consumption_kwh) / prev.consumption_kwh) * 100;
-        insights.push(`<strong>${latest.month}</strong> consumption ${change >= 0 ? 'rose' : 'fell'} by <strong>${formatNumber(Math.abs(change),1,'','%')}</strong> versus ${prev.month}.`);
+      insights.push(siteStory(latest, prev, categoricalRows, selectedSite));
+      if (latest.active_customers !== null && latest.active_customers !== undefined) {
+        const activeTrend = prev ? trendPhrase(latest.active_customers, prev.active_customers, '', 1) : '';
+        insights.push(`<strong>Customer activity:</strong> ${formatNumber(latest.active_customers,0)} active customers/meters were recorded${activeTrend ? `, ${activeTrend}` : ''}; consumption per user was <strong>${formatNumber(latest.consumption_per_user_kwh,2)} kWh</strong>.`);
       }
-      const revAch = divide(latest.revenue_usd, latest.planned_revenue_usd);
-      if (revAch !== null) insights.push(`Revenue achievement for <strong>${latest.month}</strong> is <strong>${formatNumber(revAch*100,1,'','%')}</strong> against plan.`);
-      const arpuGap = latest.arpu_usd !== null && latest.planned_arpu_usd !== null ? latest.arpu_usd - latest.planned_arpu_usd : null;
-      if (arpuGap !== null) insights.push(`Latest filtered ARPU is <strong>${formatNumber(latest.arpu_usd,2,'$')}</strong>, which is <strong>${arpuGap >= 0 ? 'above' : 'below'}</strong> plan by <strong>${formatNumber(Math.abs(arpuGap),2,'$')}</strong>.`);
-      if (selectedSite === 'All Sites' && comparisonRows.length) {
-        const topRev = [...comparisonRows].sort((a,b) => (b.revenue_usd||0) - (a.revenue_usd||0))[0];
-        const topUp = [...comparisonRows].sort((a,b) => (b.uptime_pct||0) - (a.uptime_pct||0))[0];
-        if (topRev) insights.push(`<strong>${topRev.site}</strong> is the top revenue site in ${topRev.month} at <strong>${formatNumber(topRev.revenue_usd,0,'$')}</strong>.`);
-        if (topUp) insights.push(`<strong>${topUp.site}</strong> leads reliability with <strong>${formatNumber(topUp.uptime_pct,1,'','%')}</strong> uptime in ${topUp.month}.`);
-      } else if (selectedSite !== 'All Sites') {
-        insights.push(`This view is filtered to <strong>${selectedSite}</strong>. Cards, monthly charts, and executive insights all follow that site filter.`);
-      } else {
-        insights.push('This view is currently showing the <strong>portfolio scope</strong> while the comparison charts remain anchored to the latest month in the selected date range.');
-      }
-      if (categoricalRows.length) {
-        const cat = aggregateCategorical(categoricalRows);
-        const latestCat = cat[cat.length-1];
-        if (latestCat) {
-          const total = (latestCat.households_kwh||0)+(latestCat.businesses_kwh||0)+(latestCat.institutions_kwh||0);
-          const parts = [{label:'Households', value:latestCat.households_kwh||0}, {label:'Businesses', value:latestCat.businesses_kwh||0}, {label:'Institutions', value:latestCat.institutions_kwh||0}].sort((a,b) => b.value-a.value);
-          if (total && parts[0]) insights.push(`<strong>${parts[0].label}</strong> are the dominant consumption segment at <strong>${formatNumber((parts[0].value/total)*100,1,'','%')}</strong> of the latest categorical mix.`);
-        }
-      }
-      return insights.slice(0,6);
+      const conAch = achievementPhrase(latest.consumption_kwh, latest.planned_consumption_kwh);
+      const revAch = achievementPhrase(latest.revenue_usd, latest.planned_revenue_usd);
+      if (conAch || revAch) insights.push(`<strong>Plan check:</strong> consumption delivered${conAch || ' without a configured plan'} and revenue delivered${revAch || ' without a configured plan'} in ${escapeHtml(latest.month)}.`);
+      insights.push(`<strong>Operating read:</strong> ${managementFocus(latest)}`);
+      return insights;
+    }
+    function portfolioInsights(scopeRows, comparisonRows, categoricalRows) {
+      const monthly = aggregateByMonth(scopeRows);
+      const latest = monthly[monthly.length-1];
+      const prev = monthly[monthly.length-2];
+      const latestRows = comparisonRows.length ? comparisonRows : scopeRows.filter(r => r.month_sort === latest?.month_sort);
+      const insights = [];
+      if (!latest || !latestRows.length) return ['No records were found for the current filters.'];
+      const consumptionTrend = prev ? trendPhrase(latest.consumption_kwh, prev.consumption_kwh) : '';
+      insights.push(`<strong>${escapeHtml(latest.month)} portfolio story:</strong> ${latestRows.length} sites reported <strong>${formatNumber(latest.consumption_kwh,0)} kWh</strong> and <strong>${formatNumber(latest.revenue_usd,0,'$')}</strong> revenue${consumptionTrend ? `, with consumption ${consumptionTrend}` : ''}${achievementPhrase(latest.revenue_usd, latest.planned_revenue_usd)}.`);
+      latestRows
+        .sort((a,b) => (b.consumption_kwh || 0) - (a.consumption_kwh || 0))
+        .forEach(row => insights.push(siteStory(row, previousSiteRow(scopeRows, row), categoricalRows, 'All Sites')));
+      return insights;
+    }
+    function buildInsights(scopeRows, comparisonRows, categoricalRows, selectedSite) {
+      const monthly = aggregateByMonth(scopeRows);
+      const latest = monthly[monthly.length-1];
+      if (!latest) return ['No records were found for the current filters.'];
+      return selectedSite === 'All Sites'
+        ? portfolioInsights(scopeRows, comparisonRows, categoricalRows)
+        : selectedSiteInsights(scopeRows, categoricalRows, selectedSite);
     }
 
     function renderTable(rows, selectedSite) {
@@ -869,9 +991,10 @@
       const monthlyScope = aggregateByMonth(scopeRows);
       const compareMonthSort = latestMonthSort(siteRowsDateRange);
       const comparisonRows = siteRowsDateRange.filter(r => r.month_sort === compareMonthSort).sort((a,b) => (b.consumption_kwh||0) - (a.consumption_kwh||0));
-      const siteComparisonRows = selectedSite === 'All Sites' ? comparisonRows : comparisonRows;
+      const comparisonMonth = comparisonRows[0]?.month || '—';
+      const chartTitles = updateChartTitles(selectedSite, comparisonMonth);
       document.getElementById('generationScopePill').textContent = selectedSite === 'All Sites' ? 'Portfolio scope' : `${selectedSite} scope`;
-      document.getElementById('siteCompareMonthPill').textContent = comparisonRows[0]?.month || '—';
+      document.getElementById('siteCompareMonthPill').textContent = comparisonMonth;
 
       document.getElementById('insightsList').innerHTML = buildInsights(scopeRows, selectedSite === 'All Sites' ? comparisonRows : latestRowsForMonth(scopeRows, latestMonthSort(scopeRows), selectedSite), scopeCategorical, selectedSite).map(item => `<li>${item}</li>`).join('');
 
@@ -881,26 +1004,26 @@
           {label:'Generation (kWh)', data:safeSeries(monthlyScope,'generation_kwh'), backgroundColor:COLOR.blue},
           {label:'Victron Consumption (kWh)', data:monthlyScope.map(r=>r.victron_consumption_kwh ?? r.consumption_kwh ?? null), backgroundColor:COLOR.teal}
         ]},
-        options:chartOptions({suffix:' kWh'})
+        options:chartOptions({suffix:' kWh', title:chartTitles.generationConsumptionTitle})
       });
 
-      makeChart('revenueChart','revenueChart',{type:'bar', data:{labels:monthlyScope.map(r=>r.month), datasets:[{label:'Revenue', data:safeSeries(monthlyScope,'revenue_usd'), backgroundColor:COLOR.amber}]}, options:chartOptions({prefix:'$'})});
-      makeChart('uptimeChart','uptimeChart',{type:'bar', data:{labels:monthlyScope.map(r=>r.month), datasets:[{label:'Uptime (%)', data:safeSeries(monthlyScope,'uptime_pct'), backgroundColor:COLOR.green}]}, options:chartOptions({suffix:'%', digits:1})});
-      makeChart('saifiChart','saifiChart',{type:'bar', data:{labels:monthlyScope.map(r=>r.month), datasets:[{label:'SAIFI', data:safeSeries(monthlyScope,'saifi'), backgroundColor:COLOR.purple}]}, options:chartOptions({digits:2})});
-      makeChart('saidiChart','saidiChart',{type:'bar', data:{labels:monthlyScope.map(r=>r.month), datasets:[{label:'SAIDI (hours)', data:safeSeries(monthlyScope,'saidi_hours'), backgroundColor:COLOR.slate}]}, options:chartOptions({suffix:' h', digits:2})});
-      makeChart('cpuChart','cpuChart',{type:'bar', data:{labels:monthlyScope.map(r=>r.month), datasets:[{label:'Consumption per User (kWh)', data:safeSeries(monthlyScope,'consumption_per_user_kwh'), backgroundColor:COLOR.teal}]}, options:chartOptions({suffix:' kWh', digits:2})});
+      makeChart('revenueChart','revenueChart',{type:'bar', data:{labels:monthlyScope.map(r=>r.month), datasets:[{label:'Revenue', data:safeSeries(monthlyScope,'revenue_usd'), backgroundColor:COLOR.amber}]}, options:chartOptions({prefix:'$', title:chartTitles.revenueTitle})});
+      makeChart('uptimeChart','uptimeChart',{type:'bar', data:{labels:monthlyScope.map(r=>r.month), datasets:[{label:'Uptime (%)', data:safeSeries(monthlyScope,'uptime_pct'), backgroundColor:COLOR.green}]}, options:chartOptions({suffix:'%', digits:1, title:chartTitles.uptimeTitle})});
+      makeChart('saifiChart','saifiChart',{type:'bar', data:{labels:monthlyScope.map(r=>r.month), datasets:[{label:'SAIFI', data:safeSeries(monthlyScope,'saifi'), backgroundColor:COLOR.purple}]}, options:chartOptions({digits:2, title:chartTitles.saifiTitle})});
+      makeChart('saidiChart','saidiChart',{type:'bar', data:{labels:monthlyScope.map(r=>r.month), datasets:[{label:'SAIDI (hours)', data:safeSeries(monthlyScope,'saidi_hours'), backgroundColor:COLOR.slate}]}, options:chartOptions({suffix:' h', digits:2, title:chartTitles.saidiTitle})});
+      makeChart('cpuChart','cpuChart',{type:'bar', data:{labels:monthlyScope.map(r=>r.month), datasets:[{label:'Consumption per User (kWh)', data:safeSeries(monthlyScope,'consumption_per_user_kwh'), backgroundColor:COLOR.teal}]}, options:chartOptions({suffix:' kWh', digits:2, title:chartTitles.cpuTitle})});
       makeChart('arpuChart','arpuChart',{type:'bar', data:{labels:monthlyScope.map(r=>r.month), datasets:[
         {label:'Planned ARPU', data:safeSeries(monthlyScope,'planned_arpu_usd'), backgroundColor:COLOR.slate},
         {label:'Achieved ARPU', data:safeSeries(monthlyScope,'arpu_usd'), backgroundColor:COLOR.amber}
-      ]}, options:chartOptions({prefix:'$', digits:2})});
+      ]}, options:chartOptions({prefix:'$', digits:2, title:chartTitles.arpuTitle})});
       makeChart('plannedConsumptionChart','plannedConsumptionChart',{type:'bar', data:{labels:monthlyScope.map(r=>r.month), datasets:[
         {label:'Planned Consumption (kWh)', data:safeSeries(monthlyScope,'planned_consumption_kwh'), backgroundColor:COLOR.slate},
         {label:'Achieved Consumption (kWh)', data:safeSeries(monthlyScope,'consumption_kwh'), backgroundColor:COLOR.teal}
-      ]}, options:chartOptions({suffix:' kWh'})});
+      ]}, options:chartOptions({suffix:' kWh', title:chartTitles.plannedConsumptionTitle})});
       makeChart('plannedRevenueChart','plannedRevenueChart',{type:'bar', data:{labels:monthlyScope.map(r=>r.month), datasets:[
         {label:'Planned Revenue', data:safeSeries(monthlyScope,'planned_revenue_usd'), backgroundColor:COLOR.slate},
         {label:'Actual Revenue', data:safeSeries(monthlyScope,'revenue_usd'), backgroundColor:COLOR.amber}
-      ]}, options:chartOptions({prefix:'$'})});
+      ]}, options:chartOptions({prefix:'$', title:chartTitles.plannedRevenueTitle})});
 
       const categoryMonthly = aggregateCategorical(scopeCategorical);
       makeChart('categoryChart','categoryChart',{
@@ -910,22 +1033,22 @@
           {label:'Businesses', data:safeSeries(categoryMonthly,'businesses_kwh'), backgroundColor:COLOR.green, stack:'cat'},
           {label:'Institutions', data:safeSeries(categoryMonthly,'institutions_kwh'), backgroundColor:COLOR.purple, stack:'cat'}
         ]},
-        options:{...chartOptions({suffix:' kWh'}), scales:{x:{stacked:true, ticks:{color:'#9fb4c6'}, grid:{display:false}}, y:{stacked:true, ticks:{color:'#9fb4c6'}, grid:{color:'rgba(255,255,255,0.06)'}, beginAtZero:true}}}
+        options:{...chartOptions({suffix:' kWh', title:chartTitles.categoryTitle}), scales:{x:{stacked:true, ticks:{color:'#9fb4c6'}, grid:{display:false}}, y:{stacked:true, ticks:{color:'#9fb4c6'}, grid:{color:'rgba(255,255,255,0.06)'}, beginAtZero:true}}}
       });
 
-      makeChart('siteConsumptionChart','siteConsumptionChart',{type:'bar', data:{labels:comparisonRows.map(r=>r.site), datasets:[{label:'Sparkmeter Consumption (kWh)', data:safeSeries(comparisonRows,'consumption_kwh'), backgroundColor:backgroundForSites(comparisonRows, selectedSite)}]}, options:chartOptions({suffix:' kWh'})});
-      makeChart('siteRevenueChart','siteRevenueChart',{type:'bar', data:{labels:comparisonRows.map(r=>r.site), datasets:[{label:'Revenue', data:safeSeries(comparisonRows,'revenue_usd'), backgroundColor:backgroundForSites(comparisonRows, selectedSite)}]}, options:chartOptions({prefix:'$'})});
+      makeChart('siteConsumptionChart','siteConsumptionChart',{type:'bar', data:{labels:comparisonRows.map(r=>r.site), datasets:[{label:'Sparkmeter Consumption (kWh)', data:safeSeries(comparisonRows,'consumption_kwh'), backgroundColor:backgroundForSites(comparisonRows, selectedSite)}]}, options:chartOptions({suffix:' kWh', title:chartTitles.siteConsumptionTitle})});
+      makeChart('siteRevenueChart','siteRevenueChart',{type:'bar', data:{labels:comparisonRows.map(r=>r.site), datasets:[{label:'Revenue', data:safeSeries(comparisonRows,'revenue_usd'), backgroundColor:backgroundForSites(comparisonRows, selectedSite)}]}, options:chartOptions({prefix:'$', title:chartTitles.siteRevenueTitle})});
 
       const bugarulaRows = filterByDateRange(data.siteMonthly.filter(r => r.site === 'Bugarula'), startSort, endSort);
       const bugarulaMonthly = aggregateByMonth(bugarulaRows);
       makeChart('bugarulaGenerationChart','bugarulaGenerationChart',{type:'bar', data:{labels:bugarulaMonthly.map(r=>r.month), datasets:[
         {label:'PV Generation (kWh)', data:safeSeries(bugarulaMonthly,'pv_generation_kwh'), backgroundColor:COLOR.green},
         {label:'DG Generation (kWh)', data:safeSeries(bugarulaMonthly,'dg_generation_kwh'), backgroundColor:COLOR.coral}
-      ]}, options:chartOptions({suffix:' kWh'})});
+      ]}, options:chartOptions({suffix:' kWh', title:chartTitles.bugarulaGenerationTitle})});
       makeChart('bugarulaFuelChart','bugarulaFuelChart',{type:'bar', data:{labels:bugarulaMonthly.map(r=>r.month), datasets:[
         {label:'Fuel Planned (L)', data:safeSeries(bugarulaMonthly,'planned_fuel_l'), backgroundColor:COLOR.slate},
         {label:'Fuel Consumed (L)', data:safeSeries(bugarulaMonthly,'fuel_utilised_l'), backgroundColor:COLOR.amber}
-      ]}, options:chartOptions({suffix:' L'})});
+      ]}, options:chartOptions({suffix:' L', title:chartTitles.bugarulaFuelTitle})});
 
       const tableRows = selectedSite === 'All Sites' ? comparisonRows : comparisonRows.filter(r => isSameSite(r.site, selectedSite));
       renderTable(tableRows, selectedSite);
