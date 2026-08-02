@@ -705,7 +705,9 @@
     }
     function aggregateRows(rows) {
       if (!rows.length) return { month:'—',month_sort:null,site:'—',active_customers:null,reliability_meters:null,consumption_kwh:null,revenue_usd:null,arpu_usd:null,consumption_per_user_kwh:null,uptime_pct:null,downtime_pct:null,outages:null,saifi:null,saidi_hours:null,planned_consumption_kwh:null,planned_revenue_usd:null,planned_arpu_usd:null,fuel_utilised_l:null,planned_fuel_l:null,pv_generation_kwh:null,dg_generation_kwh:null,generation_kwh:null,victron_consumption_kwh:null };
-      const ac = sum(rows,'active_customers'), rev = sum(rows,'revenue_usd'), con = sum(rows,'consumption_kwh'), prev = sum(rows,'planned_revenue_usd'), pcon = sum(rows,'planned_consumption_kwh');
+      const ac = sum(rows,'active_customers'), rev = sum(rows,'revenue_usd'), con = sum(rows,'consumption_kwh');
+      const prev = rows.some(r => cleanNumber(r.planned_revenue_usd) > 0) ? sum(rows,'planned_revenue_usd') : null;
+      const pcon = rows.some(r => cleanNumber(r.planned_consumption_kwh) > 0) ? sum(rows,'planned_consumption_kwh') : null;
       const rel = sum(rows,'reliability_meters'), pv = sum(rows,'pv_generation_kwh'), dg = sum(rows,'dg_generation_kwh'), gen = sum(rows,'generation_kwh') || ((pv||0)+(dg||0)), vic = sum(rows,'victron_consumption_kwh');
       return {
         month: rows[0]?.month || '—', month_sort: rows[0]?.month_sort || null, site: rows.length === 1 ? rows[0].site : 'Lolwe',
