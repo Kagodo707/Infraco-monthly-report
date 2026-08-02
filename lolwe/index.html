@@ -240,6 +240,10 @@
 
   <script>
     const DASHBOARD_CONFIG = {
+      operationalVillages: [
+        'Butanira', 'Golofa', 'Kamwanga', 'Kandenge', 'Kisumu',
+        'Labolo Resort', 'Mwango', 'Mwangoda', 'Singila'
+      ],
       tabs: {
         siteSheets: ['Lolwe Monthly KPIs'],
         categoricalSheet: 'Lolwe Categorical consumption'
@@ -1055,7 +1059,10 @@
     }
 
     function populateSiteFilter(siteRows) {
-      const sites = [...new Set(siteRows.map(r => canonicalizeSiteName(r.site)).filter(Boolean))].sort();
+      const sites = [...new Set([
+        ...DASHBOARD_CONFIG.operationalVillages,
+        ...siteRows.map(r => canonicalizeSiteName(r.site)).filter(Boolean)
+      ])].sort();
       const select = document.getElementById('siteFilter');
       const current = select.value || 'All Sites';
       select.innerHTML = ['All Sites', ...sites].map(s => `<option value="${s}">${s === 'All Sites' ? 'Lolwe (All Villages)' : s}</option>`).join('');
