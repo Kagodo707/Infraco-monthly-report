@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lolwe Performance Dashboard | Equatorial Power</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-  <link rel="stylesheet" href="../dashboard-modern.css" />
   <style>
     :root {
       --bg: #071a2a;
@@ -119,6 +118,7 @@
       .chart-wrap, .chart-wrap.tall, .chart-wrap.short { height: 290px; }
     }
   </style>
+  <link rel="stylesheet" href="../dashboard-modern.css" />
 </head>
 <body>
   <div class="container">
@@ -586,6 +586,8 @@
         ['revenue_usd','arpu_usd','planned_revenue_usd','planned_arpu_usd'].forEach(field => {
           if (record[field] !== null) record[field] = record[field] / FX_RATE_UGX_PER_USD;
         });
+        if (!(record.planned_revenue_usd > 0)) record.planned_revenue_usd = null;
+        if (!(record.planned_arpu_usd > 0)) record.planned_arpu_usd = null;
         if (record.generation_kwh === null && (record.pv_generation_kwh !== null || record.dg_generation_kwh !== null)) record.generation_kwh = (record.pv_generation_kwh || 0) + (record.dg_generation_kwh || 0);
         if (record.active_customers === null) {
           if (record.revenue_usd !== null && record.arpu_usd) record.active_customers = record.revenue_usd / record.arpu_usd;
