@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Equatorial Power Lolwe Monthly Technical, Commercial and Operational Report</title>
+  <title>Lolwe Performance Dashboard | Equatorial Power</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="../dashboard-modern.css" />
   <style>
     :root {
       --bg: #071a2a;
@@ -125,15 +126,21 @@
       <div class="title-panel">
         <div class="title-top">
           <div class="title-copy">
-            <h1>Equatorial Power Lolwe Monthly Technical, Commercial and Operational Report</h1>
+            <div class="eyebrow">Equatorial Power · Uganda Operations</div>
+            <h1>Lolwe Performance Dashboard</h1>
+            <p class="title-subtitle">Monthly commercial, customer, energy and service performance across Lolwe’s operating villages.</p>
             <div class="site-name-display" id="currentSiteDisplay">Lolwe (All Villages)</div>
+            <nav class="dashboard-nav" aria-label="Dashboard navigation">
+              <a href="../index.html">DRC Portfolio</a>
+              <a class="active" href="index.html" aria-current="page">Lolwe</a>
+            </nav>
           </div>
           <img class="brand-logo" src="ep-logo.png" alt="Equatorial Power logo" onerror="this.style.display='inline-block'; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'150\' height=\'50\'%3E%3Crect width=\'150\' height=\'50\' fill=\'%2318b7b0\' rx=\'8\'/%3E%3Ctext x=\'75\' y=\'32\' font-family=\'Arial\' font-size=\'16\' fill=\'white\' text-anchor=\'middle\' font-weight=\'bold\'%3EEP Logo%3C/text%3E%3C/svg%3E';" />
         </div>
       </div>
       <div class="status-panel">
         <div class="status-label">Data connection</div>
-        <div class="status-value" id="sourceMode">Loading…</div>
+        <div class="status-value live-dot" id="sourceMode">Loading…</div>
         <div class="status-text" id="sourceStatus">Connecting to the published Google Sheet tabs.</div>
         <div class="status-label">Latest month in filter</div>
         <div class="status-value" id="latestMonthBadge">—</div>
@@ -145,7 +152,7 @@
 
     <div class="filters">
       <div class="field">
-        <label for="siteFilter">Village</label>
+        <label for="siteFilter">Reporting scope</label>
         <select id="siteFilter"></select>
       </div>
       <div class="field">
@@ -158,7 +165,7 @@
       </div>
       <div class="field">
         <label>&nbsp;</label>
-        <button id="refreshBtn">Refresh dashboard</button>
+        <button id="refreshBtn">Refresh live data</button>
       </div>
     </div>
 
@@ -167,28 +174,28 @@
     <div class="section-grid-2">
       <div class="chart-card">
         <div class="card-head">
-          <div><h3 id="generationConsumptionTitle">Lolwe: Generation vs Consumption by Month</h3></div>
+          <div><h3 id="generationConsumptionTitle">Energy delivered and active customers</h3></div>
           <span class="pill" id="generationScopePill">Scope</span>
         </div>
         <div class="chart-wrap tall"><canvas id="generationConsumptionChart"></canvas></div>
       </div>
 
       <div class="table-card">
-        <div class="card-head"><div><h3 id="insightsTitle">Executive Insights</h3></div></div>
+        <div class="card-head"><div><h3 id="insightsTitle">Management brief</h3></div></div>
         <ol class="insight-list" id="insightsList"></ol>
       </div>
     </div>
 
     <div class="section-grid-3">
-      <div class="chart-card"><div class="card-head"><div><h3 id="revenueTitle">Lolwe: Revenue by Month</h3></div></div><div class="chart-wrap short"><canvas id="revenueChart"></canvas></div></div>
-      <div class="chart-card"><div class="card-head"><div><h3 id="uptimeTitle">Lolwe: Uptime by Month</h3></div></div><div class="chart-wrap short"><canvas id="uptimeChart"></canvas></div></div>
-      <div class="chart-card"><div class="card-head"><div><h3 id="saifiTitle">Lolwe: SAIFI by Month</h3></div></div><div class="chart-wrap short"><canvas id="saifiChart"></canvas></div></div>
+      <div class="chart-card"><div class="card-head"><div><h3 id="revenueTitle">Revenue trend</h3></div></div><div class="chart-wrap short"><canvas id="revenueChart"></canvas></div></div>
+      <div class="chart-card"><div class="card-head"><div><h3 id="uptimeTitle">Service availability</h3></div></div><div class="chart-wrap short"><canvas id="uptimeChart"></canvas></div></div>
+      <div class="chart-card"><div class="card-head"><div><h3 id="saifiTitle">Interruption frequency</h3></div></div><div class="chart-wrap short"><canvas id="saifiChart"></canvas></div></div>
     </div>
 
     <div class="section-grid-3">
-      <div class="chart-card"><div class="card-head"><div><h3 id="saidiTitle">Lolwe: SAIDI by Month</h3></div></div><div class="chart-wrap short"><canvas id="saidiChart"></canvas></div></div>
-      <div class="chart-card"><div class="card-head"><div><h3 id="cpuTitle">Lolwe: Consumption per User by Month</h3></div></div><div class="chart-wrap short"><canvas id="cpuChart"></canvas></div></div>
-      <div class="chart-card"><div class="card-head"><div><h3 id="arpuTitle">Lolwe: ARPU Planned vs Achieved by Month</h3></div></div><div class="chart-wrap short"><canvas id="arpuChart"></canvas></div></div>
+      <div class="chart-card"><div class="card-head"><div><h3 id="saidiTitle">Interruption duration</h3></div></div><div class="chart-wrap short"><canvas id="saidiChart"></canvas></div></div>
+      <div class="chart-card"><div class="card-head"><div><h3 id="cpuTitle">Energy use per customer</h3></div></div><div class="chart-wrap short"><canvas id="cpuChart"></canvas></div></div>
+      <div class="chart-card"><div class="card-head"><div><h3 id="arpuTitle">Average revenue per customer</h3></div></div><div class="chart-wrap short"><canvas id="arpuChart"></canvas></div></div>
     </div>
 
     <div class="section-grid-2">
@@ -219,13 +226,12 @@
               <th>Village</th>
               <th>Month</th>
               <th>Sparkmeter Consumption (kWh)</th>
-              <th>Revenue (UGX)</th>
-              <th>ARPU (UGX)</th>
+              <th>Revenue (USD)</th>
+              <th>ARPU (USD)</th>
               <th>Consumption / User</th>
-              <th>Uptime</th>
+              <th>Availability*</th>
               <th>SAIFI</th>
               <th>SAIDI</th>
-              <th>Outages</th>
             </tr>
           </thead>
           <tbody id="siteTableBody"></tbody>
@@ -234,7 +240,7 @@
     </div>
 
     <div class="footer-note">
-      This Lolwe dashboard is a static application for GitHub Pages. It reads the workflow-controlled Lolwe village KPI and categorical-consumption tabs directly from the published EP KPI workbook.
+      Live operational dashboard · Financial values are shown in USD using the disclosed reporting rate · Reliability is calculated from available meter-heartbeat records.
     </div>
   </div>
 
@@ -295,7 +301,8 @@
     const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
     const MONTH_LOOKUP = {jan:1,january:1,feb:2,february:2,mar:3,march:3,apr:4,april:4,may:5,jun:6,june:6,jul:7,july:7,aug:8,august:8,sep:9,sept:9,september:9,oct:10,october:10,nov:11,november:11,dec:12,december:12};
     const charts = {};
-    const CURRENCY_PREFIX = 'UGX ';
+    const FX_RATE_UGX_PER_USD = 3750;
+    const CURRENCY_PREFIX = '$';
     const COLOR = {
       teal:'rgba(24,183,176,0.86)', blue:'rgba(60,125,217,0.84)', green:'rgba(78,203,113,0.84)', amber:'rgba(244,185,66,0.86)',
       coral:'rgba(239,107,107,0.84)', purple:'rgba(143,124,247,0.86)', slate:'rgba(125,147,168,0.84)', selected:'rgba(24,183,176,0.92)', defaultCompare:'rgba(60,125,217,0.78)'
@@ -574,6 +581,11 @@
           dg_generation_kwh: firstNumeric(item.dg_generation_kwh),
           victron_consumption_kwh: firstNumeric(item.victron_consumption_kwh)
         };
+        // Lolwe's controlled source is maintained in UGX. Convert all financial
+        // measures with one explicit reporting rate before any aggregation.
+        ['revenue_usd','arpu_usd','planned_revenue_usd','planned_arpu_usd'].forEach(field => {
+          if (record[field] !== null) record[field] = record[field] / FX_RATE_UGX_PER_USD;
+        });
         if (record.generation_kwh === null && (record.pv_generation_kwh !== null || record.dg_generation_kwh !== null)) record.generation_kwh = (record.pv_generation_kwh || 0) + (record.dg_generation_kwh || 0);
         if (record.active_customers === null) {
           if (record.revenue_usd !== null && record.arpu_usd) record.active_customers = record.revenue_usd / record.arpu_usd;
@@ -648,9 +660,9 @@
       try { categoricalRows = parseCategoricalRows(await fetchCsv(DASHBOARD_CONFIG.tabs.categoricalSheet)); }
       catch (e) { errors.push(e?.message || 'Categorical consumption failed'); }
       if (goodSiteRows.length > 0) {
-        const revenueRows = goodSiteRows.filter(r => r.revenue_usd !== null).length;
-        const outageRows = goodSiteRows.filter(r => r.outages !== null).length;
-        setStatus('Live published sheet', `Loaded ${goodSiteRows.length} records. Revenue rows: ${revenueRows}. Outage rows: ${outageRows}.`, errors.length ? `Some tabs had issues:\n${errors.join('\n')}` : '');
+        const latestSort = latestMonthSort(goodSiteRows);
+        const reportingVillages = new Set(goodSiteRows.filter(r => r.month_sort === latestSort).map(r => r.site)).size;
+        setStatus('Live data', `${reportingVillages} of ${DASHBOARD_CONFIG.operationalVillages.length} villages reporting · USD at UGX ${FX_RATE_UGX_PER_USD.toLocaleString()} per USD.`, errors.length ? `Some source tabs had issues:\n${errors.join('\n')}` : '');
         return { siteMonthly: goodSiteRows, categorical: categoricalRows };
       }
       if (DASHBOARD_CONFIG.fallbackEnabled) {
@@ -728,13 +740,13 @@
       return {
         responsive:true, maintainAspectRatio:false, interaction:{mode:'index', intersect:false},
         plugins:{
-          title:{display:Boolean(title), text:title, color:'#e9f1f7', font:{size:14, weight:'700'}, padding:{bottom:12}},
-          legend:{labels:{color:'#e9f1f7', boxWidth:12}},
-          tooltip:{callbacks:{label(ctx){ return `${ctx.dataset.label}: ${formatNumber(ctx.parsed.y, digits, prefix, suffix)}`; }}}
+          title:{display:false, text:title},
+          legend:{labels:{color:'#49636b', boxWidth:10, boxHeight:10, usePointStyle:true, pointStyle:'circle'}},
+          tooltip:{callbacks:{label(ctx){ const value = ctx.parsed.y ?? ctx.parsed.x; return `${ctx.dataset.label}: ${formatNumber(value, digits, prefix, suffix)}`; }}}
         },
         scales:{
-          x:{ticks:{color:'#9fb4c6'}, grid:{display:false}},
-          y:{ticks:{color:'#9fb4c6', callback(v){ return formatNumber(v,0,prefix,suffix); }}, grid:{color:'rgba(255,255,255,0.06)'}, beginAtZero:true}
+          x:{ticks:{color:'#6f848a'}, grid:{display:false}, border:{display:false}},
+          y:{ticks:{color:'#6f848a', callback(v){ return formatNumber(v,0,prefix,suffix); }}, grid:{color:'rgba(21,50,58,0.07)'}, border:{display:false}, beginAtZero:true}
         }
       };
     }
@@ -747,19 +759,19 @@
       const scope = scopeName(selectedSite);
       const monthLabel = comparisonMonth || 'latest month';
       const titles = {
-        generationConsumptionTitle: `${scope}: Generation vs Consumption by Month`,
-        insightsTitle: selectedSite === 'All Sites' ? `Executive Village Stories: ${monthLabel}` : `${scope}: Executive Story`,
-        revenueTitle: `${scope}: Revenue by Month`,
-        uptimeTitle: `${scope}: Uptime by Month`,
-        saifiTitle: `${scope}: SAIFI by Month`,
-        saidiTitle: `${scope}: SAIDI by Month`,
-        cpuTitle: `${scope}: Consumption per User by Month`,
-        arpuTitle: `${scope}: ARPU Planned vs Achieved by Month`,
-        plannedConsumptionTitle: `${scope}: Planned vs Achieved Consumption by Month`,
-        plannedRevenueTitle: `${scope}: Planned vs Actual Revenue by Month`,
-        categoryTitle: `${scope}: Categorical Consumption Mix by Month`,
-        siteConsumptionTitle: `Village Comparison: SparkMeter Consumption - ${monthLabel}`,
-        siteRevenueTitle: `Village Comparison: Revenue - ${monthLabel}`,
+        generationConsumptionTitle: `${scope}: Energy delivered and active customers`,
+        insightsTitle: selectedSite === 'All Sites' ? `Management brief · ${monthLabel}` : `${scope} management brief`,
+        revenueTitle: `${scope}: Revenue trend`,
+        uptimeTitle: `${scope}: Service availability`,
+        saifiTitle: `${scope}: Interruption frequency (SAIFI)`,
+        saidiTitle: `${scope}: Interruption duration (SAIDI)`,
+        cpuTitle: `${scope}: Energy use per active customer`,
+        arpuTitle: `${scope}: Average revenue per active customer`,
+        plannedConsumptionTitle: `${scope}: Energy delivered against plan`,
+        plannedRevenueTitle: `${scope}: Revenue against plan`,
+        categoryTitle: `${scope}: Customer-segment energy mix`,
+        siteConsumptionTitle: `Village energy delivered · ${monthLabel}`,
+        siteRevenueTitle: `Village revenue · ${monthLabel}`,
         bugarulaGenerationTitle: 'Bugarula: PV Generation vs DG Generation by Month',
         bugarulaFuelTitle: 'Bugarula: Fuel Planned vs Fuel Consumed by Month',
         tableTitle: `Latest Available Village Table - ${monthLabel}`
@@ -805,14 +817,14 @@
       return {
         latest,
         cards: [
-          {label:'Latest Month', value: latest.month, sub:'Cards always show the latest month inside the active filter.'},
-          {label:'Sparkmeter Consumption', value:`${formatNumber(latest.consumption_kwh,0)} kWh`, sub:`Latest filtered month. Achievement vs plan: ${formatNumber((achCon||0)*100,1,'','%')}`},
-          {label:'Revenue', value: formatNumber(latest.revenue_usd,0,CURRENCY_PREFIX), sub:`Latest filtered month. Achievement vs plan: ${formatNumber((achRev||0)*100,1,'','%')}`},
-          {label:'ARPU', value: formatNumber(latest.arpu_usd,0,CURRENCY_PREFIX), sub:`Latest filtered month. Planned ARPU: ${formatNumber(latest.planned_arpu_usd,0,CURRENCY_PREFIX)}`},
-          {label:'Consumption per User', value:`${formatNumber(latest.consumption_per_user_kwh,2)} kWh`, sub:'Latest filtered month actual.'},
-          {label:'Uptime', value: formatNumber(latest.uptime_pct,1,'','%'), sub:`Latest filtered month. Downtime: ${formatNumber(latest.downtime_pct,1,'','%')}`},
-          {label:'SAIFI', value: formatNumber(latest.saifi,2), sub:'Latest filtered month reliability index.'},
-          {label:'SAIDI', value:`${formatNumber(latest.saidi_hours,2)} h`, sub:`Latest filtered month. Outages: ${formatNumber(latest.outages,0)}`}
+          {label:'Revenue', value: formatNumber(latest.revenue_usd,0,CURRENCY_PREFIX), sub: achRev === null ? `${latest.month} actual` : `${formatNumber(achRev*100,1,'','%')} of plan`},
+          {label:'Energy delivered', value:`${formatNumber(latest.consumption_kwh,0)} kWh`, sub: achCon === null ? `${latest.month} actual` : `${formatNumber(achCon*100,1,'','%')} of plan`},
+          {label:'Active customers', value:formatNumber(latest.active_customers,0), sub:`Connections active in ${latest.month}`},
+          {label:'Service availability', value: formatNumber(latest.uptime_pct,1,'','%'), sub:`Telemetry-based · downtime ${formatNumber(latest.downtime_pct,1,'','%')}`},
+          {label:'ARPU', value: formatNumber(latest.arpu_usd,2,CURRENCY_PREFIX), sub: latest.planned_arpu_usd === null ? 'Revenue per active customer' : `Plan ${formatNumber(latest.planned_arpu_usd,2,CURRENCY_PREFIX)}`},
+          {label:'Energy per customer', value:`${formatNumber(latest.consumption_per_user_kwh,2)} kWh`, sub:'Monthly consumption intensity'},
+          {label:'SAIFI', value: formatNumber(latest.saifi,2), sub:'Interruptions per customer'},
+          {label:'SAIDI', value:`${formatNumber(latest.saidi_hours,1)} h`, sub:'Interruption hours per customer'}
         ]
       };
     }
@@ -931,10 +943,14 @@
       const insights = [];
       if (!latest || !latestRows.length) return ['No records were found for the current filters.'];
       const consumptionTrend = prev ? trendPhrase(latest.consumption_kwh, prev.consumption_kwh) : '';
-      insights.push(`<strong>${escapeHtml(latest.month)} Lolwe story:</strong> ${latestRows.length} villages reported <strong>${formatNumber(latest.consumption_kwh,0)} kWh</strong> and <strong>${formatNumber(latest.revenue_usd,0,CURRENCY_PREFIX)}</strong> revenue${consumptionTrend ? `, with consumption ${consumptionTrend}` : ''}${achievementPhrase(latest.revenue_usd, latest.planned_revenue_usd)}.`);
-      latestRows
-        .sort((a,b) => (b.consumption_kwh || 0) - (a.consumption_kwh || 0))
-        .forEach(row => insights.push(siteStory(row, previousSiteRow(scopeRows, row), categoricalRows, 'All Sites')));
+      const byConsumption = [...latestRows].sort((a,b) => (b.consumption_kwh || 0) - (a.consumption_kwh || 0));
+      const byRevenue = [...latestRows].filter(r => r.revenue_usd !== null).sort((a,b) => (b.revenue_usd || 0) - (a.revenue_usd || 0));
+      const reliabilityRisk = [...latestRows].filter(r => r.uptime_pct !== null).sort((a,b) => a.uptime_pct - b.uptime_pct)[0];
+      insights.push(`<strong>${escapeHtml(latest.month)} result:</strong> ${latestRows.length} of ${DASHBOARD_CONFIG.operationalVillages.length} villages reported <strong>${formatNumber(latest.consumption_kwh,0)} kWh</strong>, <strong>${formatNumber(latest.revenue_usd,0,CURRENCY_PREFIX)}</strong> revenue and <strong>${formatNumber(latest.active_customers,0)}</strong> active customers${consumptionTrend ? `; energy was ${consumptionTrend}` : ''}.`);
+      if (byConsumption[0]) insights.push(`<strong>Demand concentration:</strong> ${escapeHtml(byConsumption[0].site)} supplied the most energy at <strong>${formatNumber(byConsumption[0].consumption_kwh,0)} kWh</strong>, representing <strong>${formatNumber(divide(byConsumption[0].consumption_kwh,latest.consumption_kwh)*100,1,'','%')}</strong> of Lolwe’s reported total.`);
+      if (byRevenue[0]) insights.push(`<strong>Commercial leader:</strong> ${escapeHtml(byRevenue[0].site)} generated <strong>${formatNumber(byRevenue[0].revenue_usd,0,CURRENCY_PREFIX)}</strong>; Lolwe ARPU was <strong>${formatNumber(latest.arpu_usd,2,CURRENCY_PREFIX)}</strong>.`);
+      if (reliabilityRisk) insights.push(`<strong>Service priority:</strong> ${escapeHtml(reliabilityRisk.site)} had the lowest telemetry-based availability at <strong>${formatNumber(reliabilityRisk.uptime_pct,1,'','%')}</strong>. Validate communication gaps against operating logs before treating them as physical outages.`);
+      if (latestRows.length < DASHBOARD_CONFIG.operationalVillages.length) insights.push(`<strong>Coverage:</strong> ${DASHBOARD_CONFIG.operationalVillages.length-latestRows.length} villages had no usable records for ${escapeHtml(latest.month)} and remain excluded from totals rather than reported as zero.`);
       return insights;
     }
     function buildInsights(scopeRows, comparisonRows, categoricalRows, selectedSite) {
@@ -958,7 +974,6 @@
           <td>${escapeHtml(formatNumber(r.uptime_pct,1,'','%'))}</td>
           <td>${escapeHtml(formatNumber(r.saifi,2))}</td>
           <td>${escapeHtml(formatNumber(r.saidi_hours,2))}</td>
-          <td>${escapeHtml(formatNumber(r.outages,0))}</td>
         </tr>`).join('');
     }
 
@@ -968,6 +983,11 @@
         const el = document.getElementById(id);
         if (el) el.style.display = show ? '' : 'none';
       });
+    }
+
+    function setCardAvailability(canvasId, hasData) {
+      const card = document.getElementById(canvasId)?.closest('.chart-card');
+      if (card) card.style.display = hasData ? '' : 'none';
     }
 
     function updateMeta(latest, selectedSite) {
@@ -1002,13 +1022,15 @@
 
       document.getElementById('insightsList').innerHTML = buildInsights(scopeRows, selectedSite === 'All Sites' ? comparisonRows : latestRowsForMonth(scopeRows, latestMonthSort(scopeRows), selectedSite), scopeCategorical, selectedSite).map(item => `<li>${item}</li>`).join('');
 
+      const energyCustomerOptions = chartOptions({suffix:' kWh', title:chartTitles.generationConsumptionTitle});
+      energyCustomerOptions.scales.y1 = {position:'right', beginAtZero:true, ticks:{color:'#6f848a'}, grid:{drawOnChartArea:false}, border:{display:false}, title:{display:true,text:'Active customers',color:'#6f848a'}};
       makeChart('generationConsumptionChart','generationConsumptionChart',{
         type:'bar',
         data:{labels:monthlyScope.map(r=>r.month), datasets:[
-          {label:'Generation (kWh)', data:safeSeries(monthlyScope,'generation_kwh'), backgroundColor:COLOR.blue},
-          {label:'Victron Consumption (kWh)', data:monthlyScope.map(r=>r.victron_consumption_kwh ?? r.consumption_kwh ?? null), backgroundColor:COLOR.teal}
+          {label:'Energy delivered (kWh)', data:safeSeries(monthlyScope,'consumption_kwh'), backgroundColor:COLOR.teal, borderRadius:7},
+          {label:'Active customers', data:safeSeries(monthlyScope,'active_customers'), type:'line', yAxisID:'y1', borderColor:COLOR.blue, backgroundColor:COLOR.blue, tension:.32, pointRadius:4, pointHoverRadius:6}
         ]},
-        options:chartOptions({suffix:' kWh', title:chartTitles.generationConsumptionTitle})
+        options:energyCustomerOptions
       });
 
       makeChart('revenueChart','revenueChart',{type:'bar', data:{labels:monthlyScope.map(r=>r.month), datasets:[{label:'Revenue', data:safeSeries(monthlyScope,'revenue_usd'), backgroundColor:COLOR.amber}]}, options:chartOptions({prefix:CURRENCY_PREFIX, title:chartTitles.revenueTitle})});
@@ -1028,6 +1050,8 @@
         {label:'Planned Revenue', data:safeSeries(monthlyScope,'planned_revenue_usd'), backgroundColor:COLOR.slate},
         {label:'Actual Revenue', data:safeSeries(monthlyScope,'revenue_usd'), backgroundColor:COLOR.amber}
       ]}, options:chartOptions({prefix:CURRENCY_PREFIX, title:chartTitles.plannedRevenueTitle})});
+      setCardAvailability('plannedConsumptionChart', monthlyScope.some(r => r.planned_consumption_kwh !== null));
+      setCardAvailability('plannedRevenueChart', monthlyScope.some(r => r.planned_revenue_usd !== null));
 
       const categoryMonthly = aggregateCategorical(scopeCategorical);
       makeChart('categoryChart','categoryChart',{
@@ -1037,7 +1061,7 @@
           {label:'Businesses', data:safeSeries(categoryMonthly,'businesses_kwh'), backgroundColor:COLOR.green, stack:'cat'},
           {label:'Institutions', data:safeSeries(categoryMonthly,'institutions_kwh'), backgroundColor:COLOR.purple, stack:'cat'}
         ]},
-        options:{...chartOptions({suffix:' kWh', title:chartTitles.categoryTitle}), scales:{x:{stacked:true, ticks:{color:'#9fb4c6'}, grid:{display:false}}, y:{stacked:true, ticks:{color:'#9fb4c6'}, grid:{color:'rgba(255,255,255,0.06)'}, beginAtZero:true}}}
+        options:{...chartOptions({suffix:' kWh', title:chartTitles.categoryTitle}), scales:{x:{stacked:true, ticks:{color:'#6f848a'}, grid:{display:false}, border:{display:false}}, y:{stacked:true, ticks:{color:'#6f848a'}, grid:{color:'rgba(21,50,58,0.07)'}, border:{display:false}, beginAtZero:true}}}
       });
 
       makeChart('siteConsumptionChart','siteConsumptionChart',{type:'bar', data:{labels:comparisonRows.map(r=>r.site), datasets:[{label:'Sparkmeter Consumption (kWh)', data:safeSeries(comparisonRows,'consumption_kwh'), backgroundColor:backgroundForSites(comparisonRows, selectedSite)}]}, options:chartOptions({suffix:' kWh', title:chartTitles.siteConsumptionTitle})});
