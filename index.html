@@ -259,7 +259,7 @@
         'Bugarula': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRP6zU6ygZid-trwUn8tTdHm1r6fy1ishiZW5AOw4nAhQpGVbj3cS7JZYiheU6ThUe46RoJnmZI71Sr/pub?gid=686192888&single=true&output=csv',
         'Categorical consumption': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRP6zU6ygZid-trwUn8tTdHm1r6fy1ishiZW5AOw4nAhQpGVbj3cS7JZYiheU6ThUe46RoJnmZI71Sr/pub?gid=36093025&single=true&output=csv'
       },
-      fallbackEnabled: true
+      fallbackEnabled: false
     };
 
     const FALLBACK_DATA = {
@@ -684,6 +684,13 @@
       rows.forEach(r => { if (!map.has(r.month_sort)) map.set(r.month_sort, r.month); });
       return [...map.entries()].sort((a,b) => a[0]-b[0]).map(([month_sort, month]) => ({ month_sort, month }));
     }
+    function reportingPeriodLabel(rows) {
+      const months = uniqueSortedMonths(rows);
+      if (!months.length) return 'No reporting data';
+      const first = months[0], last = months[months.length-1], firstYear = Math.floor(first.month_sort/100), lastYear = Math.floor(last.month_sort/100);
+      if (first.month_sort === last.month_sort) return first.month;
+      return firstYear === lastYear ? `${first.month.split(' ')[0]}–${last.month.split(' ')[0]} ${firstYear}` : `${first.month}–${last.month}`;
+    }
     function filterByDateRange(rows, startSort, endSort) { return rows.filter(r => r.month_sort >= startSort && r.month_sort <= endSort); }
     function monthSortFromInput(value) { if (!value) return null; const [year, month] = value.split('-').map(Number); return year*100 + month; }
     function getDateRangeFromInputs() {
@@ -751,7 +758,7 @@
       const monthLabel = comparisonMonth || 'latest month';
       const titles = {
         generationConsumptionTitle: `${scope}: Energy generated and delivered`,
-        insightsTitle: selectedSite === 'All Sites' ? `Management brief · ${monthLabel}` : `${scope} management brief`,
+        insightsTitle: `${scope} management brief · ${monthLabel}`,
         revenueTitle: `${scope}: Revenue trend`,
         uptimeTitle: `${scope}: Service availability`,
         saifiTitle: `${scope}: Interruption frequency (SAIFI)`,
@@ -844,6 +851,10 @@
       const achievement = divide(actual, planned);
       return achievement === null ? '' : `, at <strong>${formatNumber(achievement*100,1,'','%')}</strong> of ${label}`;
     }
+    function achievementValue(actual, planned) {
+      const achievement = divide(actual, planned);
+      return achievement === null ? 'not available' : formatNumber(achievement*100,1,'','%');
+    }
     function arpuPhrase(row) {
       if (row.arpu_usd === null || row.arpu_usd === undefined) return '';
       const gap = row.planned_arpu_usd !== null && row.planned_arpu_usd !== undefined ? row.arpu_usd - row.planned_arpu_usd : null;
@@ -916,13 +927,16 @@
       const insights = [];
       if (!latest) return ['No records were found for the current filters.'];
       insights.push(siteStory(latest, prev, categoricalRows, selectedSite));
+      const periodRevenue = sum(monthly,'revenue_usd'), periodRevenuePlan = sum(monthly,'planned_revenue_usd');
+      const periodEnergy = sum(monthly,'consumption_kwh'), periodEnergyPlan = sum(monthly,'planned_consumption_kwh');
+      insights.push(`<strong>Selected-period result (${escapeHtml(reportingPeriodLabel(monthly))}):</strong> revenue totalled <strong>${formatNumber(periodRevenue,0,'$')}</strong> against ${formatNumber(periodRevenuePlan,0,'$')} planned (<strong>${achievementValue(periodRevenue,periodRevenuePlan)}</strong>), while energy delivered was <strong>${formatNumber(periodEnergy,0)} kWh</strong> against ${formatNumber(periodEnergyPlan,0)} kWh planned (<strong>${achievementValue(periodEnergy,periodEnergyPlan)}</strong>).`);
       if (latest.active_customers !== null && latest.active_customers !== undefined) {
         const activeTrend = prev ? trendPhrase(latest.active_customers, prev.active_customers, '', 1) : '';
         insights.push(`<strong>Customer activity:</strong> ${formatNumber(latest.active_customers,0)} active customers/meters were recorded${activeTrend ? `, ${activeTrend}` : ''}; consumption per user was <strong>${formatNumber(latest.consumption_per_user_kwh,2)} kWh</strong>.`);
       }
-      const conAch = achievementPhrase(latest.consumption_kwh, latest.planned_consumption_kwh);
-      const revAch = achievementPhrase(latest.revenue_usd, latest.planned_revenue_usd);
-      if (conAch || revAch) insights.push(`<strong>Plan check:</strong> consumption delivered${conAch || ' without a configured plan'} and revenue delivered${revAch || ' without a configured plan'} in ${escapeHtml(latest.month)}.`);
+      const reliabilityMonths = monthly.filter(r => r.uptime_pct !== null || r.saifi !== null || r.saidi_hours !== null).length;
+      const categoryMonths = aggregateCategorical(categoricalRows).length;
+      insights.push(`<strong>Reporting coverage:</strong> commercial and energy history contains <strong>${monthly.length} months</strong>; reliability is populated for <strong>${reliabilityMonths}</strong> and customer-segment consumption for <strong>${categoryMonths}</strong>. Missing values remain blank rather than being reported as zero.`);
       insights.push(`<strong>Operating read:</strong> ${managementFocus(latest)}`);
       return insights;
     }
@@ -938,9 +952,14 @@
       const byRevenue = [...latestRows].sort((a,b) => (b.revenue_usd || 0) - (a.revenue_usd || 0));
       const reliabilityRisk = [...latestRows].filter(r => r.uptime_pct !== null).sort((a,b) => a.uptime_pct - b.uptime_pct)[0];
       insights.push(`<strong>${escapeHtml(latest.month)} result:</strong> ${latestRows.length} sites delivered <strong>${formatNumber(latest.consumption_kwh,0)} kWh</strong> and <strong>${formatNumber(latest.revenue_usd,0,'$')}</strong> revenue${consumptionTrend ? `; energy was ${consumptionTrend}` : ''}${achievementPhrase(latest.revenue_usd, latest.planned_revenue_usd)}.`);
-      if (byConsumption[0]) insights.push(`<strong>Demand leader:</strong> ${escapeHtml(byConsumption[0].site)} supplied <strong>${formatNumber(byConsumption[0].consumption_kwh,0)} kWh</strong>, or <strong>${formatNumber(divide(byConsumption[0].consumption_kwh,latest.consumption_kwh)*100,1,'','%')}</strong> of portfolio energy.`);
-      if (byRevenue[0]) insights.push(`<strong>Commercial leader:</strong> ${escapeHtml(byRevenue[0].site)} generated <strong>${formatNumber(byRevenue[0].revenue_usd,0,'$')}</strong>; portfolio ARPU was <strong>${formatNumber(latest.arpu_usd,2,'$')}</strong>.`);
+      const periodRevenue = sum(monthly,'revenue_usd'), periodRevenuePlan = sum(monthly,'planned_revenue_usd');
+      const periodEnergy = sum(monthly,'consumption_kwh'), periodEnergyPlan = sum(monthly,'planned_consumption_kwh');
+      insights.push(`<strong>Selected-period result (${escapeHtml(reportingPeriodLabel(monthly))}):</strong> portfolio revenue totalled <strong>${formatNumber(periodRevenue,0,'$')}</strong> against ${formatNumber(periodRevenuePlan,0,'$')} planned (<strong>${achievementValue(periodRevenue,periodRevenuePlan)}</strong>); energy delivered was <strong>${formatNumber(periodEnergy,0)} kWh</strong> against ${formatNumber(periodEnergyPlan,0)} kWh planned (<strong>${achievementValue(periodEnergy,periodEnergyPlan)}</strong>).`);
+      if (byConsumption[0] && byRevenue[0]) insights.push(`<strong>Portfolio drivers:</strong> ${escapeHtml(byConsumption[0].site)} supplied the most energy at <strong>${formatNumber(byConsumption[0].consumption_kwh,0)} kWh</strong> (<strong>${formatNumber(divide(byConsumption[0].consumption_kwh,latest.consumption_kwh)*100,1,'','%')}</strong> of the portfolio), while ${escapeHtml(byRevenue[0].site)} led revenue at <strong>${formatNumber(byRevenue[0].revenue_usd,0,'$')}</strong>. Portfolio ARPU was <strong>${formatNumber(latest.arpu_usd,2,'$')}</strong>.`);
       if (reliabilityRisk) insights.push(`<strong>Service priority:</strong> ${escapeHtml(reliabilityRisk.site)} recorded the lowest availability at <strong>${formatNumber(reliabilityRisk.uptime_pct,1,'','%')}</strong>, requiring the strongest operational follow-up.`);
+      const expectedRecords = monthly.length * new Set(scopeRows.map(r=>r.site)).size;
+      const reliabilityRecords = scopeRows.filter(r=>r.uptime_pct !== null || r.saifi !== null || r.saidi_hours !== null).length;
+      insights.push(`<strong>Coverage and action:</strong> <strong>${scopeRows.length} of ${expectedRecords}</strong> expected site-month records are present in the selected window, with reliability fields on <strong>${reliabilityRecords}</strong>. Management should address the service priority first, then close consumption and revenue plan gaps at the underperforming sites.`);
       return insights;
     }
     function buildInsights(scopeRows, comparisonRows, categoricalRows, selectedSite) {
@@ -976,16 +995,15 @@
       });
     }
 
-    function updateMeta(latest, selectedSite) {
+    function updateMeta(latest, selectedSite, monthlyRows) {
       document.getElementById('latestMonthBadge').textContent = latest.month || '—';
-      document.getElementById('scopeBadge').textContent = selectedSite === 'All Sites' ? 'Portfolio scope for the latest filtered month.' : `${selectedSite} scope for the latest filtered month.`;
+      const period = reportingPeriodLabel(monthlyRows);
+      document.getElementById('scopeBadge').textContent = `${selectedSite === 'All Sites' ? 'Portfolio' : selectedSite} scope · ${period}. The reporting window expands with the source data.`;
     }
 
     function updateDashboard(data) {
       const selectedSite = document.getElementById('siteFilter').value;
       const {startSort, endSort} = getDateRangeFromInputs();
-      document.getElementById('currentSiteDisplay').textContent = selectedSite === 'All Sites' ? 'Portfolio' : canonicalizeSiteName(selectedSite);
-
       const siteRowsDateRange = filterByDateRange(data.siteMonthly, startSort, endSort);
       const catRowsDateRange = filterByDateRange(data.categorical, startSort, endSort);
 
@@ -993,12 +1011,13 @@
       let scopeCategorical = selectedSite === 'All Sites' ? [...catRowsDateRange] : catRowsDateRange.filter(r => !r.site || isSameSite(r.site, selectedSite));
       if (selectedSite !== 'All Sites' && !scopeCategorical.length) scopeCategorical = [...catRowsDateRange];
 
+      const monthlyScope = aggregateByMonth(scopeRows);
+      document.getElementById('currentSiteDisplay').textContent = `${selectedSite === 'All Sites' ? 'Portfolio' : canonicalizeSiteName(selectedSite)} · Reporting through ${monthlyScope.at(-1)?.month || '—'}`;
       const latest = renderCards(scopeRows, selectedSite);
-      updateMeta(latest, selectedSite);
+      updateMeta(latest, selectedSite, monthlyScope);
       toggleBugarulaCards(selectedSite);
       updateChartScopeBadges(selectedSite);
 
-      const monthlyScope = aggregateByMonth(scopeRows);
       const compareMonthSort = latestMonthSort(siteRowsDateRange);
       const comparisonRows = siteRowsDateRange.filter(r => r.month_sort === compareMonthSort).sort((a,b) => (b.consumption_kwh||0) - (a.consumption_kwh||0));
       const comparisonMonth = comparisonRows[0]?.month || '—';
