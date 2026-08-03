@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lolwe Performance Dashboard | Equatorial Power</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-  <link rel="stylesheet" href="../dashboard-modern.css?v=20260803-2" />
+  <link rel="stylesheet" href="../dashboard-modern.css?v=20260803-3" />
 </head>
 <body class="dashboard-lolwe">
   <div class="container">
@@ -15,8 +15,8 @@
           <div class="title-copy">
             <div class="eyebrow">Equatorial Power · Uganda Operations</div>
             <h1>Lolwe Performance Dashboard</h1>
-            <p class="title-subtitle">Combined commercial, customer, energy and service performance for Lolwe, with a focused SparkMeter consumption view for each operating village.</p>
-            <div class="site-name-display">Lolwe · Combined portfolio view</div>
+            <p class="title-subtitle">A single-site management view of Lolwe's commercial, customer, energy and service performance.</p>
+            <div class="site-name-display">Lolwe · January–July 2026</div>
             <nav class="dashboard-nav" aria-label="Dashboard navigation">
               <a href="../index.html">DRC Portfolio</a>
               <a class="active" href="index.html" aria-current="page">Lolwe</a>
@@ -28,27 +28,27 @@
       <aside class="status-panel">
         <div class="status-label">Data connection</div>
         <div class="status-value live-dot" id="sourceMode">Loading…</div>
-        <div class="status-text" id="sourceStatus">Connecting to the approved reporting sources.</div>
+        <div class="status-text" id="sourceStatus">Connecting to the approved Lolwe reporting sources.</div>
         <div class="status-label">Latest reporting month</div>
         <div class="status-value" id="latestMonthBadge">—</div>
-        <div class="status-text" id="scopeBadge">Combined Lolwe figures; villages affect only the consumption chart.</div>
+        <div class="status-text">All values are combined Lolwe figures. Missing telemetry is retained as missing—not converted to zero.</div>
       </aside>
     </header>
 
     <div id="banner" class="banner"></div>
 
     <section class="filters" aria-label="Dashboard filters">
-      <div class="field">
-        <label for="villageFilter">Village consumption view</label>
-        <select id="villageFilter"></select>
+      <div class="field scope-field">
+        <label>Reporting site</label>
+        <div class="fixed-scope">Lolwe · Uganda</div>
       </div>
       <div class="field">
-        <label for="dateRangeStart">Combined figures from</label>
-        <input type="month" id="dateRangeStart" value="2026-01" />
+        <label for="dateRangeStart">Display from</label>
+        <input type="month" id="dateRangeStart" value="2026-01" min="2026-01" max="2026-07" />
       </div>
       <div class="field">
-        <label for="dateRangeEnd">Combined figures to</label>
-        <input type="month" id="dateRangeEnd" value="2026-07" />
+        <label for="dateRangeEnd">Display to</label>
+        <input type="month" id="dateRangeEnd" value="2026-07" min="2026-01" max="2026-07" />
       </div>
       <div class="field">
         <label>&nbsp;</label>
@@ -56,12 +56,12 @@
       </div>
     </section>
 
-    <section class="cards-grid" id="cardsGrid" aria-label="Latest combined Lolwe KPIs"></section>
+    <section class="cards-grid" id="cardsGrid" aria-label="Latest Lolwe KPIs"></section>
 
     <section class="section-grid-2">
       <article class="chart-card">
-        <div class="card-head"><h3>Energy delivered against plan</h3><span class="pill">Lolwe combined</span></div>
-        <p class="caption">SparkMeter consumption only; Lolwe has no Victron consumption or generation series.</p>
+        <div class="card-head"><h3>Energy delivered against plan</h3><span class="pill">Consumed kWh</span></div>
+        <p class="caption">SparkMeter consumption against the approved monthly plan. Lolwe has no Victron-consumption or generation comparison.</p>
         <div class="chart-wrap tall"><canvas id="energyChart"></canvas></div>
       </article>
       <article class="table-card">
@@ -70,30 +70,29 @@
       </article>
     </section>
 
-    <section class="section-grid-2">
+    <section class="section-grid-2 equal-columns">
       <article class="chart-card">
         <div class="card-head"><h3>Revenue performance</h3><span class="pill">USD</span></div>
         <div class="chart-wrap"><canvas id="revenueChart"></canvas></div>
       </article>
       <article class="chart-card">
-        <div class="card-head"><h3>Customer activity and reach</h3><span class="pill">Lolwe combined</span></div>
+        <div class="card-head"><h3>Customer activity and reach</h3><span class="pill">Connections</span></div>
         <div class="chart-wrap"><canvas id="customerChart"></canvas></div>
       </article>
     </section>
 
-    <section class="section-grid-2">
+    <section class="section-grid-2 equal-columns">
       <article class="chart-card">
-        <div class="card-head"><h3>Customer value and energy intensity</h3><span class="pill">Monthly</span></div>
-        <div class="chart-wrap"><canvas id="unitEconomicsChart"></canvas></div>
+        <div class="card-head"><h3>ARPU against plan</h3><span class="pill">USD / active customer</span></div>
+        <div class="chart-wrap"><canvas id="arpuChart"></canvas></div>
       </article>
       <article class="chart-card">
-        <div class="card-head"><h3>Village SparkMeter consumption</h3><span class="pill" id="villagePeriodPill">Last three months</span></div>
-        <p class="caption" id="villageStatus">The village selector changes only this chart. Blank months mean village readings have not yet been populated.</p>
-        <div class="chart-wrap"><canvas id="villageChart"></canvas></div>
+        <div class="card-head"><h3>Energy per active customer</h3><span class="pill">kWh / customer</span></div>
+        <div class="chart-wrap"><canvas id="energyPerUserChart"></canvas></div>
       </article>
     </section>
 
-    <section class="section-grid-3">
+    <section class="section-grid-4">
       <article class="chart-card">
         <div class="card-head"><h3>Service availability</h3><span class="pill">Uptime</span></div>
         <div class="chart-wrap short"><canvas id="uptimeChart"></canvas></div>
@@ -106,11 +105,16 @@
         <div class="card-head"><h3>Interruption duration</h3><span class="pill">SAIDI hours</span></div>
         <div class="chart-wrap short"><canvas id="saidiChart"></canvas></div>
       </article>
+      <article class="chart-card">
+        <div class="card-head"><h3>Detected interruptions</h3><span class="pill">Heartbeat gaps</span></div>
+        <div class="chart-wrap short"><canvas id="outageChart"></canvas></div>
+      </article>
     </section>
 
     <section class="section-grid-2">
       <article class="chart-card">
-        <div class="card-head"><h3>Consumption by customer segment</h3><span class="pill">Available months</span></div>
+        <div class="card-head"><h3>Consumption by customer segment</h3><span class="pill">Jan–Jul 2026</span></div>
+        <p class="caption">Household, business and institution consumption is shown when the categorical workflow has produced a reconciled monthly result.</p>
         <div class="chart-wrap"><canvas id="categoryChart"></canvas></div>
       </article>
       <article class="table-card">
@@ -121,20 +125,13 @@
 
     <section class="table-card wide">
       <div class="card-head"><h3>Combined Lolwe monthly performance</h3><span class="pill">2026</span></div>
-      <div style="max-height: 430px; overflow:auto;">
+      <div class="table-scroll">
         <table>
           <thead>
             <tr>
-              <th>Month</th>
-              <th>Revenue</th>
-              <th>Revenue plan</th>
-              <th>Consumed kWh</th>
-              <th>Consumption plan</th>
-              <th>Active</th>
-              <th>Vending</th>
-              <th>Active / total</th>
-              <th>ARPU</th>
-              <th>kWh / customer</th>
+              <th>Month</th><th>Revenue</th><th>Revenue plan</th><th>Consumed kWh</th><th>Consumption plan</th>
+              <th>Active</th><th>Vending</th><th>Active / total</th><th>ARPU</th><th>kWh / customer</th>
+              <th>Uptime</th><th>SAIFI</th><th>SAIDI</th><th>Interruptions</th>
             </tr>
           </thead>
           <tbody id="monthlyTableBody"></tbody>
@@ -142,35 +139,25 @@
       </div>
     </section>
 
-    <footer class="footer-note">Live operational dashboard · Combined commercial figures are reported in USD · Village selection is intentionally limited to SparkMeter consumption · Blank values are not treated as zero.</footer>
+    <footer class="footer-note">Live operational dashboard · Revenue and ARPU are reported in USD · Reliability uses the approved heartbeat-gap method · Blank values are not treated as zero.</footer>
   </div>
 
   <script>
     const CONFIG = {
-      villages: ['Butanira','Golofa','Kamwanga','Kandenge','Kisumu','Labolo Resort','Mwango','Mwangoda','Singila'],
       combinedCsv: 'https://docs.google.com/spreadsheets/d/1Jl32qnvVwJKd7QduBCiMchIxZtbzHUTHOrKM2YWPdJw/gviz/tq?tqx=out:csv&gid=1837089544',
-      villageCsv: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRP6zU6ygZid-trwUn8tTdHm1r6fy1ishiZW5AOw4nAhQpGVbj3cS7JZYiheU6ThUe46RoJnmZI71Sr/pub?gid=1706202601&single=true&output=csv',
       categoryCsv: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRP6zU6ygZid-trwUn8tTdHm1r6fy1ishiZW5AOw4nAhQpGVbj3cS7JZYiheU6ThUe46RoJnmZI71Sr/pub?gid=1706202602&single=true&output=csv'
     };
 
-    // Approved snapshot from Weekly Purchases > Dashboard, Lolwe rows, read 3 Aug 2026.
-    // The live Dashboard CSV is preferred when accessible; this snapshot keeps the public dashboard complete and auditable.
+    // Approved Lolwe rows from Weekly Purchases > Dashboard, read 3 Aug 2026.
+    // May and July reliability figures come from validated heartbeat-gap calculations.
     const APPROVED_COMBINED = [
-      {month:'January 2026',month_sort:202601,revenue_usd:9521,planned_revenue_usd:16409,planned_arpu_usd:4.7,arpu_usd:4.7,planned_consumption_kwh:34503,consumption_kwh:15709,consumption_per_user_kwh:7.7,vending_customers:1781,active_customers:2047,total_customers:3474,active_total_pct:59,vending_active_pct:87},
-      {month:'February 2026',month_sort:202602,revenue_usd:10556,planned_revenue_usd:16597,planned_arpu_usd:4.8,arpu_usd:3.2,planned_consumption_kwh:34934,consumption_kwh:13981,consumption_per_user_kwh:4.2,vending_customers:1526,active_customers:3304,total_customers:3474,active_total_pct:95,vending_active_pct:46},
-      {month:'March 2026',month_sort:202603,revenue_usd:11799,planned_revenue_usd:16788,planned_arpu_usd:4.8,arpu_usd:6.0,planned_consumption_kwh:35371,consumption_kwh:12829,consumption_per_user_kwh:6.5,vending_customers:1737,active_customers:1979,total_customers:3474,active_total_pct:57,vending_active_pct:88},
-      {month:'April 2026',month_sort:202604,revenue_usd:11727,planned_revenue_usd:16981,planned_arpu_usd:4.9,arpu_usd:3.6,planned_consumption_kwh:35813,consumption_kwh:12341,consumption_per_user_kwh:3.8,vending_customers:1675,active_customers:3287,total_customers:3474,active_total_pct:95,vending_active_pct:51},
-      {month:'May 2026',month_sort:202605,revenue_usd:9672,planned_revenue_usd:17176,planned_arpu_usd:4.9,arpu_usd:2.9,planned_consumption_kwh:36261,consumption_kwh:11831,consumption_per_user_kwh:3.6,vending_customers:1696,active_customers:3288,total_customers:3474,active_total_pct:95,vending_active_pct:52},
-      {month:'June 2026',month_sort:202606,revenue_usd:5780,planned_revenue_usd:17374,planned_arpu_usd:5.0,arpu_usd:1.8,planned_consumption_kwh:36714,consumption_kwh:11713,consumption_per_user_kwh:3.6,vending_customers:1775,active_customers:3258,total_customers:3474,active_total_pct:94,vending_active_pct:54},
-      {month:'July 2026',month_sort:202607,revenue_usd:1959,planned_revenue_usd:17574,planned_arpu_usd:5.1,arpu_usd:1.1,planned_consumption_kwh:37173,consumption_kwh:4224,consumption_per_user_kwh:2.4,vending_customers:373,active_customers:1781,total_customers:3474,active_total_pct:51,vending_active_pct:21,uptime_pct:20.23,downtime_pct:79.77,saifi:25.13,saidi_hours:593.48}
-    ];
-
-    const VILLAGE_FALLBACK = [
-      {month:'July 2026',month_sort:202607,village:'Golofa',consumption_kwh:2081.773,status:'Complete'},
-      {month:'July 2026',month_sort:202607,village:'Kandenge',consumption_kwh:889.276,status:'Complete'},
-      {month:'July 2026',month_sort:202607,village:'Labolo Resort',consumption_kwh:6.170,status:'Complete'},
-      {month:'July 2026',month_sort:202607,village:'Mwango',consumption_kwh:152.772,status:'Complete'},
-      {month:'July 2026',month_sort:202607,village:'Singila',consumption_kwh:1093.922,status:'Complete'}
+      {month:'January 2026',month_sort:202601,revenue_usd:9520.70657142857,planned_revenue_usd:16408.887062919566,planned_arpu_usd:4.72334112346562,planned_consumption_kwh:34502.80134091888,consumption_kwh:15708.73,vending_customers:1781,active_customers:2047,total_customers:3474},
+      {month:'February 2026',month_sort:202602,revenue_usd:10556.134285714286,planned_revenue_usd:16597.067820251308,planned_arpu_usd:4.77750944739531,planned_consumption_kwh:34934.08635768037,consumption_kwh:13981,vending_customers:1526,active_customers:3304,total_customers:3474},
+      {month:'March 2026',month_sort:202603,revenue_usd:11798.705142857143,planned_revenue_usd:16787.600837049693,planned_arpu_usd:4.83235487537412,planned_consumption_kwh:35370.762437151374,consumption_kwh:12828.945,vending_customers:1737,active_customers:1979,total_customers:3474},
+      {month:'April 2026',month_sort:202604,revenue_usd:11726.726,planned_revenue_usd:16980.51551655806,planned_arpu_usd:4.887885871202666,planned_consumption_kwh:35812.896967615765,consumption_kwh:12341.374000000002,vending_customers:1675,active_customers:3287,total_customers:3474},
+      {month:'May 2026',month_sort:202605,revenue_usd:9671.986,planned_revenue_usd:17175.841629560284,planned_arpu_usd:4.944111004479068,planned_consumption_kwh:36260.55817971096,consumption_kwh:11831.023000000001,vending_customers:1696,active_customers:3288,total_customers:3474,uptime_pct:64.240245764043,downtime_pct:35.759754235957,saidi_hours:266.05257151552},
+      {month:'June 2026',month_sort:202606,revenue_usd:5779.505277777778,planned_revenue_usd:17373.60931897503,planned_arpu_usd:5.001038951921426,planned_consumption_kwh:36713.815156957346,consumption_kwh:11713.221000000001,vending_customers:1775,active_customers:3258,total_customers:3474},
+      {month:'July 2026',month_sort:202607,revenue_usd:1959.4655555555555,planned_revenue_usd:17573.849104507462,planned_arpu_usd:5.058678498706811,planned_consumption_kwh:37172.73784641931,consumption_kwh:4223.9130000000005,vending_customers:373,active_customers:1781,total_customers:3474,uptime_pct:20.23,downtime_pct:79.77,saifi:25.13,saidi_hours:593.48,outage_events:80306}
     ];
     const CATEGORY_FALLBACK = [
       {month:'July 2026',month_sort:202607,households_kwh:2275.497,businesses_kwh:1878.832,institutions_kwh:69.584}
@@ -178,7 +165,7 @@
 
     const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
     const charts = {};
-    const palette = {teal:'#00a69c',blue:'#176b87',green:'#55b57a',amber:'#e9a63a',purple:'#7b70c9',coral:'#dc6b69',slate:'#82949b',grid:'rgba(21,50,58,.09)',text:'#61777e'};
+    const palette = {teal:'#39d7ca',blue:'#72b7ff',green:'#70df98',amber:'#ffc963',purple:'#b5a5ff',coral:'#ff8581',slate:'#a9bdc8',grid:'rgba(197,220,231,.15)',text:'#c3d4dc',legend:'#d8e6ec'};
 
     function csvRows(text) {
       const rows=[]; let row=[], cell='', quoted=false;
@@ -192,63 +179,53 @@
       if (cell.length||row.length) { row.push(cell); rows.push(row); }
       return rows.filter(r=>r.some(v=>String(v??'').trim()!==''));
     }
-    const norm = v => String(v??'').toLowerCase().replace(/[%$()]/g,'').replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'');
+    const norm=v=>String(v??'').toLowerCase().replace(/[%$()]/g,'').replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'');
     function num(v) {
       if (v===null||v===undefined||v==='') return null;
-      const s=String(v).trim();
-      if (!s||s==='#DIV/0!'||/^n\/?a$/i.test(s)) return null;
+      const s=String(v).trim(); if(!s||s==='#DIV/0!'||/^n\/?a$/i.test(s)) return null;
       const n=Number(s.replace(/[$,%]/g,'').replace(/,/g,'').replace(/UGX|USD|kWh/ig,'').trim());
       return Number.isFinite(n)?n:null;
     }
     function monthInfo(v) {
-      const s=String(v??'').trim();
-      let m=s.match(/^([A-Za-z]+)\s+(20\d{2})$/);
-      if (m) { const mi=MONTHS.findIndex(x=>x.toLowerCase()===m[1].toLowerCase())+1; if (mi) return {month:`${MONTHS[mi-1]} ${m[2]}`,sort:Number(m[2])*100+mi}; }
-      m=s.match(/^(\d{1,2})\/(\d{1,2})\/(20\d{2})$/);
-      if (m) { const mi=Number(m[1]); return {month:`${MONTHS[mi-1]} ${m[3]}`,sort:Number(m[3])*100+mi}; }
+      const s=String(v??'').trim(); let m=s.match(/^([A-Za-z]+)\s+(20\d{2})$/);
+      if(m){const mi=MONTHS.findIndex(x=>x.toLowerCase()===m[1].toLowerCase())+1;return mi?{month:`${MONTHS[mi-1]} ${m[2]}`,sort:Number(m[2])*100+mi}:null;}
+      m=s.match(/^(\d{1,2})\/(\d{1,2})\/(20\d{2})$/); if(m){const mi=Number(m[1]);return {month:`${MONTHS[mi-1]} ${m[3]}`,sort:Number(m[3])*100+mi};}
       return null;
     }
-    function objects(text) {
-      const rows=csvRows(text); if (rows.length<2) return [];
-      const headers=rows[0].map(norm);
-      return rows.slice(1).map(r=>Object.fromEntries(headers.map((h,i)=>[h,r[i]??''])));
-    }
-    function parseCombined(text) {
+    function objects(text){const rows=csvRows(text);if(rows.length<2)return[];const headers=rows[0].map(norm);return rows.slice(1).map(r=>Object.fromEntries(headers.map((h,i)=>[h,r[i]??''])));}
+    function parseCombined(text){
       return objects(text).filter(r=>String(r.site_name||'').trim().toLowerCase()==='lolwe').map(r=>{
-        const mi=monthInfo(r.month); if (!mi) return null;
-        return {month:mi.month,month_sort:mi.sort,revenue_usd:num(r.monthly_total_usd),planned_revenue_usd:num(r.planned_revenue_usd),planned_arpu_usd:num(r.planned_arpu_usd),arpu_usd:num(r.arpu_usd),planned_consumption_kwh:num(r.planned_kwh),consumption_kwh:num(r.consumed_kwh),consumption_per_user_kwh:num(r.consumption_per_user),vending_customers:num(r.vending_customers),active_customers:num(r.active_customers),total_customers:num(r.total_customers),active_total_pct:num(r.active_total),vending_active_pct:num(r.vending_active)};
+        const mi=monthInfo(r.month);if(!mi||mi.sort<202601||mi.sort>202607)return null;
+        return {month:mi.month,month_sort:mi.sort,revenue_usd:num(r.monthly_total_usd),planned_revenue_usd:num(r.planned_revenue_usd),planned_arpu_usd:num(r.planned_arpu_usd),planned_consumption_kwh:num(r.planned_kwh),consumption_kwh:num(r.consumed_kwh),vending_customers:num(r.vending_customers),active_customers:num(r.active_customers),total_customers:num(r.total_customers)};
       }).filter(Boolean).sort((a,b)=>a.month_sort-b.month_sort);
     }
-    function parseVillages(text) {
-      return objects(text).map(r=>{
-        const mi=monthInfo(r.month); if (!mi) return null;
-        return {month:mi.month,month_sort:mi.sort,village:String(r.village||'').trim(),consumption_kwh:num(r.sparkmeter_consumption_kwh),status:String(r.data_status||'').trim()};
-      }).filter(r=>r&&r.village);
-    }
-    function parseCategories(text) {
-      const raw=objects(text).map(r=>{ const mi=monthInfo(r.month); return mi?{month:mi.month,month_sort:mi.sort,households_kwh:num(r.households_kwh),businesses_kwh:num(r.businesses_kwh),institutions_kwh:num(r.institutions_kwh)}:null; }).filter(Boolean);
+    function parseCategories(text){
+      const raw=objects(text).map(r=>{const mi=monthInfo(r.month);return mi?{month:mi.month,month_sort:mi.sort,households_kwh:num(r.households_kwh),businesses_kwh:num(r.businesses_kwh),institutions_kwh:num(r.institutions_kwh)}:null;}).filter(Boolean);
       const grouped=new Map();
-      raw.forEach(r=>{ const x=grouped.get(r.month_sort)||{month:r.month,month_sort:r.month_sort,households_kwh:0,businesses_kwh:0,institutions_kwh:0,has:false}; ['households_kwh','businesses_kwh','institutions_kwh'].forEach(k=>{if(r[k]!==null){x[k]+=r[k];x.has=true;}}); grouped.set(r.month_sort,x); });
+      raw.forEach(r=>{const x=grouped.get(r.month_sort)||{month:r.month,month_sort:r.month_sort,households_kwh:0,businesses_kwh:0,institutions_kwh:0,has:false};['households_kwh','businesses_kwh','institutions_kwh'].forEach(k=>{if(r[k]!==null){x[k]+=r[k];x.has=true;}});grouped.set(r.month_sort,x);});
       return [...grouped.values()].filter(r=>r.has).sort((a,b)=>a.month_sort-b.month_sort);
     }
-    async function fetchText(url) { const res=await fetch(url,{cache:'no-store',credentials:'omit'}); if(!res.ok) throw new Error(`HTTP ${res.status}`); return res.text(); }
-
-    async function loadData() {
-      const [combinedResult,villageResult,categoryResult]=await Promise.allSettled([fetchText(CONFIG.combinedCsv),fetchText(CONFIG.villageCsv),fetchText(CONFIG.categoryCsv)]);
-      let combined=APPROVED_COMBINED.map(x=>({...x})), villages=VILLAGE_FALLBACK.map(x=>({...x})), categories=CATEGORY_FALLBACK.map(x=>({...x}));
-      let combinedLive=false, villageLive=false, categoryLive=false;
-      if (combinedResult.status==='fulfilled') {
+    function derive(row){
+      const active=row.active_customers,total=row.total_customers,vending=row.vending_customers;
+      return {...row,
+        arpu_usd:active?row.revenue_usd/active:null,
+        consumption_per_user_kwh:active?row.consumption_kwh/active:null,
+        active_total_pct:total?active/total*100:null,
+        vending_active_pct:active?vending/active*100:null
+      };
+    }
+    async function fetchText(url){const res=await fetch(url,{cache:'no-store',credentials:'omit'});if(!res.ok)throw new Error(`HTTP ${res.status}`);return res.text();}
+    async function loadData(){
+      const [combinedResult,categoryResult]=await Promise.allSettled([fetchText(CONFIG.combinedCsv),fetchText(CONFIG.categoryCsv)]);
+      let combined=APPROVED_COMBINED.map(derive),categories=CATEGORY_FALLBACK.map(x=>({...x}));let combinedLive=false,categoryLive=false;
+      if(combinedResult.status==='fulfilled'){
         const parsed=parseCombined(combinedResult.value);
-        if(parsed.length>=APPROVED_COMBINED.length){
-          combined=parsed.map(row=>({...APPROVED_COMBINED.find(base=>base.month_sort===row.month_sort),...row}));
-          combinedLive=true;
-        }
+        if(parsed.length===7){combined=parsed.map(row=>derive({...APPROVED_COMBINED.find(base=>base.month_sort===row.month_sort),...row}));combinedLive=true;}
       }
-      if (villageResult.status==='fulfilled') { const parsed=parseVillages(villageResult.value); if(parsed.length){villages=parsed; villageLive=true;} }
-      if (categoryResult.status==='fulfilled') { const parsed=parseCategories(categoryResult.value); if(parsed.length){categories=parsed; categoryLive=true;} }
-      document.getElementById('sourceMode').textContent=(combinedLive&&villageLive)?'Live data':'Verified data';
-      document.getElementById('sourceStatus').textContent=`Combined: ${combinedLive?'live Dashboard tab':'approved Jan–Jul snapshot'} · Villages: ${villageLive?'live workflow tab':'verified July snapshot'} · Categories: ${categoryLive?'live':'verified July snapshot'}.`;
-      return {combined,villages,categories};
+      if(categoryResult.status==='fulfilled'){const parsed=parseCategories(categoryResult.value);if(parsed.length){categories=parsed;categoryLive=true;}}
+      document.getElementById('sourceMode').textContent=combinedLive?'Live data':'Verified data';
+      document.getElementById('sourceStatus').textContent=`Commercial and customer series: ${combinedLive?'live Dashboard tab':'approved Jan–Jul snapshot'} · Customer segments: ${categoryLive?'live categorical workflow':'verified July snapshot'}.`;
+      return {combined,categories};
     }
 
     function money(v,d=0){return v===null||v===undefined?'—':new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:d,minimumFractionDigits:d}).format(v);}
@@ -257,99 +234,75 @@
     function html(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
     function monthSortInput(v){if(!v)return null;const [y,m]=v.split('-').map(Number);return y*100+m;}
     function filteredCombined(rows){let a=monthSortInput(document.getElementById('dateRangeStart').value)||202601,b=monthSortInput(document.getElementById('dateRangeEnd').value)||202607;if(a>b)[a,b]=[b,a];return rows.filter(r=>r.month_sort>=a&&r.month_sort<=b);}
-    function chartOptions({prefix='',suffix='',digits=0,secondAxis=false}={}){
-      const scales={x:{ticks:{color:palette.text},grid:{display:false},border:{display:false}},y:{beginAtZero:true,ticks:{color:palette.text,callback:v=>`${prefix}${Number(v).toLocaleString()}${suffix}`},grid:{color:palette.grid},border:{display:false}}};
-      if(secondAxis) scales.y1={position:'right',beginAtZero:true,ticks:{color:palette.text},grid:{drawOnChartArea:false},border:{display:false}};
-      return {responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{color:'#49636b',usePointStyle:true,pointStyle:'circle',boxWidth:9,boxHeight:9}},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${prefix}${Number(c.parsed.y??0).toLocaleString('en-US',{maximumFractionDigits:digits})}${suffix}`}}},scales};
+    function chartOptions({prefix='',suffix='',digits=0,secondAxis=false,max=null}={}){
+      const scales={x:{ticks:{color:palette.text,maxRotation:40,minRotation:0},grid:{display:false},border:{color:palette.grid}},y:{beginAtZero:true,suggestedMax:max,ticks:{color:palette.text,callback:v=>`${prefix}${Number(v).toLocaleString()}${suffix}`},grid:{color:palette.grid},border:{display:false}}};
+      if(secondAxis)scales.y1={position:'right',beginAtZero:true,ticks:{color:palette.text},grid:{drawOnChartArea:false},border:{display:false}};
+      return {responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{color:palette.legend,usePointStyle:true,pointStyle:'circle',boxWidth:9,boxHeight:9}},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${prefix}${Number(c.parsed.y??0).toLocaleString('en-US',{maximumFractionDigits:digits})}${suffix}`}}},scales};
     }
     function draw(id,type,data,options){if(charts[id])charts[id].destroy();charts[id]=new Chart(document.getElementById(id),{type,data,options});}
 
-    function renderCards(rows) {
-      const latest=rows.at(-1); if(!latest){document.getElementById('cardsGrid').innerHTML='';return null;}
+    function renderCards(rows){
+      const latest=rows.at(-1);if(!latest){document.getElementById('cardsGrid').innerHTML='';return null;}
       const cards=[
-        ['Revenue',money(latest.revenue_usd),`${number(pct(latest.revenue_usd,latest.planned_revenue_usd),1,'%')} of ${money(latest.planned_revenue_usd)} plan`],
-        ['Energy delivered',`${number(latest.consumption_kwh)} kWh`,`${number(pct(latest.consumption_kwh,latest.planned_consumption_kwh),1,'%')} of ${number(latest.planned_consumption_kwh)} kWh plan`],
-        ['Active customers',number(latest.active_customers),`${number(latest.active_total_pct,0,'%')} of ${number(latest.total_customers)} total customers`],
-        ['Vending customers',number(latest.vending_customers),`${number(latest.vending_active_pct,0,'%')} of active customers`],
+        ['Revenue',money(latest.revenue_usd),`${number(pct(latest.revenue_usd,latest.planned_revenue_usd),1,'%')} of plan`],
+        ['Energy delivered',`${number(latest.consumption_kwh)} kWh`,`${number(pct(latest.consumption_kwh,latest.planned_consumption_kwh),1,'%')} of plan`],
+        ['Active customers',number(latest.active_customers),`${number(latest.active_total_pct,1,'%')} of ${number(latest.total_customers)} connections`],
+        ['Vending customers',number(latest.vending_customers),`${number(latest.vending_active_pct,1,'%')} of active customers`],
         ['ARPU',money(latest.arpu_usd,2),`Plan ${money(latest.planned_arpu_usd,2)}`],
-        ['Energy per customer',`${number(latest.consumption_per_user_kwh,2)} kWh`,'Monthly consumption intensity'],
-        ['Service availability',number(latest.uptime_pct,2,'%'),latest.uptime_pct===null?'Reliability history not yet populated':`Downtime ${number(latest.downtime_pct,2,'%')}`],
-        ['Reliability',latest.saifi===null?'—':`${number(latest.saifi,2)} SAIFI`,latest.saidi_hours===null?'Reliability history not yet populated':`${number(latest.saidi_hours,1)} SAIDI hours`]
+        ['Energy per customer',`${number(latest.consumption_per_user_kwh,2)} kWh`,'Consumption / active customer'],
+        ['Service availability',number(latest.uptime_pct,2,'%'),latest.uptime_pct===null?'Telemetry not populated':`Downtime ${number(latest.downtime_pct,2,'%')}`],
+        ['Detected interruptions',number(latest.outage_events),latest.saifi===null?'Heartbeat telemetry not populated':`SAIFI ${number(latest.saifi,2)} · SAIDI ${number(latest.saidi_hours,1)} h`]
       ];
-      document.getElementById('cardsGrid').innerHTML=cards.map(([label,value,sub])=>`<article class="card"><span class="card-scope-chip">Lolwe</span><div class="card-label">${html(label)}</div><div class="card-value">${html(value)}</div><div class="card-sub">${html(sub)}</div></article>`).join('');
-      return latest;
+      document.getElementById('cardsGrid').innerHTML=cards.map(([label,value,sub])=>`<article class="card"><span class="card-scope-chip">Lolwe</span><div class="card-label">${html(label)}</div><div class="card-value">${html(value)}</div><div class="card-sub">${html(sub)}</div></article>`).join('');return latest;
     }
-
-    function renderInsights(rows) {
-      const latest=rows.at(-1), prev=rows.at(-2); if(!latest){document.getElementById('insightsList').innerHTML='<li>No records in the selected period.</li>';return;}
-      const revAch=pct(latest.revenue_usd,latest.planned_revenue_usd), conAch=pct(latest.consumption_kwh,latest.planned_consumption_kwh);
-      const energyTrend=prev&&prev.consumption_kwh?pct(latest.consumption_kwh-prev.consumption_kwh,prev.consumption_kwh):null;
+    function renderInsights(rows){
+      const latest=rows.at(-1),prev=rows.at(-2);if(!latest){document.getElementById('insightsList').innerHTML='<li>No records in the selected period.</li>';return;}
+      const revAch=pct(latest.revenue_usd,latest.planned_revenue_usd),conAch=pct(latest.consumption_kwh,latest.planned_consumption_kwh),trend=prev?pct(latest.consumption_kwh-prev.consumption_kwh,prev.consumption_kwh):null;
       document.getElementById('briefTitle').textContent=`Management brief · ${latest.month}`;
       const points=[
-        `<strong>Commercial:</strong> Revenue was <strong>${money(latest.revenue_usd)}</strong>, reaching <strong>${number(revAch,1,'%')}</strong> of the ${money(latest.planned_revenue_usd)} monthly plan.`,
-        `<strong>Demand:</strong> Lolwe delivered <strong>${number(latest.consumption_kwh)} kWh</strong>, or <strong>${number(conAch,1,'%')}</strong> of plan${energyTrend===null?'':`; this was ${number(Math.abs(energyTrend),1,'%')} ${energyTrend>=0?'above':'below'} the previous month`}.`,
-        `<strong>Customer engagement:</strong> <strong>${number(latest.active_customers)}</strong> customers were active and <strong>${number(latest.vending_customers)}</strong> vended; active coverage was <strong>${number(latest.active_total_pct,0,'%')}</strong>.`,
-        `<strong>Management focus:</strong> ${revAch<50||conAch<50?'Recover demand and vending activity while validating operational availability and missing village readings.':'Maintain customer activation and monitor performance against the rising annual plan.'}`
+        `<strong>Commercial:</strong> Revenue was <strong>${money(latest.revenue_usd)}</strong>, reaching <strong>${number(revAch,1,'%')}</strong> of the ${money(latest.planned_revenue_usd)} plan.`,
+        `<strong>Demand:</strong> Lolwe delivered <strong>${number(latest.consumption_kwh)} kWh</strong>, or <strong>${number(conAch,1,'%')}</strong> of plan${trend===null?'':`; ${number(Math.abs(trend),1,'%')} ${trend>=0?'above':'below'} the previous month`}.`,
+        `<strong>Customer engagement:</strong> <strong>${number(latest.vending_customers)}</strong> of ${number(latest.active_customers)} active customers vended; active coverage was <strong>${number(latest.active_total_pct,1,'%')}</strong>.`,
+        `<strong>Reliability:</strong> Availability was <strong>${number(latest.uptime_pct,2,'%')}</strong>; <strong>${number(latest.outage_events)}</strong> heartbeat gaps produced SAIFI of <strong>${number(latest.saifi,2)}</strong> and SAIDI of <strong>${number(latest.saidi_hours,1)} hours</strong>.`
       ];
       document.getElementById('insightsList').innerHTML=points.map(p=>`<li>${p}</li>`).join('');
     }
-
-    function previousMonthSort(sort,offset) {
-      const date=new Date(Math.floor(sort/100),sort%100-1-offset,1);
-      return date.getFullYear()*100+date.getMonth()+1;
-    }
-    function renderVillageChart(villages,latestCombinedSort) {
-      const selected=document.getElementById('villageFilter').value;
-      const last3=[previousMonthSort(latestCombinedSort,2),previousMonthSort(latestCombinedSort,1),latestCombinedSort];
-      const labels=last3.map(s=>`${MONTHS[(s%100)-1]} ${Math.floor(s/100)}`);
-      const values=last3.map(s=>{
-        const matching=villages.filter(r=>r.month_sort===s&&(selected==='All villages'||r.village===selected)).map(r=>r.consumption_kwh).filter(v=>v!==null);
-        return matching.length?matching.reduce((a,b)=>a+b,0):null;
-      });
-      draw('villageChart','bar',{labels,datasets:[{label:selected==='All villages'?'All reporting villages':selected,data:values,backgroundColor:palette.teal,borderRadius:7}]},chartOptions({suffix:' kWh',digits:2}));
-      document.getElementById('villagePeriodPill').textContent=labels.join(' – ');
-      const populated=values.filter(v=>v!==null).length;
-      document.getElementById('villageStatus').textContent=`${selected}: ${populated} of 3 months currently populated. Blank months are retained as missing—not converted to zero.`;
-    }
-
-    function renderCharts(rows,categories) {
+    function renderCharts(rows,categories){
       const labels=rows.map(r=>r.month);
-      draw('energyChart','bar',{labels,datasets:[{label:'Planned consumption',data:rows.map(r=>r.planned_consumption_kwh),backgroundColor:'#c7d2d7',borderRadius:6},{label:'Consumed',data:rows.map(r=>r.consumption_kwh),backgroundColor:palette.teal,borderRadius:6}]},chartOptions({suffix:' kWh'}));
-      draw('revenueChart','bar',{labels,datasets:[{label:'Planned revenue',data:rows.map(r=>r.planned_revenue_usd),backgroundColor:'#c7d2d7',borderRadius:6},{label:'Actual revenue',data:rows.map(r=>r.revenue_usd),backgroundColor:palette.amber,borderRadius:6}]},chartOptions({prefix:'$'}));
-      const customerOptions=chartOptions({secondAxis:true}); customerOptions.scales.y1.max=100; customerOptions.scales.y1.ticks.callback=v=>`${v}%`;
-      draw('customerChart','bar',{labels,datasets:[{label:'Total customers',data:rows.map(r=>r.total_customers),backgroundColor:'#d9e2e5',borderRadius:5},{label:'Active customers',data:rows.map(r=>r.active_customers),backgroundColor:palette.blue,borderRadius:5},{label:'Vending customers',data:rows.map(r=>r.vending_customers),backgroundColor:palette.green,borderRadius:5},{label:'Active / total (%)',data:rows.map(r=>r.active_total_pct),type:'line',yAxisID:'y1',borderColor:palette.coral,backgroundColor:palette.coral,tension:.3,pointRadius:4}]},customerOptions);
-      const unitOptions=chartOptions({prefix:'$',digits:2,secondAxis:true}); unitOptions.scales.y1.title={display:true,text:'kWh per customer',color:palette.text};
-      draw('unitEconomicsChart','line',{labels,datasets:[{label:'ARPU (USD)',data:rows.map(r=>r.arpu_usd),borderColor:palette.amber,backgroundColor:palette.amber,tension:.3,pointRadius:4},{label:'Planned ARPU (USD)',data:rows.map(r=>r.planned_arpu_usd),borderColor:palette.slate,backgroundColor:palette.slate,borderDash:[6,5],tension:.25,pointRadius:3},{label:'Consumption per customer (kWh)',data:rows.map(r=>r.consumption_per_user_kwh),yAxisID:'y1',borderColor:palette.teal,backgroundColor:palette.teal,tension:.3,pointRadius:4}]},unitOptions);
-      draw('uptimeChart','bar',{labels,datasets:[{label:'Uptime',data:rows.map(r=>r.uptime_pct??null),backgroundColor:palette.green,borderRadius:6}]},chartOptions({suffix:'%',digits:1}));
+      draw('energyChart','bar',{labels,datasets:[{label:'Planned consumption',data:rows.map(r=>r.planned_consumption_kwh),backgroundColor:'rgba(169,189,200,.45)',borderColor:palette.slate,borderWidth:1,borderRadius:6},{label:'Consumed',data:rows.map(r=>r.consumption_kwh),backgroundColor:palette.teal,borderRadius:6}]},chartOptions({suffix:' kWh'}));
+      draw('revenueChart','bar',{labels,datasets:[{label:'Planned revenue',data:rows.map(r=>r.planned_revenue_usd),backgroundColor:'rgba(169,189,200,.45)',borderColor:palette.slate,borderWidth:1,borderRadius:6},{label:'Actual revenue',data:rows.map(r=>r.revenue_usd),backgroundColor:palette.amber,borderRadius:6}]},chartOptions({prefix:'$'}));
+      const customerOptions=chartOptions({secondAxis:true});customerOptions.scales.y1.max=100;customerOptions.scales.y1.ticks.callback=v=>`${v}%`;
+      draw('customerChart','bar',{labels,datasets:[{label:'Total customers',data:rows.map(r=>r.total_customers),backgroundColor:'rgba(169,189,200,.42)',borderRadius:5},{label:'Active customers',data:rows.map(r=>r.active_customers),backgroundColor:palette.blue,borderRadius:5},{label:'Vending customers',data:rows.map(r=>r.vending_customers),backgroundColor:palette.green,borderRadius:5},{label:'Active / total',data:rows.map(r=>r.active_total_pct),type:'line',yAxisID:'y1',borderColor:palette.coral,backgroundColor:palette.coral,tension:.3,pointRadius:4}]},customerOptions);
+      draw('arpuChart','line',{labels,datasets:[{label:'Actual ARPU',data:rows.map(r=>r.arpu_usd),borderColor:palette.amber,backgroundColor:palette.amber,tension:.3,pointRadius:4},{label:'Planned ARPU',data:rows.map(r=>r.planned_arpu_usd),borderColor:palette.slate,backgroundColor:palette.slate,borderDash:[6,5],tension:.25,pointRadius:3}]},chartOptions({prefix:'$',digits:2}));
+      draw('energyPerUserChart','line',{labels,datasets:[{label:'Consumption per active customer',data:rows.map(r=>r.consumption_per_user_kwh),borderColor:palette.teal,backgroundColor:'rgba(57,215,202,.16)',fill:true,tension:.3,pointRadius:4}]},chartOptions({suffix:' kWh',digits:2}));
+      draw('uptimeChart','bar',{labels,datasets:[{label:'Uptime',data:rows.map(r=>r.uptime_pct??null),backgroundColor:palette.green,borderRadius:6}]},chartOptions({suffix:'%',digits:1,max:100}));
       draw('saifiChart','bar',{labels,datasets:[{label:'SAIFI',data:rows.map(r=>r.saifi??null),backgroundColor:palette.purple,borderRadius:6}]},chartOptions({digits:2}));
       draw('saidiChart','bar',{labels,datasets:[{label:'SAIDI',data:rows.map(r=>r.saidi_hours??null),backgroundColor:palette.slate,borderRadius:6}]},chartOptions({suffix:' h',digits:1}));
-      const cats=categories.filter(c=>rows.some(r=>r.month_sort===c.month_sort));
-      draw('categoryChart','bar',{labels:cats.map(c=>c.month),datasets:[{label:'Households',data:cats.map(c=>c.households_kwh),backgroundColor:palette.blue,stack:'mix'},{label:'Businesses',data:cats.map(c=>c.businesses_kwh),backgroundColor:palette.green,stack:'mix'},{label:'Institutions',data:cats.map(c=>c.institutions_kwh),backgroundColor:palette.purple,stack:'mix'}]}, {...chartOptions({suffix:' kWh'}),scales:{x:{stacked:true,ticks:{color:palette.text},grid:{display:false},border:{display:false}},y:{stacked:true,beginAtZero:true,ticks:{color:palette.text},grid:{color:palette.grid},border:{display:false}}}});
+      draw('outageChart','bar',{labels,datasets:[{label:'Detected heartbeat gaps',data:rows.map(r=>r.outage_events??null),backgroundColor:palette.coral,borderRadius:6}]},chartOptions());
+      const byMonth=new Map(categories.map(c=>[c.month_sort,c]));
+      draw('categoryChart','bar',{labels,datasets:[{label:'Households',data:rows.map(r=>byMonth.get(r.month_sort)?.households_kwh??null),backgroundColor:palette.blue,stack:'mix'},{label:'Businesses',data:rows.map(r=>byMonth.get(r.month_sort)?.businesses_kwh??null),backgroundColor:palette.green,stack:'mix'},{label:'Institutions',data:rows.map(r=>byMonth.get(r.month_sort)?.institutions_kwh??null),backgroundColor:palette.purple,stack:'mix'}]}, {...chartOptions({suffix:' kWh'}),scales:{x:{stacked:true,ticks:{color:palette.text,maxRotation:40,minRotation:0},grid:{display:false},border:{color:palette.grid}},y:{stacked:true,beginAtZero:true,ticks:{color:palette.text},grid:{color:palette.grid},border:{display:false}}}});
     }
-
-    function renderTable(rows) {
-      document.getElementById('monthlyTableBody').innerHTML=rows.map(r=>`<tr><td>${html(r.month)}</td><td>${money(r.revenue_usd)}</td><td>${money(r.planned_revenue_usd)}</td><td>${number(r.consumption_kwh)}</td><td>${number(r.planned_consumption_kwh)}</td><td>${number(r.active_customers)}</td><td>${number(r.vending_customers)}</td><td>${number(r.active_total_pct,0,'%')}</td><td>${money(r.arpu_usd,2)}</td><td>${number(r.consumption_per_user_kwh,2)}</td></tr>`).join('');
+    function renderTable(rows){
+      document.getElementById('monthlyTableBody').innerHTML=rows.map(r=>`<tr><td>${html(r.month)}</td><td>${money(r.revenue_usd)}</td><td>${money(r.planned_revenue_usd)}</td><td>${number(r.consumption_kwh)}</td><td>${number(r.planned_consumption_kwh)}</td><td>${number(r.active_customers)}</td><td>${number(r.vending_customers)}</td><td>${number(r.active_total_pct,1,'%')}</td><td>${money(r.arpu_usd,2)}</td><td>${number(r.consumption_per_user_kwh,2)}</td><td>${number(r.uptime_pct,2,'%')}</td><td>${number(r.saifi,2)}</td><td>${number(r.saidi_hours,1,' h')}</td><td>${number(r.outage_events)}</td></tr>`).join('');
     }
-    function renderCoverage(villages,categories,latestSort) {
-      const latestVillageRows=villages.filter(r=>r.month_sort===latestSort&&r.consumption_kwh!==null);
-      const missing=CONFIG.villages.filter(v=>!latestVillageRows.some(r=>r.village===v));
+    function renderCoverage(rows,categories){
+      const reliable=rows.filter(r=>r.uptime_pct!==null&&r.uptime_pct!==undefined).map(r=>r.month.replace(' 2026',''));
+      const fullReliability=rows.filter(r=>r.saifi!==null&&r.saifi!==undefined&&r.outage_events!==null&&r.outage_events!==undefined).map(r=>r.month.replace(' 2026',''));
+      const categorical=rows.filter(r=>categories.some(c=>c.month_sort===r.month_sort)).map(r=>r.month.replace(' 2026',''));
       document.getElementById('coverageList').innerHTML=[
-        `<strong>${latestVillageRows.length} of ${CONFIG.villages.length} villages</strong> have usable SparkMeter consumption for ${MONTHS[(latestSort%100)-1]} ${Math.floor(latestSort/100)}.`,
-        missing.length?`Missing village consumption: <strong>${missing.map(html).join(', ')}</strong>.`:'All villages have usable consumption.',
-        categories.some(c=>c.month_sort===latestSort)?'Customer-segment consumption is reconciled to the latest combined SparkMeter total.':'Customer-segment consumption is not yet populated for the latest month.',
-        'Reliability figures reflect the heartbeat-gap method and should be interpreted alongside reporting coverage.'
+        `<strong>${rows.length} of 7 months</strong> have complete combined revenue, plan, consumption and customer data.`,
+        `<strong>ARPU, energy/customer and customer ratios</strong> are calculated directly from monthly revenue, consumption and customer counts.`,
+        `Validated availability and SAIDI telemetry is available for <strong>${reliable.length?reliable.join(' and '):'no selected months'}</strong>; SAIFI and detected heartbeat interruptions are available for <strong>${fullReliability.length?fullReliability.join(' and '):'no selected months'}</strong>.`,
+        `Reconciled customer-segment consumption is available for <strong>${categorical.length?categorical.join(', '):'no selected months'}</strong>. Blank chart positions indicate source gaps, not zero performance.`
       ].map(x=>`<li>${x}</li>`).join('');
     }
-
-    function populateVillageFilter(){const s=document.getElementById('villageFilter');const current=s.value||'All villages';s.innerHTML=['All villages',...CONFIG.villages].map(v=>`<option value="${html(v)}">${html(v==='All villages'?'All villages (combined consumption)':v)}</option>`).join('');s.value=current;}
-    function update(data) {
-      const rows=filteredCombined(data.combined);
-      const latest=renderCards(rows);
-      renderInsights(rows); renderCharts(rows,data.categories); renderTable(rows);
-      if(latest){document.getElementById('latestMonthBadge').textContent=latest.month;renderVillageChart(data.villages,latest.month_sort);renderCoverage(data.villages,data.categories,latest.month_sort);}
+    function update(data){
+      const rows=filteredCombined(data.combined),latest=renderCards(rows);renderInsights(rows);renderCharts(rows,data.categories);renderTable(rows);renderCoverage(rows,data.categories);if(latest)document.getElementById('latestMonthBadge').textContent=latest.month;
     }
-    async function initialize(){populateVillageFilter();let data=await loadData();const latest=data.combined.at(-1);if(latest)document.getElementById('dateRangeEnd').value=`${Math.floor(latest.month_sort/100)}-${String(latest.month_sort%100).padStart(2,'0')}`;update(data);['villageFilter','dateRangeStart','dateRangeEnd'].forEach(id=>document.getElementById(id).addEventListener('change',()=>update(data)));document.getElementById('refreshBtn').addEventListener('click',async()=>{data=await loadData();update(data);});}
-    window.addEventListener('error',e=>{document.getElementById('banner').style.display='block';document.getElementById('banner').textContent=`Dashboard error: ${e.message}`;});
+    async function initialize(){
+      let data=await loadData();update(data);['dateRangeStart','dateRangeEnd'].forEach(id=>document.getElementById(id).addEventListener('change',()=>update(data)));document.getElementById('refreshBtn').addEventListener('click',async()=>{data=await loadData();update(data);});
+    }
+    window.addEventListener('error',e=>{const b=document.getElementById('banner');b.style.display='block';b.textContent=`Dashboard error: ${e.message}`;});
     initialize().catch(e=>{document.getElementById('sourceMode').textContent='Unable to load';document.getElementById('sourceStatus').textContent=e.message;});
   </script>
 </body>

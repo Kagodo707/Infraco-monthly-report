@@ -174,9 +174,64 @@ body.dashboard-drc tbody tr:hover { background: rgba(50,210,198,.08); }
 body.dashboard-drc tbody tr.highlight { background: rgba(50,210,198,.12); }
 body.dashboard-drc .banner { color: #ffe5a6; background: rgba(255,198,92,.1); border-color: rgba(255,198,92,.28); }
 
-/* Lolwe stays light and quiet for long management review sessions. */
-body.dashboard-lolwe { background: linear-gradient(180deg, #f9fbfb 0, #f0f5f5 46rem, #e9f0f1 100%); }
-body.dashboard-lolwe .title-panel { background: linear-gradient(120deg, #0c3942 0%, #116572 64%, #168b87 100%); }
+/* Lolwe uses a warm, low-glare dark theme for long management review sessions. */
+body.dashboard-lolwe {
+  --bg: #071512;
+  --bg-2: #0a1d1a;
+  --panel: #102621;
+  --panel-2: #16312b;
+  --border: rgba(190, 224, 213, .16);
+  --text: #eef8f4;
+  --muted: #b6ccc4;
+  --teal: #39d7ca;
+  --blue: #72b7ff;
+  --green: #70df98;
+  --amber: #ffc963;
+  --purple: #b5a5ff;
+  --coral: #ff8581;
+  --slate: #a9bdc8;
+  --navy: #f1faf6;
+  --navy-2: #1a4a40;
+  --shadow: 0 14px 34px rgba(0,0,0,.28);
+  color: var(--text);
+  background:
+    radial-gradient(circle at 92% 2%, rgba(57, 215, 202, .11), transparent 30rem),
+    linear-gradient(180deg, #040e0c 0, var(--bg) 36rem, var(--bg-2) 100%);
+}
+body.dashboard-lolwe .title-panel { background: linear-gradient(120deg, #071a17 0%, #0d3b34 64%, #12665b 100%); }
+body.dashboard-lolwe .status-panel,
+body.dashboard-lolwe .filters,
+body.dashboard-lolwe .card,
+body.dashboard-lolwe .chart-card,
+body.dashboard-lolwe .table-card { background: rgba(16, 38, 33, .96); border-color: var(--border); box-shadow: var(--shadow); }
+body.dashboard-lolwe .filters { grid-template-columns: minmax(210px, 1.1fr) repeat(2, minmax(170px, .8fr)) minmax(180px, .7fr); background: rgba(9, 29, 25, .94); }
+body.dashboard-lolwe .fixed-scope,
+body.dashboard-lolwe .field input { display: flex; align-items: center; width: 100%; height: 42px; padding: 0 12px; color: #eef8f4; color-scheme: dark; background: #16332c; border: 1px solid rgba(190,224,213,.2); border-radius: 10px; font-size: .94rem; }
+body.dashboard-lolwe .fixed-scope { font-weight: 800; }
+body.dashboard-lolwe .field button { color: #041714; background: linear-gradient(90deg, #44ddd0, #84c3ff); }
+body.dashboard-lolwe .status-value,
+body.dashboard-lolwe .card-value,
+body.dashboard-lolwe .card-head h3,
+body.dashboard-lolwe .insight-list strong { color: #f3fbf7; }
+body.dashboard-lolwe .status-text,
+body.dashboard-lolwe .status-label,
+body.dashboard-lolwe .card-label,
+body.dashboard-lolwe .card-sub,
+body.dashboard-lolwe .caption,
+body.dashboard-lolwe .insight-list li,
+body.dashboard-lolwe .footer-note { color: #bcd0c9; }
+body.dashboard-lolwe .card-head { border-color: rgba(190,224,213,.14); }
+body.dashboard-lolwe .scope-badge,
+body.dashboard-lolwe .card-scope-chip,
+body.dashboard-lolwe .pill { color: #c3f4ed; background: rgba(57,215,202,.1); border-color: rgba(57,215,202,.28); }
+body.dashboard-lolwe th { color: #dcebe5; background: #16332c; }
+body.dashboard-lolwe th,
+body.dashboard-lolwe td { border-color: rgba(190,224,213,.12); }
+body.dashboard-lolwe tbody tr:hover { background: rgba(57,215,202,.08); }
+body.dashboard-lolwe tbody tr.highlight { background: rgba(57,215,202,.12); }
+body.dashboard-lolwe .banner { color: #ffe6a5; background: rgba(255,201,99,.1); border-color: rgba(255,201,99,.28); }
+body.dashboard-lolwe .equal-columns { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+body.dashboard-lolwe .table-scroll { max-height: 430px; overflow: auto; }
 body.dashboard-lolwe .card:nth-child(1) { --card-accent: #e5a33a; }
 body.dashboard-lolwe .card:nth-child(2) { --card-accent: #00a69c; }
 body.dashboard-lolwe .card:nth-child(3) { --card-accent: #176b87; }
@@ -203,5 +258,7 @@ body.dashboard-lolwe .card:nth-child(8) { --card-accent: #82949b; }
   .status-panel { grid-template-columns: 1fr; }
   .filters { position: static; grid-template-columns: 1fr; }
   .cards-grid, .section-grid-2, .section-grid-3, .section-grid-4 { grid-template-columns: 1fr; }
+  body.dashboard-lolwe .filters,
+  body.dashboard-lolwe .equal-columns { grid-template-columns: 1fr; }
   .chart-wrap, .chart-wrap.tall, .chart-wrap.short { height: 280px; }
 }
