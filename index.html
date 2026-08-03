@@ -120,7 +120,7 @@
   </style>
   <link rel="stylesheet" href="dashboard-modern.css" />
 </head>
-<body>
+<body class="dashboard-drc">
   <div class="container">
     <div class="header">
       <div class="title-panel">
@@ -732,12 +732,12 @@
         responsive:true, maintainAspectRatio:false, interaction:{mode:'index', intersect:false},
         plugins:{
           title:{display:false, text:title},
-          legend:{labels:{color:'#49636b', boxWidth:10, boxHeight:10, usePointStyle:true, pointStyle:'circle'}},
+          legend:{labels:{color:'#d5e2ea', boxWidth:10, boxHeight:10, usePointStyle:true, pointStyle:'circle'}},
           tooltip:{callbacks:{label(ctx){ const value = ctx.parsed.y ?? ctx.parsed.x; return `${ctx.dataset.label}: ${formatNumber(value, digits, prefix, suffix)}`; }}}
         },
         scales:{
-          x:{ticks:{color:'#6f848a'}, grid:{display:false}, border:{display:false}},
-          y:{ticks:{color:'#6f848a', callback(v){ return formatNumber(v,0,prefix,suffix); }}, grid:{color:'rgba(21,50,58,0.07)'}, border:{display:false}, beginAtZero:true}
+          x:{ticks:{color:'#c3d3dd'}, grid:{display:false}, border:{display:false}},
+          y:{ticks:{color:'#c3d3dd', callback(v){ return formatNumber(v,0,prefix,suffix); }}, grid:{color:'rgba(198,216,226,0.14)'}, border:{display:false}, beginAtZero:true}
         }
       };
     }
@@ -1043,7 +1043,7 @@
           {label:'Businesses', data:safeSeries(categoryMonthly,'businesses_kwh'), backgroundColor:COLOR.green, stack:'cat'},
           {label:'Institutions', data:safeSeries(categoryMonthly,'institutions_kwh'), backgroundColor:COLOR.purple, stack:'cat'}
         ]},
-        options:{...chartOptions({suffix:' kWh', title:chartTitles.categoryTitle}), scales:{x:{stacked:true, ticks:{color:'#6f848a'}, grid:{display:false}, border:{display:false}}, y:{stacked:true, ticks:{color:'#6f848a'}, grid:{color:'rgba(21,50,58,0.07)'}, border:{display:false}, beginAtZero:true}}}
+        options:{...chartOptions({suffix:' kWh', title:chartTitles.categoryTitle}), scales:{x:{stacked:true, ticks:{color:'#c3d3dd'}, grid:{display:false}, border:{display:false}}, y:{stacked:true, ticks:{color:'#c3d3dd'}, grid:{color:'rgba(198,216,226,0.14)'}, border:{display:false}, beginAtZero:true}}}
       });
 
       makeChart('siteConsumptionChart','siteConsumptionChart',{type:'bar', data:{labels:comparisonRows.map(r=>r.site), datasets:[{label:'Sparkmeter Consumption (kWh)', data:safeSeries(comparisonRows,'consumption_kwh'), backgroundColor:backgroundForSites(comparisonRows, selectedSite)}]}, options:chartOptions({suffix:' kWh', title:chartTitles.siteConsumptionTitle})});
