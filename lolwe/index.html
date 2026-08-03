@@ -16,7 +16,7 @@
             <div class="eyebrow">Equatorial Power · Uganda Operations</div>
             <h1>Lolwe Performance Dashboard</h1>
             <p class="title-subtitle">A single-site management view of Lolwe's commercial, customer, energy and service performance.</p>
-            <div class="site-name-display">Lolwe · January–July 2026</div>
+            <div class="site-name-display" id="currentPeriodDisplay">Lolwe · Loading reporting history…</div>
             <nav class="dashboard-nav" aria-label="Dashboard navigation">
               <a href="../index.html">DRC Portfolio</a>
               <a class="active" href="index.html" aria-current="page">Lolwe</a>
@@ -44,11 +44,11 @@
       </div>
       <div class="field">
         <label for="dateRangeStart">Display from</label>
-        <input type="month" id="dateRangeStart" value="2026-01" min="2026-01" max="2026-07" />
+        <input type="month" id="dateRangeStart" />
       </div>
       <div class="field">
         <label for="dateRangeEnd">Display to</label>
-        <input type="month" id="dateRangeEnd" value="2026-07" min="2026-01" max="2026-07" />
+        <input type="month" id="dateRangeEnd" />
       </div>
       <div class="field">
         <label>&nbsp;</label>
@@ -65,7 +65,7 @@
         <div class="chart-wrap tall"><canvas id="energyChart"></canvas></div>
       </article>
       <article class="table-card">
-        <div class="card-head"><h3 id="briefTitle">Management brief</h3><span class="pill">Latest month</span></div>
+        <div class="card-head"><h3 id="briefTitle">Management brief</h3><span class="pill" id="briefPeriodPill">Selected period</span></div>
         <ol class="insight-list" id="insightsList"></ol>
       </article>
     </section>
@@ -94,26 +94,30 @@
 
     <section class="section-grid-4">
       <article class="chart-card">
-        <div class="card-head"><h3>Service availability</h3><span class="pill">Uptime</span></div>
+        <div class="card-head"><h3>Service availability</h3><span class="pill" id="uptimePeriodPill">Validated months</span></div>
+        <p class="caption" id="uptimeCoverage">Loading telemetry coverage…</p>
         <div class="chart-wrap short"><canvas id="uptimeChart"></canvas></div>
       </article>
       <article class="chart-card">
-        <div class="card-head"><h3>Interruption frequency</h3><span class="pill">SAIFI</span></div>
+        <div class="card-head"><h3>Interruption frequency</h3><span class="pill" id="saifiPeriodPill">Validated months</span></div>
+        <p class="caption" id="saifiCoverage">Loading telemetry coverage…</p>
         <div class="chart-wrap short"><canvas id="saifiChart"></canvas></div>
       </article>
       <article class="chart-card">
-        <div class="card-head"><h3>Interruption duration</h3><span class="pill">SAIDI hours</span></div>
+        <div class="card-head"><h3>Interruption duration</h3><span class="pill" id="saidiPeriodPill">Validated months</span></div>
+        <p class="caption" id="saidiCoverage">Loading telemetry coverage…</p>
         <div class="chart-wrap short"><canvas id="saidiChart"></canvas></div>
       </article>
       <article class="chart-card">
-        <div class="card-head"><h3>Detected interruptions</h3><span class="pill">Heartbeat gaps</span></div>
+        <div class="card-head"><h3>Detected interruptions</h3><span class="pill" id="outagePeriodPill">Validated months</span></div>
+        <p class="caption" id="outageCoverage">Heartbeat-gap proxy; not a count of confirmed grid outages.</p>
         <div class="chart-wrap short"><canvas id="outageChart"></canvas></div>
       </article>
     </section>
 
     <section class="section-grid-2">
       <article class="chart-card">
-        <div class="card-head"><h3>Consumption by customer segment</h3><span class="pill">Jan–Jul 2026</span></div>
+        <div class="card-head"><h3>Consumption by customer segment</h3><span class="pill" id="categoryPeriodPill">Validated months</span></div>
         <p class="caption">Household, business and institution consumption is shown when the categorical workflow has produced a reconciled monthly result.</p>
         <div class="chart-wrap"><canvas id="categoryChart"></canvas></div>
       </article>
@@ -124,7 +128,7 @@
     </section>
 
     <section class="table-card wide">
-      <div class="card-head"><h3>Combined Lolwe monthly performance</h3><span class="pill">2026</span></div>
+      <div class="card-head"><h3>Combined Lolwe monthly performance</h3><span class="pill" id="tablePeriodPill">Reporting history</span></div>
       <div class="table-scroll">
         <table>
           <thead>
@@ -195,7 +199,7 @@
     function objects(text){const rows=csvRows(text);if(rows.length<2)return[];const headers=rows[0].map(norm);return rows.slice(1).map(r=>Object.fromEntries(headers.map((h,i)=>[h,r[i]??''])));}
     function parseCombined(text){
       return objects(text).filter(r=>String(r.site_name||'').trim().toLowerCase()==='lolwe').map(r=>{
-        const mi=monthInfo(r.month);if(!mi||mi.sort<202601||mi.sort>202607)return null;
+        const mi=monthInfo(r.month);if(!mi)return null;
         return {month:mi.month,month_sort:mi.sort,revenue_usd:num(r.monthly_total_usd),planned_revenue_usd:num(r.planned_revenue_usd),planned_arpu_usd:num(r.planned_arpu_usd),planned_consumption_kwh:num(r.planned_kwh),consumption_kwh:num(r.consumed_kwh),vending_customers:num(r.vending_customers),active_customers:num(r.active_customers),total_customers:num(r.total_customers)};
       }).filter(Boolean).sort((a,b)=>a.month_sort-b.month_sort);
     }
@@ -214,17 +218,22 @@
         vending_active_pct:active?vending/active*100:null
       };
     }
+    function mergeDefined(base,row){const merged={...(base||{})};Object.entries(row||{}).forEach(([key,value])=>{if(value!==null&&value!==undefined&&value!=='')merged[key]=value;});return merged;}
     async function fetchText(url){const res=await fetch(url,{cache:'no-store',credentials:'omit'});if(!res.ok)throw new Error(`HTTP ${res.status}`);return res.text();}
     async function loadData(){
       const [combinedResult,categoryResult]=await Promise.allSettled([fetchText(CONFIG.combinedCsv),fetchText(CONFIG.categoryCsv)]);
       let combined=APPROVED_COMBINED.map(derive),categories=CATEGORY_FALLBACK.map(x=>({...x}));let combinedLive=false,categoryLive=false;
       if(combinedResult.status==='fulfilled'){
         const parsed=parseCombined(combinedResult.value);
-        if(parsed.length===7){combined=parsed.map(row=>derive({...APPROVED_COMBINED.find(base=>base.month_sort===row.month_sort),...row}));combinedLive=true;}
+        if(parsed.length){
+          const byMonth=new Map(APPROVED_COMBINED.map(row=>[row.month_sort,{...row}]));
+          parsed.forEach(row=>byMonth.set(row.month_sort,mergeDefined(byMonth.get(row.month_sort),row)));
+          combined=[...byMonth.values()].sort((a,b)=>a.month_sort-b.month_sort).map(derive);combinedLive=true;
+        }
       }
       if(categoryResult.status==='fulfilled'){const parsed=parseCategories(categoryResult.value);if(parsed.length){categories=parsed;categoryLive=true;}}
       document.getElementById('sourceMode').textContent=combinedLive?'Live data':'Verified data';
-      document.getElementById('sourceStatus').textContent=`Commercial and customer series: ${combinedLive?'live Dashboard tab':'approved Jan–Jul snapshot'} · Customer segments: ${categoryLive?'live categorical workflow':'verified July snapshot'}.`;
+      document.getElementById('sourceStatus').textContent=`Commercial and customer series: ${combinedLive?'live Dashboard tab':'verified historical snapshot'} · Reliability and customer segments display only validated source months.`;
       return {combined,categories};
     }
 
@@ -233,7 +242,28 @@
     function pct(a,b){return a===null||b===null||!b?null:a/b*100;}
     function html(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
     function monthSortInput(v){if(!v)return null;const [y,m]=v.split('-').map(Number);return y*100+m;}
-    function filteredCombined(rows){let a=monthSortInput(document.getElementById('dateRangeStart').value)||202601,b=monthSortInput(document.getElementById('dateRangeEnd').value)||202607;if(a>b)[a,b]=[b,a];return rows.filter(r=>r.month_sort>=a&&r.month_sort<=b);}
+    function monthInputValue(sort){return `${Math.floor(sort/100)}-${String(sort%100).padStart(2,'0')}`;}
+    function periodLabel(rows){
+      if(!rows.length)return 'No reporting data';const first=rows[0],last=rows.at(-1),fy=Math.floor(first.month_sort/100),ly=Math.floor(last.month_sort/100);
+      if(first.month_sort===last.month_sort)return first.month;
+      return fy===ly?`${first.month.split(' ')[0]}–${last.month.split(' ')[0]} ${fy}`:`${first.month}–${last.month}`;
+    }
+    function coverageLabel(rows){return rows.length?periodLabel(rows):'No validated months';}
+    function filteredCombined(rows){
+      if(!rows.length)return[];let a=monthSortInput(document.getElementById('dateRangeStart').value)||rows[0].month_sort,b=monthSortInput(document.getElementById('dateRangeEnd').value)||rows.at(-1).month_sort;
+      if(a>b)[a,b]=[b,a];return rows.filter(r=>r.month_sort>=a&&r.month_sort<=b);
+    }
+    function sumField(rows,key){return rows.reduce((total,row)=>total+(Number.isFinite(Number(row[key]))?Number(row[key]):0),0);}
+    function metricRows(rows,key){return rows.filter(row=>row[key]!==null&&row[key]!==undefined&&Number.isFinite(Number(row[key])));}
+    let configuredMax=null;
+    function configureDateInputs(rows){
+      if(!rows.length)return;const first=rows[0].month_sort,last=rows.at(-1).month_sort,start=document.getElementById('dateRangeStart'),end=document.getElementById('dateRangeEnd');
+      const shouldAdvance=!end.value||(configuredMax!==null&&monthSortInput(end.value)===configuredMax);
+      [start,end].forEach(input=>{input.min=monthInputValue(first);input.max=monthInputValue(last);});
+      if(!start.value||monthSortInput(start.value)<first)start.value=monthInputValue(first);
+      if(shouldAdvance||!end.value||monthSortInput(end.value)>last)end.value=monthInputValue(last);
+      configuredMax=last;
+    }
     function chartOptions({prefix='',suffix='',digits=0,secondAxis=false,max=null}={}){
       const scales={x:{ticks:{color:palette.text,maxRotation:40,minRotation:0},grid:{display:false},border:{color:palette.grid}},y:{beginAtZero:true,suggestedMax:max,ticks:{color:palette.text,callback:v=>`${prefix}${Number(v).toLocaleString()}${suffix}`},grid:{color:palette.grid},border:{display:false}}};
       if(secondAxis)scales.y1={position:'right',beginAtZero:true,ticks:{color:palette.text},grid:{drawOnChartArea:false},border:{display:false}};
@@ -257,13 +287,22 @@
     }
     function renderInsights(rows){
       const latest=rows.at(-1),prev=rows.at(-2);if(!latest){document.getElementById('insightsList').innerHTML='<li>No records in the selected period.</li>';return;}
-      const revAch=pct(latest.revenue_usd,latest.planned_revenue_usd),conAch=pct(latest.consumption_kwh,latest.planned_consumption_kwh),trend=prev?pct(latest.consumption_kwh-prev.consumption_kwh,prev.consumption_kwh):null;
-      document.getElementById('briefTitle').textContent=`Management brief · ${latest.month}`;
+      const revAch=pct(latest.revenue_usd,latest.planned_revenue_usd),conAch=pct(latest.consumption_kwh,latest.planned_consumption_kwh),energyTrend=prev?pct(latest.consumption_kwh-prev.consumption_kwh,prev.consumption_kwh):null;
+      const revenueTrend=prev?pct(latest.revenue_usd-prev.revenue_usd,prev.revenue_usd):null,activeTrend=prev?pct(latest.active_customers-prev.active_customers,prev.active_customers):null;
+      const periodRevenue=sumField(rows,'revenue_usd'),periodRevenuePlan=sumField(rows,'planned_revenue_usd'),periodEnergy=sumField(rows,'consumption_kwh'),periodEnergyPlan=sumField(rows,'planned_consumption_kwh');
+      const reliable=metricRows(rows,'uptime_pct'),fullReliability=metricRows(rows,'saifi');
+      const revenuePlanComplete=rows.every(r=>r.planned_revenue_usd!==null&&r.planned_revenue_usd!==undefined),energyPlanComplete=rows.every(r=>r.planned_consumption_kwh!==null&&r.planned_consumption_kwh!==undefined);
+      const latestCommercial=revAch===null?`<strong>Latest commercial result:</strong> ${latest.month} revenue was <strong>${money(latest.revenue_usd)}</strong>; no approved revenue plan is configured for the month.`:`<strong>Latest commercial result:</strong> ${latest.month} revenue was <strong>${money(latest.revenue_usd)}</strong>, reaching <strong>${number(revAch,1,'%')}</strong> of the ${money(latest.planned_revenue_usd)} plan and leaving a <strong>${money(latest.planned_revenue_usd-latest.revenue_usd)}</strong> gap${revenueTrend===null?'':`; revenue was ${number(Math.abs(revenueTrend),1,'%')} ${revenueTrend>=0?'above':'below'} the previous month`}.`;
+      const latestDemand=conAch===null?`<strong>Demand:</strong> Lolwe delivered <strong>${number(latest.consumption_kwh)} kWh</strong>; no approved consumption plan is configured for the month.`:`<strong>Demand:</strong> Lolwe delivered <strong>${number(latest.consumption_kwh)} kWh</strong>, or <strong>${number(conAch,1,'%')}</strong> of plan${energyTrend===null?'':`; energy was ${number(Math.abs(energyTrend),1,'%')} ${energyTrend>=0?'above':'below'} the previous month`}. The latest monthly shortfall was <strong>${number(latest.planned_consumption_kwh-latest.consumption_kwh)} kWh</strong>.`;
+      const periodResult=revenuePlanComplete&&energyPlanComplete?`<strong>Selected-period performance:</strong> Across ${periodLabel(rows)}, revenue totalled <strong>${money(periodRevenue)}</strong> against ${money(periodRevenuePlan)} planned (<strong>${number(pct(periodRevenue,periodRevenuePlan),1,'%')}</strong>), while delivered energy was <strong>${number(periodEnergy)} kWh</strong> against ${number(periodEnergyPlan)} kWh planned (<strong>${number(pct(periodEnergy,periodEnergyPlan),1,'%')}</strong>).`:`<strong>Selected-period performance:</strong> Across ${periodLabel(rows)}, revenue totalled <strong>${money(periodRevenue)}</strong> and delivered energy was <strong>${number(periodEnergy)} kWh</strong>. Plan attainment is withheld because at least one selected month has no configured plan.`;
+      document.getElementById('briefTitle').textContent=`Management brief · ${latest.month}`;document.getElementById('briefPeriodPill').textContent=periodLabel(rows);
       const points=[
-        `<strong>Commercial:</strong> Revenue was <strong>${money(latest.revenue_usd)}</strong>, reaching <strong>${number(revAch,1,'%')}</strong> of the ${money(latest.planned_revenue_usd)} plan.`,
-        `<strong>Demand:</strong> Lolwe delivered <strong>${number(latest.consumption_kwh)} kWh</strong>, or <strong>${number(conAch,1,'%')}</strong> of plan${trend===null?'':`; ${number(Math.abs(trend),1,'%')} ${trend>=0?'above':'below'} the previous month`}.`,
-        `<strong>Customer engagement:</strong> <strong>${number(latest.vending_customers)}</strong> of ${number(latest.active_customers)} active customers vended; active coverage was <strong>${number(latest.active_total_pct,1,'%')}</strong>.`,
-        `<strong>Reliability:</strong> Availability was <strong>${number(latest.uptime_pct,2,'%')}</strong>; <strong>${number(latest.outage_events)}</strong> heartbeat gaps produced SAIFI of <strong>${number(latest.saifi,2)}</strong> and SAIDI of <strong>${number(latest.saidi_hours,1)} hours</strong>.`
+        latestCommercial,
+        latestDemand,
+        periodResult,
+        `<strong>Customer engagement:</strong> <strong>${number(latest.vending_customers)}</strong> of ${number(latest.active_customers)} active customers vended; active coverage was <strong>${number(latest.active_total_pct,1,'%')}</strong>${activeTrend===null?'':` and active customers were ${number(Math.abs(activeTrend),1,'%')} ${activeTrend>=0?'above':'below'} the previous month`}. ARPU was <strong>${money(latest.arpu_usd,2)}</strong> and energy use was <strong>${number(latest.consumption_per_user_kwh,2)} kWh</strong> per active customer.`,
+        latest.uptime_pct===null||latest.uptime_pct===undefined?`<strong>Reliability:</strong> No validated heartbeat telemetry is available for ${latest.month}. The charts retain a gap rather than reporting zero.`:`<strong>Reliability:</strong> Latest validated availability was <strong>${number(latest.uptime_pct,2,'%')}</strong>; <strong>${number(latest.outage_events)}</strong> detected heartbeat gaps corresponded to SAIFI of <strong>${number(latest.saifi,2)}</strong> and SAIDI of <strong>${number(latest.saidi_hours,1)} hours</strong>. Heartbeat gaps are a telemetry proxy and should be reconciled with the operating log before being treated as confirmed outages.`,
+        `<strong>Coverage and action:</strong> Commercial history is complete for all <strong>${rows.length}</strong> selected months; availability is validated for <strong>${reliable.length}</strong> and SAIFI for <strong>${fullReliability.length}</strong>. Management should prioritize service/telemetry validation, customer reactivation and collections recovery where the latest plan gaps persist.`
       ];
       document.getElementById('insightsList').innerHTML=points.map(p=>`<li>${p}</li>`).join('');
     }
@@ -275,32 +314,40 @@
       draw('customerChart','bar',{labels,datasets:[{label:'Total customers',data:rows.map(r=>r.total_customers),backgroundColor:'rgba(169,189,200,.42)',borderRadius:5},{label:'Active customers',data:rows.map(r=>r.active_customers),backgroundColor:palette.blue,borderRadius:5},{label:'Vending customers',data:rows.map(r=>r.vending_customers),backgroundColor:palette.green,borderRadius:5},{label:'Active / total',data:rows.map(r=>r.active_total_pct),type:'line',yAxisID:'y1',borderColor:palette.coral,backgroundColor:palette.coral,tension:.3,pointRadius:4}]},customerOptions);
       draw('arpuChart','line',{labels,datasets:[{label:'Actual ARPU',data:rows.map(r=>r.arpu_usd),borderColor:palette.amber,backgroundColor:palette.amber,tension:.3,pointRadius:4},{label:'Planned ARPU',data:rows.map(r=>r.planned_arpu_usd),borderColor:palette.slate,backgroundColor:palette.slate,borderDash:[6,5],tension:.25,pointRadius:3}]},chartOptions({prefix:'$',digits:2}));
       draw('energyPerUserChart','line',{labels,datasets:[{label:'Consumption per active customer',data:rows.map(r=>r.consumption_per_user_kwh),borderColor:palette.teal,backgroundColor:'rgba(57,215,202,.16)',fill:true,tension:.3,pointRadius:4}]},chartOptions({suffix:' kWh',digits:2}));
-      draw('uptimeChart','bar',{labels,datasets:[{label:'Uptime',data:rows.map(r=>r.uptime_pct??null),backgroundColor:palette.green,borderRadius:6}]},chartOptions({suffix:'%',digits:1,max:100}));
-      draw('saifiChart','bar',{labels,datasets:[{label:'SAIFI',data:rows.map(r=>r.saifi??null),backgroundColor:palette.purple,borderRadius:6}]},chartOptions({digits:2}));
-      draw('saidiChart','bar',{labels,datasets:[{label:'SAIDI',data:rows.map(r=>r.saidi_hours??null),backgroundColor:palette.slate,borderRadius:6}]},chartOptions({suffix:' h',digits:1}));
-      draw('outageChart','bar',{labels,datasets:[{label:'Detected heartbeat gaps',data:rows.map(r=>r.outage_events??null),backgroundColor:palette.coral,borderRadius:6}]},chartOptions());
-      const byMonth=new Map(categories.map(c=>[c.month_sort,c]));
-      draw('categoryChart','bar',{labels,datasets:[{label:'Households',data:rows.map(r=>byMonth.get(r.month_sort)?.households_kwh??null),backgroundColor:palette.blue,stack:'mix'},{label:'Businesses',data:rows.map(r=>byMonth.get(r.month_sort)?.businesses_kwh??null),backgroundColor:palette.green,stack:'mix'},{label:'Institutions',data:rows.map(r=>byMonth.get(r.month_sort)?.institutions_kwh??null),backgroundColor:palette.purple,stack:'mix'}]}, {...chartOptions({suffix:' kWh'}),scales:{x:{stacked:true,ticks:{color:palette.text,maxRotation:40,minRotation:0},grid:{display:false},border:{color:palette.grid}},y:{stacked:true,beginAtZero:true,ticks:{color:palette.text},grid:{color:palette.grid},border:{display:false}}}});
+      const uptimeRows=metricRows(rows,'uptime_pct'),saifiRows=metricRows(rows,'saifi'),saidiRows=metricRows(rows,'saidi_hours'),outageRows=metricRows(rows,'outage_events');
+      draw('uptimeChart','bar',{labels:uptimeRows.map(r=>r.month),datasets:[{label:'Uptime',data:uptimeRows.map(r=>r.uptime_pct),backgroundColor:palette.green,borderRadius:6}]},chartOptions({suffix:'%',digits:1,max:100}));
+      draw('saifiChart','bar',{labels:saifiRows.map(r=>r.month),datasets:[{label:'SAIFI',data:saifiRows.map(r=>r.saifi),backgroundColor:palette.purple,borderRadius:6}]},chartOptions({digits:2}));
+      draw('saidiChart','bar',{labels:saidiRows.map(r=>r.month),datasets:[{label:'SAIDI',data:saidiRows.map(r=>r.saidi_hours),backgroundColor:palette.slate,borderRadius:6}]},chartOptions({suffix:' h',digits:1}));
+      draw('outageChart','bar',{labels:outageRows.map(r=>r.month),datasets:[{label:'Detected heartbeat gaps',data:outageRows.map(r=>r.outage_events),backgroundColor:palette.coral,borderRadius:6}]},chartOptions());
+      [['uptimePeriodPill',uptimeRows],['saifiPeriodPill',saifiRows],['saidiPeriodPill',saidiRows],['outagePeriodPill',outageRows]].forEach(([id,set])=>document.getElementById(id).textContent=coverageLabel(set));
+      document.getElementById('uptimeCoverage').textContent=`Validated availability: ${uptimeRows.length} of ${rows.length} selected months.`;
+      document.getElementById('saifiCoverage').textContent=`Validated interruption frequency: ${saifiRows.length} of ${rows.length} selected months.`;
+      document.getElementById('saidiCoverage').textContent=`Validated interruption duration: ${saidiRows.length} of ${rows.length} selected months.`;
+      document.getElementById('outageCoverage').textContent=`Heartbeat-gap proxy: ${outageRows.length} of ${rows.length} selected months; not confirmed grid-outage counts.`;
+      const selectedCategories=categories.filter(c=>rows.some(r=>r.month_sort===c.month_sort));
+      draw('categoryChart','bar',{labels:selectedCategories.map(r=>r.month),datasets:[{label:'Households',data:selectedCategories.map(r=>r.households_kwh),backgroundColor:palette.blue,stack:'mix'},{label:'Businesses',data:selectedCategories.map(r=>r.businesses_kwh),backgroundColor:palette.green,stack:'mix'},{label:'Institutions',data:selectedCategories.map(r=>r.institutions_kwh),backgroundColor:palette.purple,stack:'mix'}]}, {...chartOptions({suffix:' kWh'}),scales:{x:{stacked:true,ticks:{color:palette.text,maxRotation:40,minRotation:0},grid:{display:false},border:{color:palette.grid}},y:{stacked:true,beginAtZero:true,ticks:{color:palette.text},grid:{color:palette.grid},border:{display:false}}}});
+      document.getElementById('categoryPeriodPill').textContent=coverageLabel(selectedCategories);
     }
     function renderTable(rows){
       document.getElementById('monthlyTableBody').innerHTML=rows.map(r=>`<tr><td>${html(r.month)}</td><td>${money(r.revenue_usd)}</td><td>${money(r.planned_revenue_usd)}</td><td>${number(r.consumption_kwh)}</td><td>${number(r.planned_consumption_kwh)}</td><td>${number(r.active_customers)}</td><td>${number(r.vending_customers)}</td><td>${number(r.active_total_pct,1,'%')}</td><td>${money(r.arpu_usd,2)}</td><td>${number(r.consumption_per_user_kwh,2)}</td><td>${number(r.uptime_pct,2,'%')}</td><td>${number(r.saifi,2)}</td><td>${number(r.saidi_hours,1,' h')}</td><td>${number(r.outage_events)}</td></tr>`).join('');
     }
     function renderCoverage(rows,categories){
-      const reliable=rows.filter(r=>r.uptime_pct!==null&&r.uptime_pct!==undefined).map(r=>r.month.replace(' 2026',''));
-      const fullReliability=rows.filter(r=>r.saifi!==null&&r.saifi!==undefined&&r.outage_events!==null&&r.outage_events!==undefined).map(r=>r.month.replace(' 2026',''));
-      const categorical=rows.filter(r=>categories.some(c=>c.month_sort===r.month_sort)).map(r=>r.month.replace(' 2026',''));
+      const complete=rows.filter(r=>['revenue_usd','planned_revenue_usd','consumption_kwh','planned_consumption_kwh','active_customers','vending_customers','total_customers'].every(key=>r[key]!==null&&r[key]!==undefined));
+      const reliable=metricRows(rows,'uptime_pct'),fullReliability=metricRows(rows,'saifi');
+      const categorical=categories.filter(c=>rows.some(r=>r.month_sort===c.month_sort));
       document.getElementById('coverageList').innerHTML=[
-        `<strong>${rows.length} of 7 months</strong> have complete combined revenue, plan, consumption and customer data.`,
+        `<strong>${complete.length} of ${rows.length} selected months</strong> have complete combined revenue, plan, consumption and customer data. The reporting window is derived from the source and will extend automatically as new months are added.`,
         `<strong>ARPU, energy/customer and customer ratios</strong> are calculated directly from monthly revenue, consumption and customer counts.`,
-        `Validated availability and SAIDI telemetry is available for <strong>${reliable.length?reliable.join(' and '):'no selected months'}</strong>; SAIFI and detected heartbeat interruptions are available for <strong>${fullReliability.length?fullReliability.join(' and '):'no selected months'}</strong>.`,
-        `Reconciled customer-segment consumption is available for <strong>${categorical.length?categorical.join(', '):'no selected months'}</strong>. Blank chart positions indicate source gaps, not zero performance.`
+        `Validated availability telemetry is available for <strong>${coverageLabel(reliable)}</strong>; SAIFI and detected heartbeat interruptions are available for <strong>${coverageLabel(fullReliability)}</strong>. Reliability charts plot only validated months.`,
+        `Reconciled customer-segment consumption is available for <strong>${coverageLabel(categorical)}</strong>. Missing source months are excluded rather than displayed as zero.`
       ].map(x=>`<li>${x}</li>`).join('');
     }
     function update(data){
-      const rows=filteredCombined(data.combined),latest=renderCards(rows);renderInsights(rows);renderCharts(rows,data.categories);renderTable(rows);renderCoverage(rows,data.categories);if(latest)document.getElementById('latestMonthBadge').textContent=latest.month;
+      const rows=filteredCombined(data.combined),latest=renderCards(rows),period=periodLabel(rows);renderInsights(rows);renderCharts(rows,data.categories);renderTable(rows);renderCoverage(rows,data.categories);
+      document.getElementById('currentPeriodDisplay').textContent=`Lolwe · Reporting through ${latest?.month||'—'}`;document.getElementById('tablePeriodPill').textContent=period;if(latest)document.getElementById('latestMonthBadge').textContent=latest.month;
     }
     async function initialize(){
-      let data=await loadData();update(data);['dateRangeStart','dateRangeEnd'].forEach(id=>document.getElementById(id).addEventListener('change',()=>update(data)));document.getElementById('refreshBtn').addEventListener('click',async()=>{data=await loadData();update(data);});
+      let data=await loadData();configureDateInputs(data.combined);update(data);['dateRangeStart','dateRangeEnd'].forEach(id=>document.getElementById(id).addEventListener('change',()=>update(data)));document.getElementById('refreshBtn').addEventListener('click',async()=>{data=await loadData();configureDateInputs(data.combined);update(data);});
     }
     window.addEventListener('error',e=>{const b=document.getElementById('banner');b.style.display='block';b.textContent=`Dashboard error: ${e.message}`;});
     initialize().catch(e=>{document.getElementById('sourceMode').textContent='Unable to load';document.getElementById('sourceStatus').textContent=e.message;});
