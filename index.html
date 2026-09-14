@@ -100,6 +100,13 @@
     .chart-wrap.short { height: 280px; }
     .insight-list { margin: 0; padding-left: 18px; display: grid; gap: 10px; }
     .insight-list strong { color: var(--text); }
+    .commentary-card { margin-bottom: 18px; }
+    .commentary-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .commentary-head h3 { margin: 0; }
+    .commentary-list { margin: 0; padding-left: 18px; display: grid; gap: 10px; }
+    .commentary-list li, .commentary-note { color: var(--muted); line-height: 1.55; }
+    .commentary-list strong { color: var(--text); }
+    .commentary-note { margin: 12px 0 0; }
     table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
     th, td { padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.06); text-align: left; }
     th { color: var(--muted); position: sticky; top: 0; background: #0d2438; font-size: 0.84rem; }
@@ -182,6 +189,11 @@
       </div>
     </div>
 
+    <div class="table-card commentary-card" id="opsCommentaryCard" style="display:none">
+      <div class="commentary-head"><h3 id="opsCommentaryTitle">Operations commentary</h3></div>
+      <div id="opsCommentaryBody"></div>
+    </div>
+
     <div class="section-grid-3">
       <div class="chart-card"><div class="card-head"><div><h3 id="revenueTitle">Portfolio: Revenue by Month</h3></div></div><div class="chart-wrap short"><canvas id="revenueChart"></canvas></div></div>
       <div class="chart-card"><div class="card-head"><div><h3 id="uptimeTitle">Portfolio: Uptime by Month</h3></div></div><div class="chart-wrap short"><canvas id="uptimeChart"></canvas></div></div>
@@ -245,7 +257,8 @@
     const DASHBOARD_CONFIG = {
       tabs: {
         siteSheets: ['Bugarula', 'Bunyakiri', 'Buyumbu', 'Kashiraboba', 'Mugote'],
-        categoricalSheet: 'Categorical consumption'
+        categoricalSheet: 'Categorical consumption',
+        commentarySheet: 'Ops Commentary'
       },
       csvUrls: {
         'Kashiraboba': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRP6zU6ygZid-trwUn8tTdHm1r6fy1ishiZW5AOw4nAhQpGVbj3cS7JZYiheU6ThUe46RoJnmZI71Sr/pub?output=csv',
@@ -253,7 +266,8 @@
         'Buyumbu': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRP6zU6ygZid-trwUn8tTdHm1r6fy1ishiZW5AOw4nAhQpGVbj3cS7JZYiheU6ThUe46RoJnmZI71Sr/pub?gid=1760259188&single=true&output=csv',
         'Mugote': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRP6zU6ygZid-trwUn8tTdHm1r6fy1ishiZW5AOw4nAhQpGVbj3cS7JZYiheU6ThUe46RoJnmZI71Sr/pub?gid=1497830993&single=true&output=csv',
         'Bugarula': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRP6zU6ygZid-trwUn8tTdHm1r6fy1ishiZW5AOw4nAhQpGVbj3cS7JZYiheU6ThUe46RoJnmZI71Sr/pub?gid=686192888&single=true&output=csv',
-        'Categorical consumption': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRP6zU6ygZid-trwUn8tTdHm1r6fy1ishiZW5AOw4nAhQpGVbj3cS7JZYiheU6ThUe46RoJnmZI71Sr/pub?gid=36093025&single=true&output=csv'
+        'Categorical consumption': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRP6zU6ygZid-trwUn8tTdHm1r6fy1ishiZW5AOw4nAhQpGVbj3cS7JZYiheU6ThUe46RoJnmZI71Sr/pub?gid=36093025&single=true&output=csv',
+        'Ops Commentary': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRP6zU6ygZid-trwUn8tTdHm1r6fy1ishiZW5AOw4nAhQpGVbj3cS7JZYiheU6ThUe46RoJnmZI71Sr/pub?gid=1020789940&single=true&output=csv'
       },
       fallbackEnabled: false
     };
@@ -589,6 +603,21 @@
       return output;
     }
 
+    function parseCommentaryRows(csvText) {
+      const rows = parseCSV(csvText);
+      if (!rows.length) return [];
+      const headers = rows[0].map(normalizeHeader);
+      const monthIdx = headers.indexOf('month');
+      const textIdx = headers.findIndex(h => h.includes('summary') || h.includes('comment'));
+      if (monthIdx < 0 || textIdx < 0) return [];
+      return rows.slice(1).map(r => {
+        const match = String(r[monthIdx] || '').trim().toLowerCase().match(/([a-z]+)\s+(\d{4})/);
+        const monthNumber = match ? MONTH_LOOKUP[match[1]] : null;
+        const body = String(r[textIdx] ?? '').trim();
+        return monthNumber && body ? { month_sort: Number(match[2]) * 100 + monthNumber, text: body } : null;
+      }).filter(Boolean);
+    }
+
     function parseCategoricalRows(csvText) {
       const rows = parseCSV(csvText);
       if (!rows.length) return [];
@@ -646,18 +675,21 @@
       let categoricalRows = [];
       try { categoricalRows = parseCategoricalRows(await fetchCsv(DASHBOARD_CONFIG.tabs.categoricalSheet)); }
       catch (e) { errors.push(e?.message || 'Categorical consumption failed'); }
+      let commentaryRows = [];
+      try { commentaryRows = parseCommentaryRows(await fetchCsv(DASHBOARD_CONFIG.tabs.commentarySheet)); }
+      catch (e) { commentaryRows = []; }
       if (goodSiteRows.length > 0) {
         const revenueRows = goodSiteRows.filter(r => r.revenue_usd !== null).length;
         const outageRows = goodSiteRows.filter(r => r.outages !== null).length;
         setStatus('Live published sheet', `Loaded ${goodSiteRows.length} records. Revenue rows: ${revenueRows}. Outage rows: ${outageRows}.`, errors.length ? `Some tabs had issues:\n${errors.join('\n')}` : '');
-        return { siteMonthly: goodSiteRows, categorical: categoricalRows };
+        return { siteMonthly: goodSiteRows, categorical: categoricalRows, commentary: commentaryRows };
       }
       if (DASHBOARD_CONFIG.fallbackEnabled) {
         setStatus('Fallback sample', 'Live Google Sheet load failed. Using bundled sample data.', errors.join('\n') || 'Live load failed.');
-        return JSON.parse(JSON.stringify(FALLBACK_DATA));
+        return { ...JSON.parse(JSON.stringify(FALLBACK_DATA)), commentary: [] };
       }
       setStatus('No data', 'No dashboard data could be loaded.', errors.join('\n'));
-      return { siteMonthly: [], categorical: [] };
+      return { siteMonthly: [], categorical: [], commentary: [] };
     }
 
     function sum(rows, field) { return rows.reduce((t,r) => t + (cleanNumber(r[field]) || 0), 0); }
@@ -1022,6 +1054,7 @@
       document.getElementById('siteCompareMonthPill').textContent = comparisonMonth;
 
       document.getElementById('insightsList').innerHTML = buildInsights(scopeRows, selectedSite === 'All Sites' ? comparisonRows : latestRowsForMonth(scopeRows, latestMonthSort(scopeRows), selectedSite), scopeCategorical, selectedSite).map(item => `<li>${item}</li>`).join('');
+      renderOpsCommentary(data.commentary || [], compareMonthSort, comparisonMonth);
 
       makeChart('generationConsumptionChart','generationConsumptionChart',{
         type:'bar',
@@ -1077,6 +1110,28 @@
 
       const tableRows = selectedSite === 'All Sites' ? comparisonRows : comparisonRows.filter(r => isSameSite(r.site, selectedSite));
       renderTable(tableRows, selectedSite);
+    }
+
+    function renderOpsCommentary(entries, monthSort, monthLabel) {
+      const card = document.getElementById('opsCommentaryCard');
+      const entry = entries.find(e => e.month_sort === monthSort);
+      if (!entry) { card.style.display = 'none'; return; }
+      const bulletPattern = /^[\u2022*\-\u2013]\s*/;
+      const items = [], notes = [];
+      entry.text.split(/\r?\n/).map(line => line.trim()).filter(Boolean).forEach(line => {
+        const isBullet = bulletPattern.test(line);
+        const body = line.replace(bulletPattern, '');
+        const colon = body.indexOf(':');
+        const html = colon > 0 && colon < 70
+          ? `<strong>${escapeHtml(body.slice(0, colon))}:</strong>${escapeHtml(body.slice(colon + 1))}`
+          : escapeHtml(body);
+        (isBullet ? items : notes).push(html);
+      });
+      document.getElementById('opsCommentaryBody').innerHTML =
+        (items.length ? `<ul class="commentary-list">${items.map(item => `<li>${item}</li>`).join('')}</ul>` : '') +
+        notes.map(note => `<p class="commentary-note">${note}</p>`).join('');
+      setText('opsCommentaryTitle', `Operations commentary \u00b7 ${monthLabel}`);
+      card.style.display = '';
     }
 
     function populateSiteFilter(siteRows) {
