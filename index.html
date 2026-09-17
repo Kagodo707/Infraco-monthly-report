@@ -221,6 +221,11 @@
       <div class="chart-card" id="bugarulaGenerationCard"><div class="card-head"><div><h3 id="bugarulaGenerationTitle">Bugarula: PV Generation vs DG Generation by Month</h3></div></div><div class="chart-wrap"><canvas id="bugarulaGenerationChart"></canvas></div></div>
     </div>
 
+    <div class="section-grid-2" id="operatingCostSection">
+      <div class="chart-card"><div class="card-head"><div><h3 id="costTrendTitle">Portfolio: Operating cost by month</h3></div></div><div class="chart-wrap"><canvas id="costTrendChart"></canvas></div></div>
+      <div class="chart-card"><div class="card-head"><div><h3 id="costMixTitle">Operating cost breakdown</h3></div><span class="pill" id="costMixPill">Latest month</span></div><div class="chart-wrap"><canvas id="costMixChart"></canvas></div></div>
+    </div>
+
     <div class="section-grid-2">
       <div class="chart-card" id="bugarulaFuelCard"><div class="card-head"><div><h3 id="bugarulaFuelTitle">Bugarula: Fuel Planned vs Fuel Consumed by Month</h3></div></div><div class="chart-wrap"><canvas id="bugarulaFuelChart"></canvas></div></div>
     </div>
@@ -258,7 +263,8 @@
       tabs: {
         siteSheets: ['Bugarula', 'Bunyakiri', 'Buyumbu', 'Kashiraboba', 'Mugote'],
         categoricalSheet: 'Categorical consumption',
-        commentarySheet: 'Ops Commentary'
+        commentarySheet: 'Ops Commentary',
+        costSheet: 'Operational Costs'
       },
       csvUrls: {
         'Kashiraboba': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRP6zU6ygZid-trwUn8tTdHm1r6fy1ishiZW5AOw4nAhQpGVbj3cS7JZYiheU6ThUe46RoJnmZI71Sr/pub?output=csv',
@@ -267,7 +273,8 @@
         'Mugote': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRP6zU6ygZid-trwUn8tTdHm1r6fy1ishiZW5AOw4nAhQpGVbj3cS7JZYiheU6ThUe46RoJnmZI71Sr/pub?gid=1497830993&single=true&output=csv',
         'Bugarula': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRP6zU6ygZid-trwUn8tTdHm1r6fy1ishiZW5AOw4nAhQpGVbj3cS7JZYiheU6ThUe46RoJnmZI71Sr/pub?gid=686192888&single=true&output=csv',
         'Categorical consumption': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRP6zU6ygZid-trwUn8tTdHm1r6fy1ishiZW5AOw4nAhQpGVbj3cS7JZYiheU6ThUe46RoJnmZI71Sr/pub?gid=36093025&single=true&output=csv',
-        'Ops Commentary': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRP6zU6ygZid-trwUn8tTdHm1r6fy1ishiZW5AOw4nAhQpGVbj3cS7JZYiheU6ThUe46RoJnmZI71Sr/pub?gid=1020789940&single=true&output=csv'
+        'Ops Commentary': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRP6zU6ygZid-trwUn8tTdHm1r6fy1ishiZW5AOw4nAhQpGVbj3cS7JZYiheU6ThUe46RoJnmZI71Sr/pub?gid=1020789940&single=true&output=csv',
+        'Operational Costs': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRP6zU6ygZid-trwUn8tTdHm1r6fy1ishiZW5AOw4nAhQpGVbj3cS7JZYiheU6ThUe46RoJnmZI71Sr/pub?gid=1155205166&single=true&output=csv'
       },
       fallbackEnabled: false
     };
@@ -618,6 +625,29 @@
       }).filter(Boolean);
     }
 
+    // One row per cost line plus a "Monthly Total" row per month, which is the month's final operating cost.
+    function parseCostRows(csvText) {
+      const rows = parseCSV(csvText);
+      if (!rows.length) return [];
+      const headers = rows[0].map(normalizeHeader);
+      const monthIdx = headers.indexOf('month'), catIdx = headers.indexOf('category'), costIdx = headers.findIndex(h => h.startsWith('cost'));
+      if (monthIdx < 0 || catIdx < 0 || costIdx < 0) return [];
+      const months = new Map();
+      rows.slice(1).forEach(r => {
+        const match = String(r[monthIdx] || '').trim().toLowerCase().match(/([a-z]+)\s+(\d{4})/);
+        const monthNumber = match ? MONTH_LOOKUP[match[1]] : null;
+        const value = cleanNumber(r[costIdx]);
+        const category = String(r[catIdx] || '').trim();
+        if (!monthNumber || value === null || !category) return;
+        const month_sort = Number(match[2]) * 100 + monthNumber;
+        if (!months.has(month_sort)) months.set(month_sort, { month_sort, month: `${MONTHS[monthNumber-1]} ${match[2]}`, total_usd: null, categories: {} });
+        const entry = months.get(month_sort);
+        if (category.toLowerCase() === 'monthly total') entry.total_usd = value;
+        else entry.categories[category] = (entry.categories[category] || 0) + value;
+      });
+      return [...months.values()].filter(m => m.total_usd !== null).sort((a,b) => a.month_sort - b.month_sort);
+    }
+
     function parseCategoricalRows(csvText) {
       const rows = parseCSV(csvText);
       if (!rows.length) return [];
@@ -678,18 +708,21 @@
       let commentaryRows = [];
       try { commentaryRows = parseCommentaryRows(await fetchCsv(DASHBOARD_CONFIG.tabs.commentarySheet)); }
       catch (e) { commentaryRows = []; }
+      let costRows = [];
+      try { costRows = parseCostRows(await fetchCsv(DASHBOARD_CONFIG.tabs.costSheet)); }
+      catch (e) { errors.push(e?.message || 'Operational costs failed'); }
       if (goodSiteRows.length > 0) {
         const revenueRows = goodSiteRows.filter(r => r.revenue_usd !== null).length;
         const outageRows = goodSiteRows.filter(r => r.outages !== null).length;
         setStatus('Live published sheet', `Loaded ${goodSiteRows.length} records. Revenue rows: ${revenueRows}. Outage rows: ${outageRows}.`, errors.length ? `Some tabs had issues:\n${errors.join('\n')}` : '');
-        return { siteMonthly: goodSiteRows, categorical: categoricalRows, commentary: commentaryRows };
+        return { siteMonthly: goodSiteRows, categorical: categoricalRows, commentary: commentaryRows, costs: costRows };
       }
       if (DASHBOARD_CONFIG.fallbackEnabled) {
         setStatus('Fallback sample', 'Live Google Sheet load failed. Using bundled sample data.', errors.join('\n') || 'Live load failed.');
-        return { ...JSON.parse(JSON.stringify(FALLBACK_DATA)), commentary: [] };
+        return { ...JSON.parse(JSON.stringify(FALLBACK_DATA)), commentary: [], costs: [] };
       }
       setStatus('No data', 'No dashboard data could be loaded.', errors.join('\n'));
-      return { siteMonthly: [], categorical: [], commentary: [] };
+      return { siteMonthly: [], categorical: [], commentary: [], costs: [] };
     }
 
     function sum(rows, field) { return rows.reduce((t,r) => t + (cleanNumber(r[field]) || 0), 0); }
@@ -795,6 +828,7 @@
         arpuTitle: `${scope}: Average revenue per active customer`,
         plannedConsumptionTitle: `${scope}: Energy delivered against plan`,
         plannedRevenueTitle: `${scope}: Revenue against plan`,
+        costTrendTitle: `${scope}: Operating cost by month`,
         categoryTitle: `${scope}: Customer-segment energy mix`,
         siteConsumptionTitle: `Site energy delivered · ${monthLabel}`,
         siteRevenueTitle: `Site revenue · ${monthLabel}`,
@@ -968,7 +1002,22 @@
       insights.push(`<strong>Operating read:</strong> ${managementFocus(latest)}`);
       return insights;
     }
-    function portfolioInsights(scopeRows, comparisonRows, categoricalRows) {
+    function rankedCostCategories(entry) {
+      return Object.entries(entry.categories).sort((a,b) => b[1] - a[1]).map(([name, value]) => ({ name, value, share: divide(value, entry.total_usd) }));
+    }
+    function costInsight(costRows, monthSort, periodRows) {
+      const index = costRows.findIndex(c => c.month_sort === monthSort);
+      if (index < 0) return null;
+      const entry = costRows[index], prev = costRows[index-1];
+      const [first, second] = rankedCostCategories(entry);
+      if (!first) return null;
+      const lower = name => escapeHtml(name.charAt(0).toLowerCase() + name.slice(1));
+      const previousSort = monthSort % 100 === 1 ? monthSort - 89 : monthSort - 1;
+      const trend = prev && prev.month_sort === previousSort ? trendPhrase(entry.total_usd, prev.total_usd) : '';
+      const periodTotal = periodRows.reduce((t, c) => t + c.total_usd, 0);
+      return `<strong>Operating costs:</strong> ${escapeHtml(entry.month.split(' ')[0])} operational costs totalled <strong>${formatNumber(entry.total_usd,0,'$')}</strong>${trend ? `, ${trend}` : ''}. <strong>${escapeHtml(first.name)} took ${formatNumber(first.share*100,1,'','%')}</strong> of the month's costs${second ? `, followed by ${lower(second.name)} at ${formatNumber(second.share*100,1,'','%')}` : ''}.${periodRows.length > 1 ? ` Costs for ${escapeHtml(reportingPeriodLabel(periodRows))} totalled <strong>${formatNumber(periodTotal,0,'$')}</strong>.` : ''}`;
+    }
+    function portfolioInsights(scopeRows, comparisonRows, categoricalRows, costRows=[]) {
       const monthly = aggregateByMonth(scopeRows);
       const latest = monthly[monthly.length-1];
       const prev = monthly[monthly.length-2];
@@ -984,18 +1033,20 @@
       const periodEnergy = sum(monthly,'consumption_kwh'), periodEnergyPlan = sum(monthly,'planned_consumption_kwh');
       insights.push(`<strong>Selected-period result (${escapeHtml(reportingPeriodLabel(monthly))}):</strong> portfolio revenue totalled <strong>${formatNumber(periodRevenue,0,'$')}</strong> against ${formatNumber(periodRevenuePlan,0,'$')} planned (<strong>${achievementValue(periodRevenue,periodRevenuePlan)}</strong>); energy delivered was <strong>${formatNumber(periodEnergy,0)} kWh</strong> against ${formatNumber(periodEnergyPlan,0)} kWh planned (<strong>${achievementValue(periodEnergy,periodEnergyPlan)}</strong>).`);
       if (byConsumption[0] && byRevenue[0]) insights.push(`<strong>Portfolio drivers:</strong> ${escapeHtml(byConsumption[0].site)} supplied the most energy at <strong>${formatNumber(byConsumption[0].consumption_kwh,0)} kWh</strong> (<strong>${formatNumber(divide(byConsumption[0].consumption_kwh,latest.consumption_kwh)*100,1,'','%')}</strong> of the portfolio), while ${escapeHtml(byRevenue[0].site)} led revenue at <strong>${formatNumber(byRevenue[0].revenue_usd,0,'$')}</strong>. Portfolio ARPU was <strong>${formatNumber(latest.arpu_usd,2,'$')}</strong>.`);
+      const costLine = costInsight(costRows, latest.month_sort, costRows.filter(c => c.month_sort <= latest.month_sort && c.month_sort >= monthly[0].month_sort));
+      if (costLine) insights.push(costLine);
       if (reliabilityRisk) insights.push(`<strong>Service priority:</strong> ${escapeHtml(reliabilityRisk.site)} recorded the lowest availability at <strong>${formatNumber(reliabilityRisk.uptime_pct,1,'','%')}</strong>, requiring the strongest operational follow-up.`);
       const expectedRecords = monthly.length * new Set(scopeRows.map(r=>r.site)).size;
       const reliabilityRecords = scopeRows.filter(r=>r.uptime_pct !== null || r.saifi !== null || r.saidi_hours !== null).length;
       insights.push(`<strong>Coverage and action:</strong> <strong>${scopeRows.length} of ${expectedRecords}</strong> expected site-month records are present in the selected window, with reliability fields on <strong>${reliabilityRecords}</strong>. Management should address the service priority first, then close consumption and revenue plan gaps at the underperforming sites.`);
       return insights;
     }
-    function buildInsights(scopeRows, comparisonRows, categoricalRows, selectedSite) {
+    function buildInsights(scopeRows, comparisonRows, categoricalRows, selectedSite, costRows=[]) {
       const monthly = aggregateByMonth(scopeRows);
       const latest = monthly[monthly.length-1];
       if (!latest) return ['No records were found for the current filters.'];
       return selectedSite === 'All Sites'
-        ? portfolioInsights(scopeRows, comparisonRows, categoricalRows)
+        ? portfolioInsights(scopeRows, comparisonRows, categoricalRows, costRows)
         : selectedSiteInsights(scopeRows, categoricalRows, selectedSite);
     }
 
@@ -1053,7 +1104,7 @@
       document.getElementById('generationScopePill').textContent = selectedSite === 'All Sites' ? 'Portfolio scope' : `${selectedSite} scope`;
       document.getElementById('siteCompareMonthPill').textContent = comparisonMonth;
 
-      document.getElementById('insightsList').innerHTML = buildInsights(scopeRows, selectedSite === 'All Sites' ? comparisonRows : latestRowsForMonth(scopeRows, latestMonthSort(scopeRows), selectedSite), scopeCategorical, selectedSite).map(item => `<li>${item}</li>`).join('');
+      document.getElementById('insightsList').innerHTML = buildInsights(scopeRows, selectedSite === 'All Sites' ? comparisonRows : latestRowsForMonth(scopeRows, latestMonthSort(scopeRows), selectedSite), scopeCategorical, selectedSite, data.costs || []).map(item => `<li>${item}</li>`).join('');
       renderOpsCommentary(data.commentary || [], compareMonthSort, comparisonMonth);
 
       makeChart('generationConsumptionChart','generationConsumptionChart',{
@@ -1083,6 +1134,8 @@
         {label:'Actual Revenue', data:safeSeries(monthlyScope,'revenue_usd'), backgroundColor:COLOR.amber}
       ]}, options:chartOptions({prefix:'$', title:chartTitles.plannedRevenueTitle})});
 
+      renderCostCharts(filterByDateRange(data.costs || [], startSort, endSort), selectedSite, compareMonthSort);
+
       const categoryMonthly = aggregateCategorical(scopeCategorical);
       makeChart('categoryChart','categoryChart',{
         type:'bar',
@@ -1110,6 +1163,37 @@
 
       const tableRows = selectedSite === 'All Sites' ? comparisonRows : comparisonRows.filter(r => isSameSite(r.site, selectedSite));
       renderTable(tableRows, selectedSite);
+    }
+
+    // Costs are recorded for the portfolio as a whole, so the cost cards show only in portfolio scope.
+    function renderCostCharts(costRows, selectedSite, monthSort) {
+      const section = document.getElementById('operatingCostSection');
+      const shown = costRows.filter(c => c.month_sort <= monthSort);
+      const latest = shown.at(-1);
+      if (selectedSite !== 'All Sites' || !latest) { section.style.display = 'none'; return; }
+      section.style.display = '';
+      const palette = [COLOR.amber, COLOR.teal, COLOR.blue, COLOR.coral, COLOR.purple, COLOR.green];
+      const periodTotals = {};
+      shown.forEach(c => Object.entries(c.categories).forEach(([k,v]) => periodTotals[k] = (periodTotals[k] || 0) + v));
+      const leading = Object.entries(periodTotals).sort((a,b) => b[1] - a[1]).slice(0, palette.length).map(([k]) => k);
+      const datasets = leading.map((name, i) => ({ label:name, data:shown.map(c => c.categories[name] ?? null), backgroundColor:palette[i], stack:'cost' }));
+      if (Object.keys(periodTotals).length > leading.length) datasets.push({ label:'Other', data:shown.map(c => Object.entries(c.categories).filter(([k]) => !leading.includes(k)).reduce((t,[,v]) => t + v, 0) || null), backgroundColor:COLOR.slate, stack:'cost' });
+      const trendOptions = chartOptions({prefix:'$'});
+      trendOptions.scales.x.stacked = true;
+      trendOptions.scales.y.stacked = true;
+      trendOptions.plugins.tooltip.callbacks.footer = items => `Monthly total: ${formatNumber(shown[items[0].dataIndex].total_usd,0,'$')}`;
+      makeChart('costTrendChart','costTrendChart',{type:'bar', data:{labels:shown.map(c => c.month), datasets}, options:trendOptions});
+
+      const ranked = rankedCostCategories(latest);
+      const mixOptions = chartOptions({prefix:'$'});
+      mixOptions.indexAxis = 'y';
+      mixOptions.interaction = {mode:'nearest', axis:'y', intersect:false};
+      mixOptions.plugins.legend = {display:false};
+      mixOptions.plugins.tooltip.callbacks.label = ctx => `${formatNumber(ctx.parsed.x,0,'$')} · ${formatNumber(ranked[ctx.dataIndex].share*100,1,'','%')} of the month's costs`;
+      mixOptions.scales = {x:{ticks:{color:'#c3d3dd', callback(v){ return formatNumber(v,0,'$'); }}, grid:{color:'rgba(198,216,226,0.14)'}, border:{display:false}, beginAtZero:true}, y:{ticks:{color:'#c3d3dd'}, grid:{display:false}, border:{display:false}}};
+      makeChart('costMixChart','costMixChart',{type:'bar', data:{labels:ranked.map(r => r.name), datasets:[{label:'Cost', data:ranked.map(r => r.value), backgroundColor:ranked.map((r,i) => i === 0 ? COLOR.amber : COLOR.defaultCompare)}]}, options:mixOptions});
+      setText('costMixTitle', `Operating cost breakdown · ${latest.month}`);
+      setText('costMixPill', `Total ${formatNumber(latest.total_usd,0,'$')}`);
     }
 
     function renderOpsCommentary(entries, monthSort, monthLabel) {
