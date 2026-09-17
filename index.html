@@ -222,8 +222,8 @@
     </div>
 
     <div class="section-grid-2" id="operatingCostSection">
-      <div class="chart-card"><div class="card-head"><div><h3 id="costTrendTitle">Portfolio: Operating cost by month</h3></div></div><div class="chart-wrap"><canvas id="costTrendChart"></canvas></div></div>
-      <div class="chart-card"><div class="card-head"><div><h3 id="costMixTitle">Operating cost breakdown</h3></div><span class="pill" id="costMixPill">Latest month</span></div><div class="chart-wrap"><canvas id="costMixChart"></canvas></div></div>
+      <div class="chart-card" id="costTrendCard"><div class="card-head"><div><h3 id="costTrendTitle">Portfolio: Operating cost by month</h3></div></div><div class="chart-wrap"><canvas id="costTrendChart"></canvas></div></div>
+      <div class="chart-card" id="costMixCard"><div class="card-head"><div><h3 id="costMixTitle">Operating cost breakdown</h3></div><span class="pill" id="costMixPill">Latest month</span></div><div class="chart-wrap"><canvas id="costMixChart"></canvas></div></div>
     </div>
 
     <div class="section-grid-2">
@@ -828,7 +828,7 @@
         arpuTitle: `${scope}: Average revenue per active customer`,
         plannedConsumptionTitle: `${scope}: Energy delivered against plan`,
         plannedRevenueTitle: `${scope}: Revenue against plan`,
-        costTrendTitle: `${scope}: Operating cost by month`,
+        costTrendTitle: 'Portfolio: Operating cost by month',
         categoryTitle: `${scope}: Customer-segment energy mix`,
         siteConsumptionTitle: `Site energy delivered · ${monthLabel}`,
         siteRevenueTitle: `Site revenue · ${monthLabel}`,
@@ -860,9 +860,9 @@
         }
         const isPortfolio = selectedSite === 'All Sites';
         const card = head.closest('.chart-card, .table-card');
-        const fixedScope = card && ['siteConsumptionCard','siteRevenueCard'].includes(card.id) ? 'All sites' : card && ['bugarulaGenerationCard','bugarulaFuelCard'].includes(card.id) ? 'Bugarula' : '';
+        const fixedScope = card && ['siteConsumptionCard','siteRevenueCard'].includes(card.id) ? 'All sites' : card && ['costTrendCard','costMixCard'].includes(card.id) ? 'Portfolio' : card && ['bugarulaGenerationCard','bugarulaFuelCard'].includes(card.id) ? 'Bugarula' : '';
         const label = fixedScope || (isPortfolio ? 'Portfolio' : canonicalizeSiteName(selectedSite));
-        const badgeIsPortfolio = fixedScope === 'All sites' || (!fixedScope && isPortfolio);
+        const badgeIsPortfolio = fixedScope === 'All sites' || fixedScope === 'Portfolio' || (!fixedScope && isPortfolio);
         badge.className = `scope-badge dynamic-scope-badge ${badgeIsPortfolio ? 'scope-portfolio' : 'scope-site'}`;
         badge.textContent = label;
       });
@@ -982,7 +982,7 @@
       ].filter(Boolean).join('; ');
       return `<strong>${site} - ${month}:</strong> ${details}.`;
     }
-    function selectedSiteInsights(scopeRows, categoricalRows, selectedSite) {
+    function selectedSiteInsights(scopeRows, categoricalRows, selectedSite, costRows=[]) {
       const monthly = aggregateByMonth(scopeRows);
       const latest = monthly[monthly.length-1];
       const prev = monthly[monthly.length-2];
@@ -999,13 +999,15 @@
       const reliabilityMonths = monthly.filter(r => r.uptime_pct !== null || r.saifi !== null || r.saidi_hours !== null).length;
       const categoryMonths = aggregateCategorical(categoricalRows).length;
       insights.push(`<strong>Reporting coverage:</strong> commercial and energy history contains <strong>${monthly.length} months</strong>; reliability is populated for <strong>${reliabilityMonths}</strong> and customer-segment consumption for <strong>${categoryMonths}</strong>. Missing values remain blank rather than being reported as zero.`);
+      const costLine = costInsight(costRows, latest.month_sort, costRows.filter(c => c.month_sort <= latest.month_sort && c.month_sort >= monthly[0].month_sort), 'Portfolio operating costs');
+      if (costLine) insights.push(costLine);
       insights.push(`<strong>Operating read:</strong> ${managementFocus(latest)}`);
       return insights;
     }
     function rankedCostCategories(entry) {
       return Object.entries(entry.categories).sort((a,b) => b[1] - a[1]).map(([name, value]) => ({ name, value, share: divide(value, entry.total_usd) }));
     }
-    function costInsight(costRows, monthSort, periodRows) {
+    function costInsight(costRows, monthSort, periodRows, label='Operating costs') {
       const index = costRows.findIndex(c => c.month_sort === monthSort);
       if (index < 0) return null;
       const entry = costRows[index], prev = costRows[index-1];
@@ -1015,7 +1017,7 @@
       const previousSort = monthSort % 100 === 1 ? monthSort - 89 : monthSort - 1;
       const trend = prev && prev.month_sort === previousSort ? trendPhrase(entry.total_usd, prev.total_usd) : '';
       const periodTotal = periodRows.reduce((t, c) => t + c.total_usd, 0);
-      return `<strong>Operating costs:</strong> ${escapeHtml(entry.month.split(' ')[0])} operational costs totalled <strong>${formatNumber(entry.total_usd,0,'$')}</strong>${trend ? `, ${trend}` : ''}. <strong>${escapeHtml(first.name)} took ${formatNumber(first.share*100,1,'','%')}</strong> of the month's costs${second ? `, followed by ${lower(second.name)} at ${formatNumber(second.share*100,1,'','%')}` : ''}.${periodRows.length > 1 ? ` Costs for ${escapeHtml(reportingPeriodLabel(periodRows))} totalled <strong>${formatNumber(periodTotal,0,'$')}</strong>.` : ''}`;
+      return `<strong>${escapeHtml(label)}:</strong> ${escapeHtml(entry.month.split(' ')[0])} operational costs totalled <strong>${formatNumber(entry.total_usd,0,'$')}</strong>${trend ? `, ${trend}` : ''}. <strong>${escapeHtml(first.name)} took ${formatNumber(first.share*100,1,'','%')}</strong> of the month's costs${second ? `, followed by ${lower(second.name)} at ${formatNumber(second.share*100,1,'','%')}` : ''}.${periodRows.length > 1 ? ` Costs for ${escapeHtml(reportingPeriodLabel(periodRows))} totalled <strong>${formatNumber(periodTotal,0,'$')}</strong>.` : ''}`;
     }
     function portfolioInsights(scopeRows, comparisonRows, categoricalRows, costRows=[]) {
       const monthly = aggregateByMonth(scopeRows);
@@ -1047,7 +1049,7 @@
       if (!latest) return ['No records were found for the current filters.'];
       return selectedSite === 'All Sites'
         ? portfolioInsights(scopeRows, comparisonRows, categoricalRows, costRows)
-        : selectedSiteInsights(scopeRows, categoricalRows, selectedSite);
+        : selectedSiteInsights(scopeRows, categoricalRows, selectedSite, costRows);
     }
 
     function renderTable(rows, selectedSite) {
@@ -1111,7 +1113,7 @@
         type:'bar',
         data:{labels:monthlyScope.map(r=>r.month), datasets:[
           {label:'Generation (kWh)', data:safeSeries(monthlyScope,'generation_kwh'), backgroundColor:COLOR.blue},
-          {label:'Victron Consumption (kWh)', data:monthlyScope.map(r=>r.victron_consumption_kwh ?? r.consumption_kwh ?? null), backgroundColor:COLOR.teal}
+          {label:'Consumption (kWh)', data:monthlyScope.map(r=>r.victron_consumption_kwh ?? r.consumption_kwh ?? null), backgroundColor:COLOR.teal}
         ]},
         options:chartOptions({suffix:' kWh', title:chartTitles.generationConsumptionTitle})
       });
@@ -1134,7 +1136,7 @@
         {label:'Actual Revenue', data:safeSeries(monthlyScope,'revenue_usd'), backgroundColor:COLOR.amber}
       ]}, options:chartOptions({prefix:'$', title:chartTitles.plannedRevenueTitle})});
 
-      renderCostCharts(filterByDateRange(data.costs || [], startSort, endSort), selectedSite, compareMonthSort);
+      renderCostCharts(filterByDateRange(data.costs || [], startSort, endSort), compareMonthSort);
 
       const categoryMonthly = aggregateCategorical(scopeCategorical);
       makeChart('categoryChart','categoryChart',{
@@ -1165,12 +1167,12 @@
       renderTable(tableRows, selectedSite);
     }
 
-    // Costs are recorded for the portfolio as a whole, so the cost cards show only in portfolio scope.
-    function renderCostCharts(costRows, selectedSite, monthSort) {
+    // Costs are recorded for the portfolio as a whole, so the cost cards show the portfolio under every site filter.
+    function renderCostCharts(costRows, monthSort) {
       const section = document.getElementById('operatingCostSection');
       const shown = costRows.filter(c => c.month_sort <= monthSort);
       const latest = shown.at(-1);
-      if (selectedSite !== 'All Sites' || !latest) { section.style.display = 'none'; return; }
+      if (!latest) { section.style.display = 'none'; return; }
       section.style.display = '';
       const palette = [COLOR.amber, COLOR.teal, COLOR.blue, COLOR.coral, COLOR.purple, COLOR.green];
       const periodTotals = {};
