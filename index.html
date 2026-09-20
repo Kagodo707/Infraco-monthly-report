@@ -687,12 +687,22 @@
       else { banner.style.display='none'; banner.textContent=''; }
     }
 
+    // Several source cells are IMPORTRANGE formulas. When Google rebuilds the published
+    // CSV before an import has resolved it serves the literal text "Loading..." in place of
+    // the value, which would drop that site's revenue for the month. Re-fetch a few times so
+    // a half-resolved snapshot never reaches the page.
     async function fetchCsv(sheetName) {
       const url = DASHBOARD_CONFIG.csvUrls[sheetName];
       if (!url) throw new Error(`No CSV URL configured for ${sheetName}`);
-      const response = await fetch(url, { cache:'no-store', mode:'cors', credentials:'omit' });
-      if (!response.ok) throw new Error(`${sheetName}: HTTP ${response.status}`);
-      return await response.text();
+      let text = '';
+      for (let attempt = 1; attempt <= 4; attempt++) {
+        const response = await fetch(`${url}&_=${Date.now()}_${attempt}`, { cache:'no-store', mode:'cors', credentials:'omit' });
+        if (!response.ok) throw new Error(`${sheetName}: HTTP ${response.status}`);
+        text = await response.text();
+        if (!text.includes('Loading...')) return text;
+        await new Promise(resolve => setTimeout(resolve, 900 * attempt));
+      }
+      return text;
     }
 
     async function loadData() {

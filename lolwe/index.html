@@ -215,7 +215,19 @@
       };
     }
     function mergeDefined(base,row){const merged={...(base||{})};Object.entries(row||{}).forEach(([key,value])=>{if(value!==null&&value!==undefined&&value!=='')merged[key]=value;});return merged;}
-    async function fetchText(url){const res=await fetch(url,{cache:'no-store',credentials:'omit'});if(!res.ok)throw new Error(`HTTP ${res.status}`);return res.text();}
+    // IMPORTRANGE cells publish as the literal text "Loading..." when Google rebuilds the
+    // CSV before the import resolves; re-fetch so a half-resolved snapshot is not charted.
+    async function fetchText(url){
+      let text='';
+      for(let attempt=1;attempt<=4;attempt++){
+        const res=await fetch(`${url}&_=${Date.now()}_${attempt}`,{cache:'no-store',credentials:'omit'});
+        if(!res.ok)throw new Error(`HTTP ${res.status}`);
+        text=await res.text();
+        if(!text.includes('Loading...'))return text;
+        await new Promise(resolve=>setTimeout(resolve,900*attempt));
+      }
+      return text;
+    }
     async function loadData(){
       const [combinedResult,categoryResult]=await Promise.allSettled([fetchText(CONFIG.combinedCsv),fetchText(CONFIG.categoryCsv)]);
       let combined=APPROVED_COMBINED.map(derive),categories=CATEGORY_FALLBACK.map(x=>({...x}));let combinedLive=false,categoryLive=false;
